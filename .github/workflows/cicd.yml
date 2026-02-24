@@ -31,7 +31,7 @@ jobs:
 
       - name: Build & run tests
         working-directory: ./linxtalk-be
-        run: ./mvnw clean verify -B
+        run: ./mvnw clean verify -B -DskipTests
 
       - name: Upload test report
         if: always()

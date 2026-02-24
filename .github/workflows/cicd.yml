@@ -107,7 +107,9 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_ACCESS_TOKEN_EXPIRATION=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION || 900000 }}
             JWT_REFRESH_TOKEN_EXPIRATION=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION || 2592000000 }}
-            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+            SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE || 'prod' }}
+            REDIS_HOST=${{ secrets.REDIS_HOST || 'redis' }}
+            REDIS_PORT=${{ secrets.REDIS_PORT || '6379' }}
             EOF
 
             # Restart containers (assumes docker-compose.yml on server references the published image)
@@ -116,4 +118,4 @@ jobs:
 
             # Clean up old images
             docker image prune -f
-
+            

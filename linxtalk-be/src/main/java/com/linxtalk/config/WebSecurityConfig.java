@@ -24,9 +24,9 @@ public class WebSecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String[] PUBLIC_ENDPOINTS = {
-        Constant.USER + "/register",
-        Constant.USER + "/login",
-        Constant.USER + "/refresh-token",
+        Constant.AUTH + "/register",
+        Constant.AUTH + "/login",
+        Constant.AUTH + "/refresh-token",
     };
 
     @Bean

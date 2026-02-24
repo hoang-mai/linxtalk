@@ -1,4 +1,4 @@
-package com.linxtalk.dto;
+package com.linxtalk.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

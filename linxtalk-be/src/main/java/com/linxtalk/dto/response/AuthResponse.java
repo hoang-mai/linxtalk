@@ -1,6 +1,5 @@
-package com.linxtalk.dto;
+package com.linxtalk.dto.response;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RefreshTokenRequest {
+public class AuthResponse {
 
-    @NotBlank(message = "{refresh.token.notblank}")
+    private String accessToken;
     private String refreshToken;
 }

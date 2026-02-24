@@ -26,11 +26,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Grant execute permission for mvnw
-        run: chmod +x mvnw
+        run: chmod +x linxtalk-be/mvnw
 
       - name: Build & run tests
         working-directory: linxtalk-be
-        run: ./mvnw clean verify -B
+        run: cd linxtalk-be && ./mvnw clean verify -B
 
       - name: Upload test report
         if: always()

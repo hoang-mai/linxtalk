@@ -1,5 +1,6 @@
 package com.linxtalk.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
@@ -53,12 +54,26 @@ public class DeviceToken {
     @LastModifiedDate
     private Instant updatedAt;
 
+    @Getter
+    @RequiredArgsConstructor
     public enum DevicePlatform {
-        IOS,
-        ANDROID,
-        WEB,
-        DESKTOP_WINDOWS,
-        DESKTOP_MAC,
-        DESKTOP_LINUX
+        IOS("ios"),
+        ANDROID("android"),
+        WEB("web"),
+        DESKTOP_WINDOWS("desktop_windows"),
+        DESKTOP_MAC("desktop_mac"),
+        DESKTOP_LINUX("desktop_linux");
+
+        private final String value;
+
+        @JsonCreator
+        public static DevicePlatform fromValue(String value) {
+            for (DevicePlatform platform : values()) {
+                if (platform.value.equalsIgnoreCase(value)) {
+                    return platform;
+                }
+            }
+            throw new IllegalArgumentException("Unknown platform: " + value);
+        }
     }
 }

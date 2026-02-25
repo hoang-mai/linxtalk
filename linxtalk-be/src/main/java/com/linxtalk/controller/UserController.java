@@ -2,9 +2,9 @@ package com.linxtalk.controller;
 
 import com.linxtalk.dto.response.UserSearchResponse;
 import com.linxtalk.service.UserService;
-import com.linxtalk.util.BaseResponse;
-import com.linxtalk.util.Constant;
-import com.linxtalk.util.MessageSuccess;
+import com.linxtalk.utils.BaseResponse;
+import com.linxtalk.utils.Constant;
+import com.linxtalk.utils.MessageSuccess;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

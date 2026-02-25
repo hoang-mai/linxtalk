@@ -1,4 +1,4 @@
-package com.linxtalk.util;
+package com.linxtalk.utils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package com.linxtalk.util;
+package com.linxtalk.utils;
 
 public class Constant {
     public static final String REQUEST_MAPPING = "/api/v1";

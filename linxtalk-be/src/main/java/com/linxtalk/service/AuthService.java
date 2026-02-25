@@ -12,7 +12,8 @@ import com.linxtalk.exception.DuplicateException;
 import com.linxtalk.repository.DeviceTokenRepository;
 import com.linxtalk.repository.UserRepository;
 import com.linxtalk.security.JwtUtil;
-import com.linxtalk.util.MessageError;
+import com.linxtalk.utils.FnCommon;
+import com.linxtalk.utils.MessageError;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -113,9 +114,9 @@ public class AuthService {
         deviceTokenRepository.save(deviceToken);
     }
 
-    public void logout(String accessToken, String username, LogoutRequest request) {
+    public void logout(String accessToken, LogoutRequest request) {
         tokenBlacklistService.blacklist(accessToken);
-
+        String username = FnCommon.getUsername();
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_CREDENTIALS));
 

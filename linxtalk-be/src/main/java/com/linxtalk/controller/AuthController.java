@@ -7,17 +7,15 @@ import com.linxtalk.dto.request.RegisterRequest;
 import com.linxtalk.dto.response.AuthResponse;
 import com.linxtalk.exception.AuthenticationException;
 import com.linxtalk.service.AuthService;
-import com.linxtalk.util.BaseResponse;
-import com.linxtalk.util.Constant;
-import com.linxtalk.util.MessageError;
-import com.linxtalk.util.MessageSuccess;
+import com.linxtalk.utils.BaseResponse;
+import com.linxtalk.utils.Constant;
+import com.linxtalk.utils.MessageError;
+import com.linxtalk.utils.MessageSuccess;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -70,15 +68,13 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<BaseResponse<Void>> logout(@Valid @RequestBody LogoutRequest request,
                                                      HttpServletRequest httpRequest) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
         String authHeader = httpRequest.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new AuthenticationException(MessageError.INVALID_CREDENTIALS);
         }
         String accessToken = authHeader.substring(7);
 
-        authService.logout(accessToken, username, request);
+        authService.logout(accessToken, request);
 
         BaseResponse<Void> response = BaseResponse.<Void>builder()
             .status(HttpStatus.OK.value())

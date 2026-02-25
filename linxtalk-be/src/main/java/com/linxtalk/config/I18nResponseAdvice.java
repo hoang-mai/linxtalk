@@ -1,6 +1,6 @@
 package com.linxtalk.config;
 
-import com.linxtalk.util.BaseResponse;
+import com.linxtalk.utils.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;

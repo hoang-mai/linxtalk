@@ -1,7 +1,7 @@
 package com.linxtalk.config;
 
 import com.linxtalk.security.JwtAuthenticationFilter;
-import com.linxtalk.util.Constant;
+import com.linxtalk.utils.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +24,8 @@ public class WebSecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String[] PUBLIC_ENDPOINTS = {
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
         Constant.AUTH + "/register",
         Constant.AUTH + "/login",
         Constant.AUTH + "/refresh-token",

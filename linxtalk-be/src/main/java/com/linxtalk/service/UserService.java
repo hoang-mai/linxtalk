@@ -4,7 +4,7 @@ import com.linxtalk.dto.response.UserSearchResponse;
 import com.linxtalk.entity.User;
 import com.linxtalk.exception.ResourceNotFoundException;
 import com.linxtalk.repository.UserRepository;
-import com.linxtalk.util.MessageError;
+import com.linxtalk.utils.MessageError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

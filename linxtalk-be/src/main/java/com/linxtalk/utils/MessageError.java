@@ -1,4 +1,4 @@
-package com.linxtalk.util;
+package com.linxtalk.utils;
 
 public class MessageError {
 

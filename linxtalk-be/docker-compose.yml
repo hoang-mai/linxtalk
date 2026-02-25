@@ -9,23 +9,8 @@ services:
       - .env
     ports:
       - "8080:8080"
-    depends_on:
-      - redis
     networks:
       - linxtalk-network
-
-  redis:
-    image: redis:7-alpine
-    container_name: linxtalk-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    networks:
-      - linxtalk-network
-
-volumes:
-  redis-data:
 
 networks:
   linxtalk-network:

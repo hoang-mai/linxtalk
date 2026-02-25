@@ -60,6 +60,8 @@ public class AuthService {
         return AuthResponse.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken)
+            .displayName(user.getDisplayName())
+            .avatarUrl(user.getAvatarUrl())
             .build();
     }
 

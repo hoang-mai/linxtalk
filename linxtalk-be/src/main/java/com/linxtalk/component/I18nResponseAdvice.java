@@ -1,4 +1,4 @@
-package com.linxtalk.config;
+package com.linxtalk.component;
 
 import com.linxtalk.utils.BaseResponse;
 import lombok.RequiredArgsConstructor;

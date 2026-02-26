@@ -1,12 +1,12 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -27,11 +27,14 @@ public class MediaFile {
     private String id;
 
     @Indexed
-    private ObjectId uploaderId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String uploaderId;
 
-    private ObjectId conversationId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String conversationId;
 
-    private ObjectId messageId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String messageId;
 
     private String fileName;
 

@@ -1,12 +1,12 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import java.util.ArrayList;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -58,9 +58,11 @@ public class User {
 
     private UserSettings settings;
 
-    private List<ObjectId> blockedUserIds;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private List<String> blockedUserIds;
 
-    private List<ObjectId> friendIds;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private List<String> friendIds;
 
     @CreatedDate
     private Instant createdAt;

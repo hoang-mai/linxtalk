@@ -16,7 +16,7 @@ import com.linxtalk.security.JwtUtil;
 import com.linxtalk.utils.FnCommon;
 import com.linxtalk.utils.MessageError;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,38 +44,38 @@ public class AuthService {
         }
 
         User user = User.builder()
-            .username(request.getUsername())
-            .password(passwordEncoder.encode(request.getPassword()))
-            .displayName(request.getDisplayName())
-            .build();
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .displayName(request.getDisplayName())
+                .build();
 
         userRepository.save(user);
     }
 
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
-            .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_CREDENTIALS));
+                .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new AuthenticationException(MessageError.INVALID_CREDENTIALS);
         }
 
-        String accessToken = jwtUtil.generateAccessToken(user.getUsername());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
+        String accessToken = jwtUtil.generateAccessToken(user.getId());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId());
         saveDeviceToken(user, request, refreshToken);
 
         return AuthResponse.builder()
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .displayName(user.getDisplayName())
-            .avatarUrl(user.getAvatarUrl())
-            .build();
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .displayName(user.getDisplayName())
+                .avatarUrl(user.getAvatarUrl())
+                .build();
     }
 
     public AuthResponse refreshToken(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
         DeviceToken deviceToken = deviceTokenRepository.findByRefreshToken(refreshToken)
-            .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_REFRESH_TOKEN));
+                .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_REFRESH_TOKEN));
 
         try {
             if (jwtUtil.isTokenExpired(refreshToken) || !jwtUtil.isRefreshToken(refreshToken)) {
@@ -87,30 +87,29 @@ public class AuthService {
             throw new AuthenticationException(MessageError.INVALID_REFRESH_TOKEN);
         }
 
-        String username = jwtUtil.extractUsername(refreshToken);
+        String userId = jwtUtil.extractUserId(refreshToken);
 
-        String newAccessToken = jwtUtil.generateAccessToken(username);
-        String newRefreshToken = jwtUtil.generateRefreshToken(username);
+        String newAccessToken = jwtUtil.generateAccessToken(userId);
+        String newRefreshToken = jwtUtil.generateRefreshToken(userId);
 
         deviceToken.setRefreshToken(newRefreshToken);
         deviceToken.setLastActiveAt(Instant.now());
         deviceTokenRepository.save(deviceToken);
 
         return AuthResponse.builder()
-            .accessToken(newAccessToken)
-            .refreshToken(newRefreshToken)
-            .build();
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .build();
     }
 
     private void saveDeviceToken(User user, LoginRequest request, String refreshToken) {
-        ObjectId userId = new ObjectId(user.getId());
-
+        String userId = user.getId();
         DeviceToken deviceToken = deviceTokenRepository
-            .findByUserIdAndDeviceId(userId, request.getDeviceId())
-            .orElse(DeviceToken.builder()
-                .userId(userId)
-                .deviceId(request.getDeviceId())
-                .build());
+                .findByUserIdAndDeviceId(userId, request.getDeviceId())
+                .orElse(DeviceToken.builder()
+                        .userId(userId)
+                        .deviceId(request.getDeviceId())
+                        .build());
 
         deviceToken.setRefreshToken(refreshToken);
         deviceToken.setPlatform(request.getPlatform());
@@ -125,11 +124,7 @@ public class AuthService {
 
     public void logout(String accessToken, LogoutRequest request) {
         tokenBlacklistService.blacklist(accessToken);
-        String username = FnCommon.getUsername();
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_CREDENTIALS));
-
-        ObjectId userId = new ObjectId(user.getId());
+        String userId = FnCommon.getUserId();
         deviceTokenRepository.deleteByUserIdAndDeviceId(userId, request.getDeviceId());
     }
 
@@ -148,41 +143,38 @@ public class AuthService {
 
         User user = userRepository.findByEmail(email).orElseGet(() -> {
             User newUser = User.builder()
-                .email(email)
-                .displayName(displayName != null ? displayName : email)
-                .avatarUrl(avatarUrl)
-                .linkedProviders(List.of(
-                    User.LinkedProvider.builder()
-                        .provider(User.AuthProvider.GOOGLE)
-                        .providerId(googleId)
-                        .build()
-                ))
-                .build();
+                    .email(email)
+                    .displayName(displayName != null ? displayName : email)
+                    .avatarUrl(avatarUrl)
+                    .linkedProviders(List.of(
+                            User.LinkedProvider.builder()
+                                    .provider(User.AuthProvider.GOOGLE)
+                                    .providerId(googleId)
+                                    .build()))
+                    .build();
             return userRepository.save(newUser);
         });
 
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+        String accessToken = jwtUtil.generateAccessToken(user.getId());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId());
 
         saveGoogleDeviceToken(user, request, refreshToken);
 
         return AuthResponse.builder()
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .displayName(user.getDisplayName())
-            .avatarUrl(user.getAvatarUrl())
-            .build();
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .displayName(user.getDisplayName())
+                .avatarUrl(user.getAvatarUrl())
+                .build();
     }
 
     private void saveGoogleDeviceToken(User user, LoginWithGoogleRequest request, String refreshToken) {
-        ObjectId userId = new ObjectId(user.getId());
-
         DeviceToken deviceToken = deviceTokenRepository
-            .findByUserIdAndDeviceId(userId, request.getDeviceId())
-            .orElse(DeviceToken.builder()
-                .userId(userId)
-                .deviceId(request.getDeviceId())
-                .build());
+                .findByUserIdAndDeviceId(user.getId(), request.getDeviceId())
+                .orElse(DeviceToken.builder()
+                        .userId(user.getId())
+                        .deviceId(request.getDeviceId())
+                        .build());
 
         deviceToken.setRefreshToken(refreshToken);
         deviceToken.setPlatform(request.getPlatform());
@@ -197,11 +189,10 @@ public class AuthService {
 
     private GoogleIdToken.Payload verify(String idTokenString) throws Exception {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-            new NetHttpTransport(),
-            GsonFactory.getDefaultInstance()
-        )
-            .setAudience(Collections.singletonList(googleClientId))
-            .build();
+                new NetHttpTransport(),
+                GsonFactory.getDefaultInstance())
+                .setAudience(Collections.singletonList(googleClientId))
+                .build();
 
         GoogleIdToken idToken = verifier.verify(idTokenString);
 

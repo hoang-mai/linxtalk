@@ -6,15 +6,29 @@ import { AUTH } from "@/constants/api";
 import { LogoutRequest } from "@/constants/type";
 import * as Application from "expo-application";
 import { useRouter } from "expo-router";
+import { useAccountStore } from "@/store/account-store";
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 export default function Main() {
     const router = useRouter();
     const { logout } = useAuthStore();
+    const { account, clearAccount } = useAccountStore();
     const { mutate } = useMutation({
         mutationFn: async (data: LogoutRequest) => {
             const res = await post<BaseResponse<any>>(`${AUTH}/logout`, data);
             return res.data;
         },
+        onSettled: async () => {
+            logout();
+            if (account.username) {
+                clearAccount();
+                router.replace("/(auth)/save-account");
+            } else {
+                await GoogleSignin.signOut();
+                clearAccount();
+                router.replace("/(auth)/login");
+            }
+        }
     });
 
     const handleLogout = async () => {
@@ -28,12 +42,7 @@ export default function Main() {
         } catch (e) {
             console.error("Failed to get device ID", e);
         }
-        mutate({ deviceId }, {
-            onSettled: () => {
-                logout();
-                router.replace("/(auth)/save-account");
-            }
-        })
+        mutate({ deviceId })
     }
 
     return (

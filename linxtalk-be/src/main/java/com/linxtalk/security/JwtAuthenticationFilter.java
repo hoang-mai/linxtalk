@@ -31,12 +31,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String token = extractTokenFromHeader(request);
-            String username = extractUsernameFromToken(token);
+            String userId = extractUserIdFromToken(token);
 
             if (token != null && !jwtUtil.isTokenExpired(token) && jwtUtil.isAccessToken(token)
-                    && !tokenBlacklistService.isBlacklisted(token) && username != null
+                    && !tokenBlacklistService.isBlacklisted(token) && userId != null
                     && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username,
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,
                         null,
                         Collections.emptyList());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -58,12 +58,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private String extractUsernameFromToken(String token) {
+    private String extractUserIdFromToken(String token) {
         if (token == null) {
             return null;
         }
         try {
-            return jwtUtil.extractUsername(token);
+            return jwtUtil.extractUserId(token);
         } catch (Exception e) {
             return null;
         }

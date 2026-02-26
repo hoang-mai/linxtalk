@@ -2,13 +2,13 @@ package com.linxtalk.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -28,7 +28,8 @@ public class DeviceToken {
     private String id;
 
     @Indexed
-    private ObjectId userId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String userId;
 
     @Indexed
     private String deviceId;

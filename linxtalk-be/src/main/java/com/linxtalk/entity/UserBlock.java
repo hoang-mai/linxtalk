@@ -1,13 +1,13 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -28,12 +28,14 @@ public class UserBlock {
     private String id;
 
     @Indexed
-    private ObjectId blockerId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String blockerId;
 
     private String blockerName;
 
     @Indexed
-    private ObjectId blockedUserId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String blockedUserId;
 
     private String blockedUserName;
 
@@ -47,7 +49,8 @@ public class UserBlock {
     private BlockSource source;
 
     // ID conversation nếu block từ chat
-    private ObjectId conversationId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String conversationId;
 
     // Các quyền bị chặn
     @Builder.Default

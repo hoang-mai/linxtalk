@@ -1,12 +1,12 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -28,13 +28,16 @@ public class MessageReaction {
     private String id;
 
     @Indexed
-    private ObjectId messageId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String messageId;
 
     @Indexed
-    private ObjectId conversationId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String conversationId;
 
     @Indexed
-    private ObjectId userId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String userId;
 
     private String userName;
 
@@ -54,7 +57,8 @@ public class MessageReaction {
     private String customEmojiUrl;
 
     // Pack ID nếu là custom emoji
-    private ObjectId emojiPackId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String emojiPackId;
 
     // Skin tone variation (nếu có)
     private String skinTone;
@@ -89,7 +93,8 @@ public class MessageReaction {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MessageReactionCount {
-        private ObjectId messageId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String messageId;
         private Integer totalReactions;
         private Integer uniqueEmojis;
         private java.util.List<ReactionSummary> topReactions;

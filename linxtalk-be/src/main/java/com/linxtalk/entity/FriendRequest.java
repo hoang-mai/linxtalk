@@ -1,13 +1,13 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -27,14 +27,16 @@ public class FriendRequest {
     private String id;
 
     @Indexed
-    private ObjectId senderId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String senderId;
 
     private String senderName;
 
     private String senderAvatarUrl;
 
     @Indexed
-    private ObjectId receiverId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String receiverId;
 
     private String message;
 

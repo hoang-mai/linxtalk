@@ -5,10 +5,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class FnCommon {
-    public static String getUsername(){
+    public static String getUserId(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication != null && authentication.getPrincipal() instanceof String username){
-            return username;
-        } else throw new ResourceNotFoundException(MessageError.USERNAME_NOT_FOUND);
+        if(authentication != null && authentication.getPrincipal() instanceof String userId){
+            return userId;
+        } else throw new ResourceNotFoundException(MessageError.USER_NOT_FOUND);
     }
 }

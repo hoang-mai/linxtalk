@@ -1,13 +1,13 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -29,7 +29,8 @@ public class Report {
     private String id;
 
     @Indexed
-    private ObjectId reporterId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String reporterId;
 
     private String reporterName;
 
@@ -45,7 +46,8 @@ public class Report {
 
     // ID của đối tượng bị report (userId, messageId, conversationId)
     @Indexed
-    private ObjectId targetId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String targetId;
 
     private TargetType targetType;
 
@@ -136,7 +138,8 @@ public class Report {
 
         // Thông tin conversation bị report
         private String conversationName;
-        private ObjectId conversationId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String conversationId;
     }
 
     @Data
@@ -144,7 +147,8 @@ public class Report {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Evidence {
-        private ObjectId id;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String id;
         private EvidenceType type;
         private String url;
         private String description;
@@ -163,7 +167,8 @@ public class Report {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Resolution {
-        private ObjectId reviewerId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String reviewerId;
         private String reviewerName;
 
         private ResolutionAction action;

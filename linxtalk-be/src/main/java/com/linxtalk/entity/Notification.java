@@ -1,12 +1,12 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -27,7 +27,8 @@ public class Notification {
     private String id;
 
     @Indexed
-    private ObjectId userId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String userId;
 
     private NotificationType type;
 
@@ -38,7 +39,8 @@ public class Notification {
     private String imageUrl;
 
     // ID liên quan (conversationId, messageId, userId, etc.)
-    private ObjectId referenceId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String referenceId;
 
     private String referenceType;
 

@@ -1,13 +1,13 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -28,11 +28,14 @@ public class Poll {
     private String id;
 
     @Indexed
-    private ObjectId conversationId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String conversationId;
 
-    private ObjectId messageId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String messageId;
 
-    private ObjectId creatorId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String creatorId;
 
     private String creatorName;
 
@@ -52,7 +55,8 @@ public class Poll {
 
     private Instant closedAt;
 
-    private ObjectId closedBy;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String closedBy;
 
     @CreatedDate
     private Instant createdAt;
@@ -71,7 +75,8 @@ public class Poll {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PollOption {
-        private ObjectId id;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String id;
         private String text;
         private String emoji;
         @Builder.Default
@@ -84,7 +89,8 @@ public class Poll {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Vote {
-        private ObjectId voterId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String voterId;
         private String voterName;
         private Instant votedAt;
     }
@@ -117,7 +123,8 @@ public class Poll {
         private Boolean quizMode = false;
 
         // Đáp án đúng cho quiz mode
-        private ObjectId correctOptionId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String correctOptionId;
 
         // Giải thích cho đáp án đúng
         private String explanation;

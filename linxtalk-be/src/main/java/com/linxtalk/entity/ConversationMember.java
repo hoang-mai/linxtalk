@@ -1,13 +1,13 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -28,10 +28,12 @@ public class ConversationMember {
     private String id;
 
     @Indexed
-    private ObjectId conversationId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String conversationId;
 
     @Indexed
-    private ObjectId userId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String userId;
 
     @Builder.Default
     private MemberRole role = MemberRole.MEMBER;
@@ -39,7 +41,8 @@ public class ConversationMember {
     private String nickname;
 
     // Tin nhắn cuối cùng user đã đọc trong cuộc hội thoại này
-    private ObjectId lastReadMessageId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String lastReadMessageId;
 
     private Instant lastReadAt;
 
@@ -63,11 +66,13 @@ public class ConversationMember {
 
     private Instant joinedAt;
 
-    private ObjectId addedBy;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String addedBy;
 
     private Instant leftAt;
 
-    private ObjectId removedBy;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String removedBy;
 
     @Builder.Default
     private Boolean isActive = true;

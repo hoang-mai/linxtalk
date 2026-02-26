@@ -1,13 +1,13 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -29,10 +29,12 @@ public class Message {
     private String id;
 
     @Indexed
-    private ObjectId conversationId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String conversationId;
 
     @Indexed
-    private ObjectId senderId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String senderId;
 
     private String senderName;
 
@@ -49,7 +51,8 @@ public class Message {
 
     private List<Reaction> reactions;
 
-    private List<ObjectId> mentionedUserIds;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private List<String> mentionedUserIds;
 
     private List<ReadReceipt> readReceipts;
 
@@ -71,7 +74,8 @@ public class Message {
 
     private Instant pinnedAt;
 
-    private ObjectId pinnedBy;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String pinnedBy;
 
     private ForwardInfo forwardInfo;
 
@@ -110,7 +114,8 @@ public class Message {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Attachment {
-        private ObjectId id;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String id;
         private AttachmentType type;
         private String url;
         private String thumbnailUrl;
@@ -136,8 +141,10 @@ public class Message {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ReplyTo {
-        private ObjectId messageId;
-        private ObjectId senderId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String messageId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String senderId;
         private String senderName;
         private String content;
         private MessageType type;
@@ -149,7 +156,8 @@ public class Message {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Reaction {
-        private ObjectId userId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String userId;
         private String userName;
         private String emoji;
         private Instant reactedAt;
@@ -160,7 +168,8 @@ public class Message {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ReadReceipt {
-        private ObjectId userId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String userId;
         private Instant readAt;
     }
 
@@ -169,9 +178,12 @@ public class Message {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ForwardInfo {
-        private ObjectId originalMessageId;
-        private ObjectId originalConversationId;
-        private ObjectId originalSenderId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String originalMessageId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String originalConversationId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String originalSenderId;
         private Instant originalSentAt;
     }
 }

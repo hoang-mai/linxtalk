@@ -53,3 +53,10 @@ export interface SavedAccount {
     displayName: string;
     avatarUrl: string | null;
 }
+
+export interface Account {
+  username: string | null;
+  email: string | null;
+  displayName: string | null;
+  avatarUrl: string | null;
+}

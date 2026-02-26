@@ -1,11 +1,11 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -33,11 +33,14 @@ public class Conversation {
     private String description;
 
     @Indexed
-    private List<ObjectId> participantIds;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private List<String> participantIds;
 
-    private ObjectId creatorId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String creatorId;
 
-    private List<ObjectId> adminIds;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private List<String> adminIds;
 
     private LastMessage lastMessage;
 
@@ -67,8 +70,10 @@ public class Conversation {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class LastMessage {
-        private ObjectId messageId;
-        private ObjectId senderId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String messageId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String senderId;
         private String senderName;
         private String content;
         private Message.MessageType type;

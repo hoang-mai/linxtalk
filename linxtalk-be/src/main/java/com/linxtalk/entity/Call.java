@@ -1,12 +1,12 @@
 package com.linxtalk.entity;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -27,9 +27,11 @@ public class Call {
     private String id;
 
     @Indexed
-    private ObjectId conversationId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String conversationId;
 
-    private ObjectId callerId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String callerId;
 
     private String callerName;
 
@@ -82,7 +84,8 @@ public class Call {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CallParticipant {
-        private ObjectId userId;
+        @Field(targetType = FieldType.OBJECT_ID)
+        private String userId;
         private String userName;
         private ParticipantStatus status;
         private Instant joinedAt;

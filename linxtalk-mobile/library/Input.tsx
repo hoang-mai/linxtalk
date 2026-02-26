@@ -12,6 +12,7 @@ import { Colors } from "@/constants/theme";
 interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
+  loading?: boolean;
   disable?: boolean;
   required?: boolean;
   icon?: keyof typeof Ionicons.glyphMap;
@@ -21,6 +22,7 @@ interface InputProps extends TextInputProps {
 const Input = forwardRef<TextInput, InputProps>(({
   label,
   error,
+  loading,
   disable,
   required,
   icon,
@@ -84,7 +86,7 @@ const Input = forwardRef<TextInput, InputProps>(({
             secureTextEntry={secureTextEntry && !isPasswordVisible}
             onFocus={disable ? undefined : handleFocus}
             onBlur={disable ? undefined : handleBlur}
-            editable={!disable}
+            editable={!disable && !loading}
             submitBehavior={isBlurAndSubmit ? "blurAndSubmit" : "submit"}
             {...rest}
           />

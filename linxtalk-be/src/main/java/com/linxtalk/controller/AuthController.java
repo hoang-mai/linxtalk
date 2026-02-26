@@ -1,6 +1,7 @@
 package com.linxtalk.controller;
 
 import com.linxtalk.dto.request.LoginRequest;
+import com.linxtalk.dto.request.LoginWithGoogleRequest;
 import com.linxtalk.dto.request.LogoutRequest;
 import com.linxtalk.dto.request.RefreshTokenRequest;
 import com.linxtalk.dto.request.RegisterRequest;
@@ -79,6 +80,19 @@ public class AuthController {
         BaseResponse<Void> response = BaseResponse.<Void>builder()
             .status(HttpStatus.OK.value())
             .message(MessageSuccess.LOGOUT_SUCCESS)
+            .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login-google")
+    public ResponseEntity<BaseResponse<AuthResponse>> loginWithGoogle(@Valid @RequestBody LoginWithGoogleRequest request) {
+        AuthResponse authResponse = authService.loginWithGoogle(request);
+
+        BaseResponse<AuthResponse> response = BaseResponse.<AuthResponse>builder()
+            .status(HttpStatus.OK.value())
+            .message(MessageSuccess.LOGIN_SUCCESS)
+            .data(authResponse)
             .build();
 
         return ResponseEntity.ok(response);

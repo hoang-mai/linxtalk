@@ -8,8 +8,12 @@ import { useSavedAccountStore } from '@/store/saved-account-store';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import Toast from '@/components/modals/Toast';
+import Loading from '@/components/modals/Loading';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
-
+GoogleSignin.configure({
+  webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+});
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
@@ -25,6 +29,7 @@ export default function RootLayout() {
       <KeyboardProvider>
         <StatusBar style="auto" />
         <Toast />
+        <Loading />
         <QueryClientProvider client={queryClient}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Protected guard={isAuthenticated}>

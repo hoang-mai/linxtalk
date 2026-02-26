@@ -1,41 +1,51 @@
 export interface AuthResponse {
-    accessToken: string;
-    refreshToken: string;
-    displayName: string;
-    avatarUrl: string | null;
+  accessToken: string;
+  refreshToken: string;
+  displayName: string;
+  avatarUrl: string | null;
 }
 
 export interface LoginRequest {
-    username: string;
-    password: string;
-    deviceId: string;
-    platform: string;
-    deviceName: string;
-    deviceModel: string;
-    osVersion: string;
-    appVersion: string;
+  username: string;
+  password: string;
+  deviceId: string;
+  platform: string;
+  deviceName: string;
+  deviceModel: string;
+  osVersion: string;
+  appVersion: string;
+}
+
+export interface LoginWithGoogleRequest {
+  idTokenString: string;
+  deviceId: string;
+  platform: string;
+  deviceName: string;
+  deviceModel: string;
+  osVersion: string;
+  appVersion: string;
 }
 
 export interface RegisterRequest {
-    username: string;
-    password: string;
-    displayName: string;
+  username: string;
+  password: string;
+  displayName: string;
 }
 
 export interface RefreshTokenRequest {
-    refreshToken: string;
+  refreshToken: string;
 }
 
 export interface LogoutRequest {
-    deviceId: string;
+  deviceId: string;
 }
 
 export interface UserResponse {
-    id: string;
-    username: string;
-    displayName: string;
-    createdAt: string;
-    updatedAt: string;
+  id: string;
+  username: string;
+  displayName: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface SavedAccount {

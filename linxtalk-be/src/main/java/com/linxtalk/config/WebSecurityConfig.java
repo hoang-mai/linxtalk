@@ -29,6 +29,7 @@ public class WebSecurityConfig {
         Constant.AUTH + "/register",
         Constant.AUTH + "/login",
         Constant.AUTH + "/refresh-token",
+        Constant.AUTH + "/login-google",
     };
 
     @Bean

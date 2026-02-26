@@ -1,9 +1,10 @@
 package com.linxtalk.service;
 
-import com.linxtalk.dto.request.LoginRequest;
-import com.linxtalk.dto.request.LogoutRequest;
-import com.linxtalk.dto.request.RefreshTokenRequest;
-import com.linxtalk.dto.request.RegisterRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import com.linxtalk.dto.request.*;
 import com.linxtalk.dto.response.AuthResponse;
 import com.linxtalk.entity.DeviceToken;
 import com.linxtalk.entity.User;
@@ -16,10 +17,13 @@ import com.linxtalk.utils.FnCommon;
 import com.linxtalk.utils.MessageError;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +34,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final TokenBlacklistService tokenBlacklistService;
+
+    @Value("${google.client-id}")
+    private String googleClientId;
 
     public void register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -124,5 +131,84 @@ public class AuthService {
 
         ObjectId userId = new ObjectId(user.getId());
         deviceTokenRepository.deleteByUserIdAndDeviceId(userId, request.getDeviceId());
+    }
+
+    public AuthResponse loginWithGoogle(LoginWithGoogleRequest request) {
+        GoogleIdToken.Payload payload;
+        try {
+            payload = verify(request.getIdTokenString());
+        } catch (Exception e) {
+            throw new AuthenticationException(MessageError.INVALID_CREDENTIALS);
+        }
+
+        String email = payload.getEmail();
+        String googleId = payload.getSubject();
+        String displayName = (String) payload.get("name");
+        String avatarUrl = (String) payload.get("picture");
+
+        User user = userRepository.findByEmail(email).orElseGet(() -> {
+            User newUser = User.builder()
+                .email(email)
+                .displayName(displayName != null ? displayName : email)
+                .avatarUrl(avatarUrl)
+                .linkedProviders(List.of(
+                    User.LinkedProvider.builder()
+                        .provider(User.AuthProvider.GOOGLE)
+                        .providerId(googleId)
+                        .build()
+                ))
+                .build();
+            return userRepository.save(newUser);
+        });
+
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+
+        saveGoogleDeviceToken(user, request, refreshToken);
+
+        return AuthResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .displayName(user.getDisplayName())
+            .avatarUrl(user.getAvatarUrl())
+            .build();
+    }
+
+    private void saveGoogleDeviceToken(User user, LoginWithGoogleRequest request, String refreshToken) {
+        ObjectId userId = new ObjectId(user.getId());
+
+        DeviceToken deviceToken = deviceTokenRepository
+            .findByUserIdAndDeviceId(userId, request.getDeviceId())
+            .orElse(DeviceToken.builder()
+                .userId(userId)
+                .deviceId(request.getDeviceId())
+                .build());
+
+        deviceToken.setRefreshToken(refreshToken);
+        deviceToken.setPlatform(request.getPlatform());
+        deviceToken.setDeviceName(request.getDeviceName());
+        deviceToken.setDeviceModel(request.getDeviceModel());
+        deviceToken.setOsVersion(request.getOsVersion());
+        deviceToken.setAppVersion(request.getAppVersion());
+        deviceToken.setLastActiveAt(Instant.now());
+
+        deviceTokenRepository.save(deviceToken);
+    }
+
+    private GoogleIdToken.Payload verify(String idTokenString) throws Exception {
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+            new NetHttpTransport(),
+            GsonFactory.getDefaultInstance()
+        )
+            .setAudience(Collections.singletonList(googleClientId))
+            .build();
+
+        GoogleIdToken idToken = verifier.verify(idTokenString);
+
+        if (idToken != null) {
+            return idToken.getPayload();
+        }
+
+        throw new RuntimeException(MessageError.INVALID_CREDENTIALS);
     }
 }

@@ -1,4 +1,4 @@
-import { Pressable, PressableProps, Text, ActivityIndicator } from "react-native";
+import { Pressable, PressableProps, Text } from "react-native";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/theme";
@@ -17,21 +17,35 @@ interface ButtonProps extends PressableProps {
   onPress?: () => void;
 }
 
-const variantStyles: Record<ButtonVariant, { container: string; text: string; pressed: string }> = {
+const variantStyles: Record<
+  ButtonVariant,
+  {
+    container: string;
+    text: string;
+    pressed: string;
+    disabled: { container: string; text: string };
+  }
+> = {
   primary: {
     container: "bg-primary-500",
     text: "text-white font-semibold",
     pressed: "bg-primary-600",
+    disabled: { container: "bg-grey-300", text: "text-white font-semibold" },
   },
   outline: {
     container: "bg-white border border-primary-500",
     text: "text-primary-600 font-semibold",
     pressed: "bg-primary-50 border border-primary-500",
+    disabled: {
+      container: "bg-white border border-grey-200",
+      text: "text-grey-300 font-semibold",
+    },
   },
   soft: {
     container: "bg-primary-50",
     text: "text-primary-600 font-semibold",
     pressed: "bg-primary-100",
+    disabled: { container: "bg-grey-200", text: "text-grey-400 font-semibold" },
   },
 };
 
@@ -50,19 +64,25 @@ export default function Button({
   const styles = variantStyles[variant];
 
   const containerClass = disabled
-    ? `${styles.container} opacity-50`
+    ? styles.disabled.container
     : pressed
-      ? styles.pressed
-      : styles.container;
+    ? styles.pressed
+    : styles.container;
+
+  const textClass = disabled ? styles.disabled.text : styles.text;
 
   const renderIcon = (icon: IconProp) => {
     if (!icon) return null;
     if (typeof icon === "string") {
+      const baseColor = variant === "primary" ? "#FFFFFF" : Colors.primary["500"];
+      const disabledColor = variant === "primary" ? "#FFFFFF" : Colors.grey["400"];
+      const iconColor = disabled ? disabledColor : baseColor;
+
       return (
         <Ionicons
           name={icon as any}
           size={24}
-          color={variant === "primary" ? "#FFFFFF" : Colors.primary["500"]}
+          color={iconColor}
         />
       );
     }
@@ -79,7 +99,7 @@ export default function Button({
       {...rest}
     >
       {renderIcon(leftIcon)}
-      <Text className={`text-xl ${styles.text}`}>{title}</Text>
+      <Text className={`text-xl ${textClass}`}>{title}</Text>
       {renderIcon(rightIcon)}
     </Pressable>
   );

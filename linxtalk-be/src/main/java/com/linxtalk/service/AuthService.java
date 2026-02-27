@@ -5,6 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.linxtalk.dto.request.*;
+import com.linxtalk.dto.response.AddAccountResponse;
 import com.linxtalk.dto.response.AuthResponse;
 import com.linxtalk.entity.DeviceToken;
 import com.linxtalk.entity.User;
@@ -70,6 +71,65 @@ public class AuthService {
                 .displayName(user.getDisplayName())
                 .avatarUrl(user.getAvatarUrl())
                 .build();
+    }
+
+    public AddAccountResponse addAccount(LoginRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_CREDENTIALS));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new AuthenticationException(MessageError.INVALID_CREDENTIALS);
+        }
+
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+        saveDeviceToken(user, request, refreshToken);
+
+        return AddAccountResponse.builder()
+                .displayName(user.getDisplayName())
+                .avatarUrl(user.getAvatarUrl())
+                .build();
+    }
+
+    public AuthResponse switchAccount(SwitchAccountRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new AuthenticationException(MessageError.USERNAME_NOT_FOUND));
+
+        DeviceToken deviceToken = deviceTokenRepository
+                .findByUserIdAndDeviceId(user.getId(), request.getDeviceId())
+                .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_REFRESH_TOKEN));
+
+        String oldRefreshToken = deviceToken.getRefreshToken();
+
+        try {
+            if (jwtUtil.isTokenExpired(oldRefreshToken) || !jwtUtil.isRefreshToken(oldRefreshToken)) {
+                throw new AuthenticationException(MessageError.SESSION_EXPIRED);
+            }
+        } catch (AuthenticationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AuthenticationException(MessageError.SESSION_EXPIRED);
+        }
+
+        String newAccessToken = jwtUtil.generateAccessToken(user.getId());
+        String newRefreshToken = jwtUtil.generateRefreshToken(user.getId());
+
+        deviceToken.setRefreshToken(newRefreshToken);
+        deviceToken.setLastActiveAt(Instant.now());
+        deviceTokenRepository.save(deviceToken);
+
+        return AuthResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .displayName(user.getDisplayName())
+                .avatarUrl(user.getAvatarUrl())
+                .build();
+    }
+
+    public void removeAccount(SwitchAccountRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new AuthenticationException(MessageError.USERNAME_NOT_FOUND));
+
+        deviceTokenRepository.deleteByUserIdAndDeviceId(user.getId(), request.getDeviceId());
     }
 
     public AuthResponse refreshToken(RefreshTokenRequest request) {

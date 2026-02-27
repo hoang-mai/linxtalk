@@ -5,6 +5,8 @@ import com.linxtalk.dto.request.LoginWithGoogleRequest;
 import com.linxtalk.dto.request.LogoutRequest;
 import com.linxtalk.dto.request.RefreshTokenRequest;
 import com.linxtalk.dto.request.RegisterRequest;
+import com.linxtalk.dto.request.SwitchAccountRequest;
+import com.linxtalk.dto.response.AddAccountResponse;
 import com.linxtalk.dto.response.AuthResponse;
 import com.linxtalk.exception.AuthenticationException;
 import com.linxtalk.service.AuthService;
@@ -48,6 +50,44 @@ public class AuthController {
             .status(HttpStatus.OK.value())
             .message(MessageSuccess.LOGIN_SUCCESS)
             .data(authResponse)
+            .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/add-account")
+    public ResponseEntity<BaseResponse<AddAccountResponse>> addAccount(@Valid @RequestBody LoginRequest request) {
+        AddAccountResponse addAccountResponse = authService.addAccount(request);
+
+        BaseResponse<AddAccountResponse> response = BaseResponse.<AddAccountResponse>builder()
+            .status(HttpStatus.OK.value())
+            .message(MessageSuccess.ADD_ACCOUNT_SUCCESS)
+            .data(addAccountResponse)
+            .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/switch-account")
+    public ResponseEntity<BaseResponse<AuthResponse>> switchAccount(@Valid @RequestBody SwitchAccountRequest request) {
+        AuthResponse authResponse = authService.switchAccount(request);
+
+        BaseResponse<AuthResponse> response = BaseResponse.<AuthResponse>builder()
+            .status(HttpStatus.OK.value())
+            .message(MessageSuccess.SWITCH_ACCOUNT_SUCCESS)
+            .data(authResponse)
+            .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/remove-account")
+    public ResponseEntity<BaseResponse<Void>> removeAccount(@Valid @RequestBody SwitchAccountRequest request) {
+        authService.removeAccount(request);
+
+        BaseResponse<Void> response = BaseResponse.<Void>builder()
+            .status(HttpStatus.OK.value())
+            .message(MessageSuccess.REMOVE_ACCOUNT_SUCCESS)
             .build();
 
         return ResponseEntity.ok(response);

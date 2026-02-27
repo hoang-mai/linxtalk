@@ -30,6 +30,9 @@ public class WebSecurityConfig {
         Constant.AUTH + "/login",
         Constant.AUTH + "/refresh-token",
         Constant.AUTH + "/login-google",
+        Constant.AUTH + "/add-account",
+        Constant.AUTH + "/switch-account",
+        Constant.AUTH + "/remove-account"
     };
 
     @Bean

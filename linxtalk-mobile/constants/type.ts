@@ -60,3 +60,8 @@ export interface Account {
   displayName: string | null;
   avatarUrl: string | null;
 }
+
+export interface SwitchAccountRequest {
+  username: string;
+  deviceId: string;
+}

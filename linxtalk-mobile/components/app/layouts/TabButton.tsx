@@ -7,6 +7,7 @@ import Animated, {
     useAnimatedStyle,
     interpolateColor,
     withTiming,
+    Easing
 } from 'react-native-reanimated';
 import { Colors } from "@/constants/theme";
 
@@ -21,7 +22,8 @@ export function TabButton({ icon, children, isFocused, style, ...props }: TabBut
 
     useEffect(() => {
         active.value = withTiming(isFocused ? 1 : 0, {
-            duration: 120,
+            duration: 200,
+            easing: Easing.out(Easing.cubic)
         });
     }, [active, isFocused]);
 

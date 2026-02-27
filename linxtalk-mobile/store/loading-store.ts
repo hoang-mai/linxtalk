@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { DELAY_MS } from "@/constants/constant";
 
 interface LoadingState {
     visible: boolean;
@@ -7,8 +8,6 @@ interface LoadingState {
     showLoading: () => void;
     hideLoading: () => void;
 }
-
-const DELAY_MS = 1000;
 
 export const useLoadingStore = create<LoadingState>((set, get) => ({
     visible: false,

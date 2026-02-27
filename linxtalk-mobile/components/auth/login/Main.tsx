@@ -136,7 +136,7 @@ export default function Main() {
                     osVersion: Device.osVersion || "unknown",
                     appVersion: Application.nativeApplicationVersion || "unknown",
                 }, {
-                    onSuccess: (result, data) => {
+                    onSuccess: async (result) => {
                         setTokens(result.data.accessToken, result.data.refreshToken);
                         setAccount({
                             username: null,
@@ -145,6 +145,7 @@ export default function Main() {
                             avatarUrl: result.data.avatarUrl,
                         });
                         hideLoading();
+                        await GoogleSignin.signOut();
                         router.replace("/(app)");
                     },
                 })

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, withDelay, FadeIn, FadeOut } from "react-native-reanimated";
 import { scheduleOnRN } from "react-native-worklets";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { Modal } from "react-native";
 
 export default function Toast() {
     const { toast, hideToast } = useToastStore();
@@ -17,24 +18,24 @@ export default function Toast() {
     }));
 
     useEffect(() => {
-      const handleShowToast = () => {
-        opacity.value = withTiming(1, { duration: 200 });
-        width.value = withDelay(150, withTiming(320, { duration: 300 }));
-      };
+        const handleShowToast = () => {
+            opacity.value = withTiming(1, { duration: 200 });
+            width.value = withDelay(150, withTiming(320, { duration: 300 }));
+        };
 
-      const handleHideToast = () => {
-        width.value = withTiming(50, { duration: 300 });
-        opacity.value = withDelay(150, withTiming(0, { duration: 300 }, (finished) => {
-          if (finished) {
-            scheduleOnRN(hideToast);
-          }
-        }));
-      };
+        const handleHideToast = () => {
+            width.value = withTiming(50, { duration: 300 });
+            opacity.value = withDelay(150, withTiming(0, { duration: 300 }, (finished) => {
+                if (finished) {
+                    scheduleOnRN(hideToast);
+                }
+            }));
+        };
         if (toast) {
             handleShowToast();
             const timer = setTimeout(() => {
                 handleHideToast();
-            }, 3000);
+            }, 1500);
             return () => clearTimeout(timer);
         } else {
             width.value = 50;
@@ -57,19 +58,26 @@ export default function Toast() {
     })();
 
     return (
-        <Animated.View
-            className={`absolute top-12 self-center z-50 p-4 rounded-full flex-row items-center overflow-hidden ${bg}`}
-            style={toastStyle}
+        <Modal
+            transparent={true}
+            visible={!!toast}
+            animationType="none"
+            statusBarTranslucent
         >
-            <Ionicons name={icon} size={20} color="white" />
-            <Animated.Text
-                entering={FadeIn.delay(300).duration(200)}
-                exiting={FadeOut.duration(150)}
-                numberOfLines={1}
-                className="ml-2 text-white text-base font-semibold w-full"
+            <Animated.View
+                className={`absolute top-12 self-center z-50 p-4 rounded-full flex-row items-center overflow-hidden ${bg}`}
+                style={toastStyle}
             >
-                {toast.message}
-            </Animated.Text>
-        </Animated.View>
+                <Ionicons name={icon} size={20} color="white" />
+                <Animated.Text
+                    entering={FadeIn.delay(300).duration(200)}
+                    exiting={FadeOut.duration(150)}
+                    numberOfLines={1}
+                    className="ml-2 text-white text-base font-semibold w-full"
+                >
+                    {toast.message}
+                </Animated.Text>
+            </Animated.View>
+        </Modal>
     );
 }

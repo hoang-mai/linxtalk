@@ -13,10 +13,8 @@ import Animated, {
 import { BlurView } from "expo-blur";
 import { Colors } from "@/constants/theme";
 import { useLoadingStore } from "@/store/loading-store";
+import { DOT_COUNT, DOT_SIZE, DOT_SPACING } from "@/constants/constant";
 
-const DOT_COUNT = 3;
-const DOT_SIZE = 10;
-const DOT_SPACING = 8;
 
 const PulsingDot = ({ index }: { index: number }) => {
     const scale = useSharedValue(0.6);

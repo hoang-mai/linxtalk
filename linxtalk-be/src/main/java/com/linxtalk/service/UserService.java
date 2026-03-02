@@ -1,9 +1,12 @@
 package com.linxtalk.service;
 
+import com.linxtalk.dto.request.UpdateProfileRequest;
+import com.linxtalk.dto.response.ProfileResponse;
 import com.linxtalk.dto.response.UserSearchResponse;
 import com.linxtalk.entity.User;
 import com.linxtalk.exception.ResourceNotFoundException;
 import com.linxtalk.repository.UserRepository;
+import com.linxtalk.utils.FnCommon;
 import com.linxtalk.utils.MessageError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,5 +40,30 @@ public class UserService {
                 .build();
     }
 
+    public void updateProfile(UpdateProfileRequest request) {
+        String userId = FnCommon.getUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(MessageError.USER_NOT_FOUND));
+        user.setDisplayName(request.getDisplayName());
+        user.setBio(request.getBio());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setBirthday(request.getBirthday());
+
+        userRepository.save(user);
+    }
+
+    public ProfileResponse getProfile() {
+        String userId = FnCommon.getUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(MessageError.USER_NOT_FOUND));
+
+        return ProfileResponse.builder()
+                .phoneNumber(user.getPhoneNumber())
+                .birthday(user.getBirthday())
+                .email(user.getEmail())
+                .displayName(user.getDisplayName())
+                .bio(user.getBio())
+                .build();
+    }
 
 }

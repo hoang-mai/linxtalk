@@ -39,6 +39,8 @@ public class User {
 
     private String phoneNumber;
 
+    private Instant birthday;
+
     @Builder.Default
     private List<LinkedProvider> linkedProviders = new ArrayList<>();
 

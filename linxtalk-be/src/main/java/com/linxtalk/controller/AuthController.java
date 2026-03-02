@@ -6,7 +6,7 @@ import com.linxtalk.dto.request.LogoutRequest;
 import com.linxtalk.dto.request.RefreshTokenRequest;
 import com.linxtalk.dto.request.RegisterRequest;
 import com.linxtalk.dto.request.SwitchAccountRequest;
-import com.linxtalk.dto.response.AddAccountResponse;
+import com.linxtalk.dto.request.LinkEmailRequest;
 import com.linxtalk.dto.response.AuthResponse;
 import com.linxtalk.exception.AuthenticationException;
 import com.linxtalk.service.AuthService;
@@ -56,10 +56,10 @@ public class AuthController {
     }
 
     @PostMapping("/add-account")
-    public ResponseEntity<BaseResponse<AddAccountResponse>> addAccount(@Valid @RequestBody LoginRequest request) {
-        AddAccountResponse addAccountResponse = authService.addAccount(request);
+    public ResponseEntity<BaseResponse<AuthResponse>> addAccount(@Valid @RequestBody LoginRequest request) {
+        AuthResponse addAccountResponse = authService.addAccount(request);
 
-        BaseResponse<AddAccountResponse> response = BaseResponse.<AddAccountResponse>builder()
+        BaseResponse<AuthResponse> response = BaseResponse.<AuthResponse>builder()
             .status(HttpStatus.OK.value())
             .message(MessageSuccess.ADD_ACCOUNT_SUCCESS)
             .data(addAccountResponse)
@@ -120,6 +120,18 @@ public class AuthController {
         BaseResponse<Void> response = BaseResponse.<Void>builder()
             .status(HttpStatus.OK.value())
             .message(MessageSuccess.LOGOUT_SUCCESS)
+            .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/link-email")
+    public ResponseEntity<BaseResponse<Void>> linkEmail(@Valid @RequestBody LinkEmailRequest request) {
+        authService.linkEmail(request);
+
+        BaseResponse<Void> response = BaseResponse.<Void>builder()
+            .status(HttpStatus.OK.value())
+            .message(MessageSuccess.LINK_EMAIL_SUCCESS)
             .build();
 
         return ResponseEntity.ok(response);

@@ -10,4 +10,7 @@ public class MessageSuccess {
     public static final String LOGOUT_SUCCESS = "logout.success";
     public static final String REFRESH_TOKEN_SUCCESS = "refresh.token.success";
     public static final String SEARCH_USER_SUCCESS = "search.user.success";
+    public static final String LINK_EMAIL_SUCCESS = "link.email.success";
+    public static final String UPDATE_PROFILE_SUCCESS = "update.profile.success";
+    public static final String GET_PROFILE_SUCCESS = "get.profile.success";
 }

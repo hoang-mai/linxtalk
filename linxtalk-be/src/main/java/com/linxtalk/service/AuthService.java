@@ -5,15 +5,16 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.linxtalk.dto.request.*;
-import com.linxtalk.dto.response.AddAccountResponse;
 import com.linxtalk.dto.response.AuthResponse;
 import com.linxtalk.entity.DeviceToken;
 import com.linxtalk.entity.User;
 import com.linxtalk.exception.AuthenticationException;
 import com.linxtalk.exception.DuplicateException;
+import com.linxtalk.exception.LimitExceededException;
 import com.linxtalk.repository.DeviceTokenRepository;
 import com.linxtalk.repository.UserRepository;
 import com.linxtalk.security.JwtUtil;
+import com.linxtalk.utils.Constant;
 import com.linxtalk.utils.FnCommon;
 import com.linxtalk.utils.MessageError;
 import lombok.RequiredArgsConstructor;
@@ -45,17 +46,17 @@ public class AuthService {
         }
 
         User user = User.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .displayName(request.getDisplayName())
-                .build();
+            .username(request.getUsername())
+            .password(passwordEncoder.encode(request.getPassword()))
+            .displayName(request.getDisplayName())
+            .build();
 
         userRepository.save(user);
     }
 
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_CREDENTIALS));
+            .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new AuthenticationException(MessageError.INVALID_CREDENTIALS);
@@ -66,16 +67,18 @@ public class AuthService {
         saveDeviceToken(user, request, refreshToken);
 
         return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .displayName(user.getDisplayName())
-                .avatarUrl(user.getAvatarUrl())
-                .build();
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .displayName(user.getDisplayName())
+            .avatarUrl(user.getAvatarUrl())
+            .build();
     }
 
-    public AddAccountResponse addAccount(LoginRequest request) {
+    public AuthResponse addAccount(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_CREDENTIALS));
+            .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new AuthenticationException(MessageError.INVALID_CREDENTIALS);
@@ -84,19 +87,30 @@ public class AuthService {
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
         saveDeviceToken(user, request, refreshToken);
 
-        return AddAccountResponse.builder()
-                .displayName(user.getDisplayName())
-                .avatarUrl(user.getAvatarUrl())
-                .build();
+        return AuthResponse.builder()
+            .displayName(user.getDisplayName())
+            .avatarUrl(user.getAvatarUrl())
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .build();
     }
 
     public AuthResponse switchAccount(SwitchAccountRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
+        User user;
+
+        if (request.getUsername() != null) {
+            user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AuthenticationException(MessageError.USERNAME_NOT_FOUND));
+        } else if (request.getEmail() != null) {
+            user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AuthenticationException(MessageError.USER_NOT_FOUND));
+        } else {
+            throw new AuthenticationException(MessageError.INVALID_CREDENTIALS);
+        }
 
         DeviceToken deviceToken = deviceTokenRepository
-                .findByUserIdAndDeviceId(user.getId(), request.getDeviceId())
-                .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_REFRESH_TOKEN));
+            .findByUserIdAndDeviceId(user.getId(), request.getDeviceId())
+            .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_REFRESH_TOKEN));
 
         String oldRefreshToken = deviceToken.getRefreshToken();
 
@@ -118,24 +132,33 @@ public class AuthService {
         deviceTokenRepository.save(deviceToken);
 
         return AuthResponse.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
-                .displayName(user.getDisplayName())
-                .avatarUrl(user.getAvatarUrl())
-                .build();
+            .accessToken(newAccessToken)
+            .refreshToken(newRefreshToken)
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .displayName(user.getDisplayName())
+            .avatarUrl(user.getAvatarUrl())
+            .build();
     }
 
     public void removeAccount(SwitchAccountRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
+        User user;
+        if (request.getUsername() != null) {
+            user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AuthenticationException(MessageError.USERNAME_NOT_FOUND));
-
+        } else if (request.getEmail() != null) {
+            user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AuthenticationException(MessageError.USER_NOT_FOUND));
+        } else {
+            throw new AuthenticationException(MessageError.INVALID_CREDENTIALS);
+        }
         deviceTokenRepository.deleteByUserIdAndDeviceId(user.getId(), request.getDeviceId());
     }
 
     public AuthResponse refreshToken(RefreshTokenRequest request) {
         String refreshToken = request.getRefreshToken();
         DeviceToken deviceToken = deviceTokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_REFRESH_TOKEN));
+            .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_REFRESH_TOKEN));
 
         try {
             if (jwtUtil.isTokenExpired(refreshToken) || !jwtUtil.isRefreshToken(refreshToken)) {
@@ -149,6 +172,9 @@ public class AuthService {
 
         String userId = jwtUtil.extractUserId(refreshToken);
 
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_REFRESH_TOKEN));
+
         String newAccessToken = jwtUtil.generateAccessToken(userId);
         String newRefreshToken = jwtUtil.generateRefreshToken(userId);
 
@@ -157,19 +183,28 @@ public class AuthService {
         deviceTokenRepository.save(deviceToken);
 
         return AuthResponse.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
-                .build();
+            .accessToken(newAccessToken)
+            .refreshToken(newRefreshToken)
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .displayName(user.getDisplayName())
+            .avatarUrl(user.getAvatarUrl())
+            .build();
     }
 
     private void saveDeviceToken(User user, LoginRequest request, String refreshToken) {
         String userId = user.getId();
         DeviceToken deviceToken = deviceTokenRepository
-                .findByUserIdAndDeviceId(userId, request.getDeviceId())
-                .orElse(DeviceToken.builder()
-                        .userId(userId)
-                        .deviceId(request.getDeviceId())
-                        .build());
+            .findByUserIdAndDeviceId(userId, request.getDeviceId())
+            .orElse(null);
+
+        if (deviceToken == null) {
+            checkDeviceAccountLimit(request.getDeviceId());
+            deviceToken = DeviceToken.builder()
+                .userId(userId)
+                .deviceId(request.getDeviceId())
+                .build();
+        }
 
         deviceToken.setRefreshToken(refreshToken);
         deviceToken.setPlatform(request.getPlatform());
@@ -188,6 +223,19 @@ public class AuthService {
         deviceTokenRepository.deleteByUserIdAndDeviceId(userId, request.getDeviceId());
     }
 
+    public void linkEmail(LinkEmailRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateException(MessageError.DUPLICATE_EMAIL, request.getEmail());
+        }
+
+        String userId = FnCommon.getUserId();
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new AuthenticationException(MessageError.USER_NOT_FOUND));
+
+        user.setEmail(request.getEmail());
+        userRepository.save(user);
+    }
+
     public AuthResponse loginWithGoogle(LoginWithGoogleRequest request) {
         GoogleIdToken.Payload payload;
         try {
@@ -203,15 +251,15 @@ public class AuthService {
 
         User user = userRepository.findByEmail(email).orElseGet(() -> {
             User newUser = User.builder()
-                    .email(email)
-                    .displayName(displayName != null ? displayName : email)
-                    .avatarUrl(avatarUrl)
-                    .linkedProviders(List.of(
-                            User.LinkedProvider.builder()
-                                    .provider(User.AuthProvider.GOOGLE)
-                                    .providerId(googleId)
-                                    .build()))
-                    .build();
+                .email(email)
+                .displayName(displayName != null ? displayName : email)
+                .avatarUrl(avatarUrl)
+                .linkedProviders(List.of(
+                    User.LinkedProvider.builder()
+                        .provider(User.AuthProvider.GOOGLE)
+                        .providerId(googleId)
+                        .build()))
+                .build();
             return userRepository.save(newUser);
         });
 
@@ -221,20 +269,27 @@ public class AuthService {
         saveGoogleDeviceToken(user, request, refreshToken);
 
         return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .displayName(user.getDisplayName())
-                .avatarUrl(user.getAvatarUrl())
-                .build();
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .displayName(user.getDisplayName())
+            .avatarUrl(user.getAvatarUrl())
+            .build();
     }
 
     private void saveGoogleDeviceToken(User user, LoginWithGoogleRequest request, String refreshToken) {
         DeviceToken deviceToken = deviceTokenRepository
-                .findByUserIdAndDeviceId(user.getId(), request.getDeviceId())
-                .orElse(DeviceToken.builder()
-                        .userId(user.getId())
-                        .deviceId(request.getDeviceId())
-                        .build());
+            .findByUserIdAndDeviceId(user.getId(), request.getDeviceId())
+            .orElse(null);
+
+        if (deviceToken == null) {
+            checkDeviceAccountLimit(request.getDeviceId());
+            deviceToken = DeviceToken.builder()
+                .userId(user.getId())
+                .deviceId(request.getDeviceId())
+                .build();
+        }
 
         deviceToken.setRefreshToken(refreshToken);
         deviceToken.setPlatform(request.getPlatform());
@@ -247,12 +302,19 @@ public class AuthService {
         deviceTokenRepository.save(deviceToken);
     }
 
+    private void checkDeviceAccountLimit(String deviceId) {
+        long count = deviceTokenRepository.countByDeviceId(deviceId);
+        if (count >= Constant.MAX_ACCOUNT_PER_DEVICE) {
+            throw new LimitExceededException(MessageError.MAX_ACCOUNTS_PER_DEVICE, Constant.MAX_ACCOUNT_PER_DEVICE);
+        }
+    }
+
     private GoogleIdToken.Payload verify(String idTokenString) throws Exception {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-                new NetHttpTransport(),
-                GsonFactory.getDefaultInstance())
-                .setAudience(Collections.singletonList(googleClientId))
-                .build();
+            new NetHttpTransport(),
+            GsonFactory.getDefaultInstance())
+            .setAudience(Collections.singletonList(googleClientId))
+            .build();
 
         GoogleIdToken idToken = verifier.verify(idTokenString);
 

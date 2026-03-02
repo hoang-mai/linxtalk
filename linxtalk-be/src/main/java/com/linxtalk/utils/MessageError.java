@@ -9,4 +9,5 @@ public class MessageError {
     public static final String SESSION_EXPIRED = "session.expired";
     public static final String USERNAME_NOT_FOUND = "username.not.found";
     public static final String USER_NOT_FOUND = "user.not.found";
+    public static final String MAX_ACCOUNTS_PER_DEVICE = "max.accounts.per.device";
 }

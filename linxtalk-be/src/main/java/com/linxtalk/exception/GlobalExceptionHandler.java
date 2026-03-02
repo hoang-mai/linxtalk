@@ -58,4 +58,15 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+
+    @ExceptionHandler(LimitExceededException.class)
+    public ResponseEntity<BaseResponse<Void>> handleLimitExceeded(LimitExceededException ex) {
+        BaseResponse<Void> response = BaseResponse.<Void>builder()
+                .status(HttpStatus.TOO_MANY_REQUESTS.value())
+                .message(ex.getMessageKey())
+                .messageArgs(ex.getArgs())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(response);
+    }
 }

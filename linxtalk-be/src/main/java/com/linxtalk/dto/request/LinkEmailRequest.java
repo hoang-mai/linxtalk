@@ -1,5 +1,6 @@
 package com.linxtalk.dto.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,13 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SwitchAccountRequest {
+public class LinkEmailRequest {
 
-    private String username;
-
+    @NotBlank(message = "{register.email.notblank}")
+    @Email(message = "{register.email.invalid}")
     private String email;
-
-    @NotBlank(message = "{login.deviceId.notblank}")
-    private String deviceId;
 }
 

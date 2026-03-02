@@ -6,6 +6,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -14,28 +15,30 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
-public class I18nResponseAdvice implements ResponseBodyAdvice<BaseResponse<?>> {
+public class I18nResponseAdvice implements ResponseBodyAdvice<Object> {
 
     private final MessageSource messageSource;
 
     @Override
     public boolean supports(MethodParameter returnType,
                             Class<? extends HttpMessageConverter<?>> converterType) {
-        return BaseResponse.class.isAssignableFrom(returnType.getParameterType());
+        Class<?> paramType = returnType.getParameterType();
+        return BaseResponse.class.isAssignableFrom(paramType)
+                || ResponseEntity.class.isAssignableFrom(paramType);
     }
 
     @Override
-    public BaseResponse<?> beforeBodyWrite(BaseResponse<?> body, MethodParameter returnType, MediaType contentType,
-                                           Class<? extends HttpMessageConverter<?>> converterType,
-                                           ServerHttpRequest request, ServerHttpResponse response) {
+    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType contentType,
+                                  Class<? extends HttpMessageConverter<?>> converterType,
+                                  ServerHttpRequest request, ServerHttpResponse response) {
 
-        if (body != null && body.getMessage() != null) {
+        if (body instanceof BaseResponse<?> baseResponse && baseResponse.getMessage() != null) {
             String resolved = messageSource.getMessage(
-                body.getMessage(),
-                body.getMessageArgs(),
-                body.getMessage(),
+                baseResponse.getMessage(),
+                baseResponse.getMessageArgs(),
+                baseResponse.getMessage(),
                 LocaleContextHolder.getLocale());
-            body.setMessage(resolved);
+            baseResponse.setMessage(resolved);
         }
         return body;
     }

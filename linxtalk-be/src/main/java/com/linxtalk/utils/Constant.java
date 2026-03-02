@@ -6,4 +6,6 @@ public class Constant {
     public static final String USER = REQUEST_MAPPING + "/user";
 
     public static final String AUTH = REQUEST_MAPPING + "/auth";
+
+    public static final Integer MAX_ACCOUNT_PER_DEVICE = 3;
 }

@@ -1,12 +1,15 @@
-import {TabList, TabSlot, TabTrigger, Tabs} from 'expo-router/ui';
-import {TabButton} from '@/components/app/layouts/TabButton';
-import {Colors} from "@/constants/theme";
-
+import { TabList, TabSlot, TabTrigger, Tabs } from 'expo-router/ui';
+import { TabButton } from '@/components/app/layouts/TabButton';
+import { Colors } from "@/constants/theme";
+import { useSegments } from 'expo-router';
 export default function AppLayout() {
+    const segments = useSegments();
+
+    const isChildScreen = segments.length > 2;
     return (
         <Tabs>
-            <TabSlot/>
-            <TabList className="flex-row justify-center items-center rounded-full border mb-4" style={{
+            <TabSlot />
+            <TabList className="absolute bottom-2 left-0 right-0 flex-row justify-center items-center rounded-full border" style={{
                 borderColor: Colors.grey["200"],
                 marginHorizontal: 64,
                 backgroundColor: "white",
@@ -15,6 +18,7 @@ export default function AppLayout() {
                 shadowOpacity: 0.5,
                 shadowRadius: 4,
                 elevation: 2,
+                display: isChildScreen ? "none" : "flex",
             }}>
                 <TabTrigger name="index" href="/" asChild>
                     <TabButton icon="chatbubbles-outline">Messages</TabButton>

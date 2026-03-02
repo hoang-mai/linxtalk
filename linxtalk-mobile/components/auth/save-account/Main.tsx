@@ -7,7 +7,7 @@ import { Colors } from "@/constants/theme";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Button from "@/library/Button";
 import Input from "@/library/Input";
-import { AuthResponse, LoginRequest, SavedAccount, SwitchAccountRequest } from "@/constants/type";
+import { AuthResponse, LoginRequest, LoginWithGoogleRequest, SavedAccount, SwitchAccountRequest } from "@/constants/type";
 import { useRef, useState } from "react";
 import { useAuthStore } from "@/store/auth-store";
 import { useLoadingStore } from "@/store/loading-store";
@@ -24,6 +24,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { regexPassword } from "@/constants/regex";
 import { getDeviceId } from "@/utils/fn-common";
 import { useAccountStore } from "@/store/account-store";
+import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin";
+import { Image } from "expo-image";
 
 const passwordSchema = z.object({
     password: z.string().regex(regexPassword, "Password must be 6-30 characters, contain at least one uppercase letter, one lowercase letter, and one number"),
@@ -55,17 +57,18 @@ export default function Main() {
         onMutate: () => {
             showLoading();
         },
-        onSuccess: (result, data) => {
+        onSuccess: (result) => {
             hideLoading();
             setTokens(result.data.accessToken, result.data.refreshToken);
             saveAccount({
-                username: data.username,
+                username: result.data.username,
+                email: result.data.email,
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
             setAccount({
-                username: data.username,
-                email: null,
+                username: result.data.username,
+                email: result.data.email,
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
@@ -88,11 +91,11 @@ export default function Main() {
         onMutate: () => {
             showLoading();
         },
-        onSuccess: (result, data) => {
+        onSuccess: (result) => {
             setTokens(result.data.accessToken, result.data.refreshToken);
             setAccount({
-                username: data.username,
-                email: null,
+                username: result.data.username,
+                email: result.data.email,
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
@@ -104,15 +107,48 @@ export default function Main() {
         },
     });
 
+    const { mutate: googleMutate } = useMutation({
+        mutationFn: async (data: LoginWithGoogleRequest) => {
+            const res = await post<BaseResponse<AuthResponse>>(`${AUTH}/login-google`, data);
+            return res.data;
+        },
+        onMutate: () => {
+            showLoading();
+        },
+        onSuccess: async (result) => {
+            setTokens(result.data.accessToken, result.data.refreshToken);
+            setAccount({
+                username: result.data.username,
+                email: result.data.email,
+                displayName: result.data.displayName,
+                avatarUrl: result.data.avatarUrl,
+            });
+            router.replace("/(app)");
+        },
+        onError: (error) => {
+            showToast({
+                message: error.message,
+                type: "error",
+            });
+        },
+        onSettled: async () => {
+            hideLoading();
+        },
+    });
+
     const handleSelectAccount = async (account: SavedAccount) => {
         const deviceId = await getDeviceId();
-        mutateSwitchAccount({ username: account.username, deviceId }, {
+        mutateSwitchAccount({ username: account.username, deviceId, email: account.email }, {
             onError: (error) => {
                 showToast({
                     message: error.message,
                     type: "error",
                 });
-                setSelectedAccount(account);
+                if (!account.username) {
+                    handleGoogleRelogin(account);
+                } else {
+                    setSelectedAccount(account);
+                }
             },
         });
     };
@@ -126,13 +162,62 @@ export default function Main() {
         router.push("/(auth)/login");
     };
 
+    const handleGoogleRelogin = async (targetAccount: SavedAccount) => {
+        if (!targetAccount.email) return;
+        try {
+            await GoogleSignin.hasPlayServices();
+            const response = await GoogleSignin.signIn();
+            if (isSuccessResponse(response) && response.data.idToken) {
+                const signedInEmail = response.data.user.email;
+                if (signedInEmail !== targetAccount.email) {
+                    showToast({
+                        message: `Please sign in with ${targetAccount.email}`,
+                        type: "error",
+                    });
+                    return;
+                }
+                const idToken = response.data.idToken;
+                const deviceId = await getDeviceId();
+                googleMutate({
+                    idTokenString: idToken,
+                    deviceId,
+                    platform: Platform.OS,
+                    deviceName: Device.deviceName || "unknown",
+                    deviceModel: Device.modelName || "unknown",
+                    osVersion: Device.osVersion || "unknown",
+                    appVersion: Application.nativeApplicationVersion || "unknown",
+                });
+            } else {
+                showToast({ message: "Google sign-in failed", type: "error" });
+            }
+        } catch (error) {
+            if (isErrorWithCode(error)) {
+                switch (error.code) {
+                    case statusCodes.IN_PROGRESS:
+                        showToast({ message: "Google sign-in in progress", type: "error" });
+                        break;
+                    case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+                        showToast({ message: "Google Play Services not available", type: "error" });
+                        break;
+                    default:
+                        showToast({ message: "Google sign-in failed", type: "error" });
+                        break;
+                }
+            } else {
+                showToast({ message: "Google sign-in failed", type: "error" });
+            }
+        } finally {
+            await GoogleSignin.signOut();
+        }
+    };
+
     const onSubmit = async (data: PasswordSchema) => {
         if (!selectedAccount) return;
 
         const deviceId = await getDeviceId();
 
         mutate({
-            username: selectedAccount.username,
+            username: selectedAccount!.username!,
             password: data.password.trim(),
             deviceId,
             platform: Platform.OS,
@@ -177,14 +262,14 @@ export default function Main() {
                     {item.displayName}
                 </Text>
                 <Text className="text-sm text-grey-500 mt-0.5" numberOfLines={1}>
-                    @{item.username}
+                    {item.username ? `@${item.username}` : item.email}
                 </Text>
             </View>
 
             {/* Remove button */}
             <Pressable
                 className="p-2"
-                onPress={() => removeAccount(item.username)}
+                onPress={() => removeAccount(item.username, item.email)}
                 hitSlop={8}
             >
                 <Ionicons name="close-circle-outline" size={24} color={Colors.grey["400"]} />
@@ -299,7 +384,7 @@ export default function Main() {
                             {/* Account list */}
                             <FlatList
                                 data={savedAccounts}
-                                keyExtractor={(item) => item.username}
+                                keyExtractor={(item) => item.username || item.email || ""}
                                 renderItem={renderAccount}
                                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}
                                 showsVerticalScrollIndicator={false}

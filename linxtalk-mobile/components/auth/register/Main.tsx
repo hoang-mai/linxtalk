@@ -93,7 +93,7 @@ export default function Main() {
                 <View style={styles.card} className="flex-1 mx-6 mt-16 mb-6 border border-white rounded-2xl bg-white">
                     <KeyboardAwareScrollView
                         className={"flex-1"}
-                        contentContainerClassName={"flex-grow px-4 pt-10"}
+                        contentContainerClassName={"flex-grow px-10 pt-10"}
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                     >
@@ -204,6 +204,7 @@ export default function Main() {
                                 onPress={handleSubmit(onSubmit)}
                                 rightIcon="person-add-outline"
                                 loading={isPending}
+                                style={styles.loginBtn}
                             />
                         </View>
 
@@ -249,5 +250,12 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 2,
         elevation: 1,
+    },
+    loginBtn: {
+        shadowColor: Colors.primary[500],
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 10,
     },
 });

@@ -8,7 +8,7 @@ interface SavedAccountState {
     isHydrated: boolean;
     isSavedAccount: boolean;
     saveAccount: (account: SavedAccount) => void;
-    removeAccount: (username: string) => void;
+    removeAccount: (username: string | null, email: string | null) => void;
     setIsSavedAccount: (isSavedAccount: boolean) => void;
     setIsHydrated: (isHydrated: boolean) => void;
 }
@@ -23,10 +23,14 @@ export const useSavedAccountStore = create<SavedAccountState>()(
             saveAccount: (account) => {
                 const { savedAccounts } = get();
                 const filtered = savedAccounts.filter(
-                    (a) => a.username !== account.username
+                    (a) => !(
+                        (a.username && account.username && a.username === account.username) ||
+                        (a.email && account.email && a.email === account.email)
+                    )
                 );
                 const newAccount: SavedAccount = {
                     username: account.username,
+                    email: account.email,
                     displayName: account.displayName,
                     avatarUrl: account.avatarUrl ?? null,
                 };
@@ -39,11 +43,14 @@ export const useSavedAccountStore = create<SavedAccountState>()(
                 set({ isSavedAccount: true });
             },
 
-            removeAccount: (username) => {
+            removeAccount: (username, email) => {
                 const { savedAccounts } = get();
                 set({
                     savedAccounts: savedAccounts.filter(
-                        (a) => a.username !== username
+                        (a) => !(
+                            (a.username && username && a.username === username) ||
+                            (a.email && email && a.email === email)
+                        )
                     ),
                 });
                 if (get().savedAccounts.length === 0) {

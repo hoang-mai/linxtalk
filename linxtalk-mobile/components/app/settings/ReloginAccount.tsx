@@ -54,11 +54,11 @@ export default function ReloginAccount({ account }: ReloginAccountProps) {
         onMutate: () => {
             showLoading();
         },
-        onSuccess: (result, data) => {
+        onSuccess: (result) => {
             setTokens(result.data.accessToken, result.data.refreshToken);
             setAccount({
-                username: data.username,
-                email: null,
+                username: result.data.username,
+                email: result.data.email,
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
@@ -80,7 +80,7 @@ export default function ReloginAccount({ account }: ReloginAccountProps) {
         const deviceId = await getDeviceId();
 
         mutate({
-            username: account.username,
+            username: account!.username!,
             password: data.password.trim(),
             deviceId,
             platform: Platform.OS,

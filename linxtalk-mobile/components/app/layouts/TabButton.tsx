@@ -22,7 +22,7 @@ export function TabButton({ icon, children, isFocused, style, ...props }: TabBut
 
     useEffect(() => {
         active.value = withTiming(isFocused ? 1 : 0, {
-            duration: 200,
+            duration: 300,
             easing: Easing.out(Easing.cubic)
         });
     }, [active, isFocused]);
@@ -35,14 +35,14 @@ export function TabButton({ icon, children, isFocused, style, ...props }: TabBut
     }));
 
     const labelStyle = useAnimatedStyle(() => ({
-        color: interpolateColor(active.value, [0, 1], [Colors.grey["500"], Colors.primary["500"]]),
+        color: interpolateColor(active.value, [0, 1], [Colors.grey["900"], Colors.primary["500"]]),
     }));
 
     return (
         <View
             className={"h-14 flex-1 m-1 rounded-full relative"}
         >
-            <Animated.View className={"absolute -z-10 rounded-full bg-primary-100"}
+            <Animated.View className={"absolute -z-10 rounded-full bg-primary-50"}
                 style={animatedContainerStyle}>
             </Animated.View>
             <Pressable
@@ -58,7 +58,7 @@ export function TabButton({ icon, children, isFocused, style, ...props }: TabBut
                 <Ionicons
                     name={(isFocused ? icon?.replace("outline", "sharp") : icon) as keyof typeof Ionicons.glyphMap}
                     size={24}
-                    color={isFocused ? Colors.primary["500"] : Colors.grey["500"]}
+                    color={isFocused ? Colors.primary["500"] : Colors.grey["900"]}
                 />
 
                 <Animated.Text style={labelStyle} className={"text-xs font-semibold"}>

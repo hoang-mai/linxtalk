@@ -7,7 +7,7 @@ import Button from "@/library/Button";
 import { Image } from "expo-image";
 import { regexPassword, regexUsername } from "@/constants/regex";
 import { useMutation } from "@tanstack/react-query";
-import { AuthResponse, LoginRequest } from "@/constants/type";
+import { AuthResponse, LoginRequest, LoginWithGoogleRequest } from "@/constants/type";
 import { post } from "@/services/axios";
 import { AUTH } from "@/constants/api";
 import * as Device from "expo-device";
@@ -20,6 +20,7 @@ import { getDeviceId } from "@/utils/fn-common";
 import { useLoadingStore } from "@/store/loading-store";
 import { useModalStore } from "@/store/modal-store";
 import Divide from "@/library/Divide";
+import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin";
 
 const loginSchema = z.object({
     username: z.string().regex(regexUsername, "Username must be 6-30 characters"),
@@ -52,14 +53,15 @@ export default function AddNewAccount() {
         onMutate: () => {
             showLoading();
         },
-        onSuccess: (result, data) => {
+        onSuccess: (result) => {
             saveAccount({
-                username: data.username,
+                username: result.data.username,
+                email: result.data.email,
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
             showToast({
-                message: result.message,
+                message: "Add account successfully",
                 type: "success",
             });
             hideModal();
@@ -76,6 +78,93 @@ export default function AddNewAccount() {
 
     });
 
+    const { mutate: googleMutate } = useMutation({
+        mutationFn: async (data: LoginWithGoogleRequest) => {
+            const res = await post<BaseResponse<AuthResponse>>(`${AUTH}/login-google`, data);
+            return res.data;
+        },
+        onMutate: () => {
+            showLoading();
+        },
+        onSuccess: async (result) => {
+            saveAccount({
+                username: result.data.username,
+                email: result.data.email,
+                displayName: result.data.displayName,
+                avatarUrl: result.data.avatarUrl,
+            });
+            hideModal();
+            showToast({
+                message: "Add account successfully",
+                type: "success",
+            });
+        },
+        onError: (error) => {
+            showToast({
+                message: error.message,
+                type: "error",
+            });
+        },
+        onSettled: async () => {
+            hideLoading();
+        }
+    });
+    const handleGoogleLogin = async () => {
+        try {
+            await GoogleSignin.hasPlayServices();
+            const response = await GoogleSignin.signIn();
+            if (isSuccessResponse(response) && response.data.idToken) {
+                const idToken = response.data.idToken;
+                const deviceId = await getDeviceId();
+
+                googleMutate({
+                    idTokenString: idToken,
+                    deviceId: deviceId,
+                    platform: Platform.OS,
+                    deviceName: Device.deviceName || "unknown",
+                    deviceModel: Device.modelName || "unknown",
+                    osVersion: Device.osVersion || "unknown",
+                    appVersion: Application.nativeApplicationVersion || "unknown",
+                })
+            } else {
+                showToast({
+                    message: "Google sign-in failed",
+                    type: "error",
+                })
+            }
+        } catch (error) {
+            if (isErrorWithCode(error)) {
+                switch (error.code) {
+                    case statusCodes.IN_PROGRESS:
+                        showToast({
+                            message: "Google sign-in in progress",
+                            type: "error",
+                        })
+                        break;
+                    case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+                        showToast({
+                            message: "Google Play Services not available",
+                            type: "error",
+                        })
+                        break;
+                    default:
+                        showToast({
+                            message: "Google sign-in failed",
+                            type: "error",
+                        })
+                        break;
+                }
+            } else {
+                showToast({
+                    message: "Google sign-in failed",
+                    type: "error",
+                })
+            }
+        }
+        finally {
+            await GoogleSignin.signOut();
+        }
+    }
     const onSubmit = async (data: LoginSchema) => {
         const deviceId = await getDeviceId();
 
@@ -156,9 +245,9 @@ export default function AddNewAccount() {
             <View className="flex flex-col gap-4">
                 {/* Google login */}
                 <Pressable
-                    className={"flex flex-row items-center justify-center gap-3 rounded-xl py-4 border border-grey-200 bg-white"}
+                    className={"flex flex-row items-center justify-center gap-3 rounded-full py-4 border border-grey-200 bg-white"}
                     style={styles.googleBtn}
-                // onPress={handleGoogleLogin}
+                    onPress={handleGoogleLogin}
                 >
                     <Image source={require("@/assets/images/google.png")} style={{ width: 20, height: 20 }} />
                     <Text className={"text-base font-semibold text-grey-700"}>Add with Google</Text>

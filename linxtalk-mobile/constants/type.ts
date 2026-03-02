@@ -1,6 +1,8 @@
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
+  email: string | null;
+  username: string | null;
   displayName: string;
   avatarUrl: string | null;
 }
@@ -49,19 +51,40 @@ export interface UserResponse {
 }
 
 export interface SavedAccount {
-    username: string;
-    displayName: string;
-    avatarUrl: string | null;
+  username: string | null;
+  email: string | null;
+  displayName: string;
+  avatarUrl: string | null;
 }
 
 export interface Account {
   username: string | null;
   email: string | null;
-  displayName: string | null;
+  displayName: string;
   avatarUrl: string | null;
 }
 
 export interface SwitchAccountRequest {
-  username: string;
+  username: string | null;
+  email: string | null;
   deviceId: string;
+}
+
+export interface LinkEmailRequest {
+  email: string;
+}
+
+export interface UpdateProfileRequest {
+  phoneNumber?: string;
+  birthday?: string;
+  displayName: string;
+  bio?: string;
+}
+
+export interface ProfileResponse {
+  phoneNumber: string | null;
+  birthday: string | null;
+  email: string | null;
+  displayName: string;
+  bio: string | null;
 }

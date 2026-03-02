@@ -97,7 +97,7 @@ export default function Button({
 
     return (
         <Pressable
-            className={`flex-row items-center justify-center rounded-xl py-3 px-6 gap-2 ${containerClass} ${className}`}
+            className={`flex-row items-center justify-center rounded-full py-3 px-6 gap-2 ${containerClass} ${className}`}
             disabled={disabled || loading}
             onPress={onPress}
             onPressIn={() => setPressed(true)}

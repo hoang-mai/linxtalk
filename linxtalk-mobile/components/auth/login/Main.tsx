@@ -1,33 +1,33 @@
-import {View, Text, StyleSheet, Pressable, Platform, TextInput} from "react-native";
-import {KeyboardAwareScrollView} from "react-native-keyboard-controller";
-import {SafeAreaView} from "react-native-safe-area-context";
-import {z} from "zod";
-import {Controller, useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {useRouter} from "expo-router";
+import { View, Text, StyleSheet, Pressable, Platform, TextInput } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { z } from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import Divide from "@/library/Divide";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import {regexPassword, regexUsername} from "@/constants/regex";
-import {Image} from "expo-image";
-import {useMutation} from "@tanstack/react-query";
-import {AuthResponse, LoginRequest} from "@/constants/type";
-import {post} from "@/services/axios";
-import {AUTH} from "@/constants/api";
+import { regexPassword, regexUsername } from "@/constants/regex";
+import { Image } from "expo-image";
+import { useMutation } from "@tanstack/react-query";
+import { AuthResponse, LoginRequest } from "@/constants/type";
+import { post } from "@/services/axios";
+import { AUTH } from "@/constants/api";
 import * as Device from "expo-device";
 import * as Application from "expo-application";
-import {useAuthStore} from "@/store/auth-store";
-import {LinearGradient} from "expo-linear-gradient";
-import {Colors} from "@/constants/theme";
-import {useRef} from "react";
-import {useToastStore} from "@/store/toast-store";
-import {useSavedAccountStore} from "@/store/saved-account-store";
-import {GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes} from '@react-native-google-signin/google-signin';
-import {LoginWithGoogleRequest} from "../../../constants/type";
-import {getDeviceId} from "@/utils/fn-common";
-import {useLoadingStore} from "@/store/loading-store";
-import {useAccountStore} from "@/store/account-store";
+import { useAuthStore } from "@/store/auth-store";
+import { LinearGradient } from "expo-linear-gradient";
+import { Colors } from "@/constants/theme";
+import { useRef } from "react";
+import { useToastStore } from "@/store/toast-store";
+import { useSavedAccountStore } from "@/store/saved-account-store";
+import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from '@react-native-google-signin/google-signin';
+import { LoginWithGoogleRequest } from "../../../constants/type";
+import { getDeviceId } from "@/utils/fn-common";
+import { useLoadingStore } from "@/store/loading-store";
+import { useAccountStore } from "@/store/account-store";
 const loginSchema = z.object({
     username: z.string().regex(regexUsername, "Username must be 6-30 characters"),
     password: z.string().regex(regexPassword, "Password must be 6-30 characters, contain at least one uppercase letter, one lowercase letter, and one number"),
@@ -37,15 +37,15 @@ type LoginSchema = z.infer<typeof loginSchema>;
 
 export default function Main() {
     const router = useRouter();
-    const {showToast} = useToastStore();
+    const { showToast } = useToastStore();
     const usernameRef = useRef<TextInput>(null);
     const passwordRef = useRef<TextInput>(null);
-    const {setTokens} = useAuthStore();
-    const {saveAccount, isSavedAccount} = useSavedAccountStore();
-    const {showLoading, hideLoading} = useLoadingStore();
-    const {setAccount} = useAccountStore();
+    const { setTokens } = useAuthStore();
+    const { saveAccount, isSavedAccount } = useSavedAccountStore();
+    const { showLoading, hideLoading } = useLoadingStore();
+    const { setAccount } = useAccountStore();
 
-    const {control, handleSubmit, formState: {errors}} = useForm<LoginSchema>({
+    const { control, handleSubmit, formState: { errors } } = useForm<LoginSchema>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
             username: '',
@@ -53,7 +53,7 @@ export default function Main() {
         },
     });
 
-    const {isPending, mutate} = useMutation({
+    const { isPending, mutate } = useMutation({
         mutationFn: async (data: LoginRequest) => {
             const res = await post<BaseResponse<AuthResponse>>(`${AUTH}/login`, data);
             return res.data;
@@ -61,16 +61,17 @@ export default function Main() {
         onMutate: () => {
             showLoading();
         },
-        onSuccess: (result, data) => {
+        onSuccess: (result) => {
             setTokens(result.data.accessToken, result.data.refreshToken);
             saveAccount({
-                username: data.username,
+                username: result.data.username,
+                email: result.data.email,
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
             setAccount({
-                username: data.username,
-                email: null,
+                username: result.data.username,
+                email: result.data.email,
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
@@ -87,7 +88,7 @@ export default function Main() {
 
     });
 
-    const {mutate: googleMutate} = useMutation({
+    const { mutate: googleMutate } = useMutation({
         mutationFn: async (data: LoginWithGoogleRequest) => {
             const res = await post<BaseResponse<AuthResponse>>(`${AUTH}/login-google`, data);
             return res.data;
@@ -101,6 +102,25 @@ export default function Main() {
                 message: error.message,
                 type: "error",
             });
+        },
+        onSuccess: async (result) => {
+            setTokens(result.data.accessToken, result.data.refreshToken);
+            saveAccount({
+                username: result.data.username,
+                email: result.data.email,
+                displayName: result.data.displayName,
+                avatarUrl: result.data.avatarUrl,
+            });
+            setAccount({
+                username: result.data.username,
+                email: result.data.email,
+                displayName: result.data.displayName,
+                avatarUrl: result.data.avatarUrl,
+            });
+            router.replace("/(app)");
+        },
+        onSettled: async () => {
+            hideLoading();
         }
     });
 
@@ -135,19 +155,6 @@ export default function Main() {
                     deviceModel: Device.modelName || "unknown",
                     osVersion: Device.osVersion || "unknown",
                     appVersion: Application.nativeApplicationVersion || "unknown",
-                }, {
-                    onSuccess: async (result) => {
-                        setTokens(result.data.accessToken, result.data.refreshToken);
-                        setAccount({
-                            username: null,
-                            email: response.data.user.email,
-                            displayName: result.data.displayName,
-                            avatarUrl: result.data.avatarUrl,
-                        });
-                        hideLoading();
-                        await GoogleSignin.signOut();
-                        router.replace("/(app)");
-                    },
                 })
             } else {
                 showToast({
@@ -184,6 +191,9 @@ export default function Main() {
                 })
             }
         }
+        finally {
+            await GoogleSignin.signOut();
+        }
     }
 
 
@@ -191,15 +201,15 @@ export default function Main() {
         <>
             <LinearGradient
                 colors={[Colors.primary[400], "#FFFFFF"]}
-                start={{x: 0, y: 0}}
-                end={{x: 0.5, y: 0.5}}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0.5, y: 0.5 }}
                 className="absolute w-full h-full"
             />
             <SafeAreaView className={"flex-1"}>
                 <View style={styles.card} className="flex-1 mx-6 mt-16 mb-6 border border-white rounded-2xl bg-white">
                     <KeyboardAwareScrollView
                         className={"flex-1"}
-                        contentContainerClassName={"flex-grow px-4 pt-10"}
+                        contentContainerClassName={"flex-grow px-8 pt-10"}
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                     >
@@ -209,7 +219,7 @@ export default function Main() {
                                 style={styles.ball}
                                 className={"bg-primary-50 h-24 w-24 rounded-full border border-primary-100 items-center justify-center mb-5"}
                             >
-                                <Ionicons name="chatbubbles" size={40} color="#1FBAC3"/>
+                                <Ionicons name="chatbubbles" size={40} color="#1FBAC3" />
                             </View>
                             <Text className={"text-3xl font-bold text-primary-500"}>Welcome back</Text>
                             <Text className={"text-base text-grey-500 mt-2"}>Login to your Linxtalk account</Text>
@@ -220,7 +230,7 @@ export default function Main() {
                             <Controller
                                 control={control}
                                 name="username"
-                                render={({field: {onChange, onBlur, value}}) => (
+                                render={({ field: { onChange, onBlur, value } }) => (
                                     <Input
                                         label="Username"
                                         placeholder="Enter your username"
@@ -240,7 +250,7 @@ export default function Main() {
                             <Controller
                                 control={control}
                                 name="password"
-                                render={({field: {onChange, onBlur, value}}) => (
+                                render={({ field: { onChange, onBlur, value } }) => (
                                     <Input
                                         label="Password"
                                         placeholder="Enter your password"
@@ -262,7 +272,7 @@ export default function Main() {
                         </View>
 
                         {/* Forgot password */}
-                        <Pressable className={"self-end mt-3 mb-6"}>
+                        <Pressable className={"self-end mt-3 mb-6 mr-2"}>
                             <Text className={"text-sm font-medium text-primary-500"}>Forgot password?</Text>
                         </Pressable>
 
@@ -273,23 +283,24 @@ export default function Main() {
                             onPress={handleSubmit(onSubmit)}
                             rightIcon="log-in-outline"
                             loading={isPending}
+                            style={styles.loginBtn}
                         />
 
                         {/* Divider */}
                         <View className={"flex flex-row gap-4 my-6 items-center"}>
-                            <Divide className={"flex-1"}/>
+                            <Divide className={"flex-1"} />
                             <Text className={"text-sm text-grey-400"}>Or continue with</Text>
-                            <Divide className={"flex-1"}/>
+                            <Divide className={"flex-1"} />
                         </View>
 
                         <View className="flex flex-col gap-4">
                             {/* Google login */}
                             <Pressable
-                                className={"flex flex-row items-center justify-center gap-3 rounded-xl py-4 border border-grey-200 bg-white"}
+                                className={"flex flex-row items-center justify-center gap-3 rounded-full py-4 border border-grey-200 bg-white"}
                                 style={styles.googleBtn}
                                 onPress={handleGoogleLogin}
                             >
-                                <Image source={require("@/assets/images/google.png")} style={{width: 20, height: 20}}/>
+                                <Image source={require("@/assets/images/google.png")} style={{ width: 20, height: 20 }} />
                                 <Text className={"text-base font-semibold text-grey-700"}>Login with Google</Text>
                             </Pressable>
                             {isSavedAccount && <View className="pb-6 pt-2">
@@ -302,7 +313,7 @@ export default function Main() {
                             </View>}
                         </View>
                         {/* Spacer */}
-                        <View className={"flex-1"}/>
+                        <View className={"flex-1"} />
 
                         {/* Index link */}
                         <View className={"flex flex-row items-center justify-center mt-8 mb-6"}>
@@ -322,24 +333,30 @@ export default function Main() {
 const styles = StyleSheet.create({
     card: {
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
     },
     ball: {
         shadowColor: '#1FBAC3',
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
         shadowRadius: 8,
         elevation: 8,
     },
     googleBtn: {
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 1},
+        shadowColor: '#666666ff',
+        shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
         elevation: 1,
     },
+    loginBtn: {
+        shadowColor: Colors.primary[500],
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 10,
+    },
 });
-

@@ -21,21 +21,23 @@ import { useLoadingStore } from "@/store/loading-store";
 import { useModalStore } from "@/store/modal-store";
 import Divide from "@/library/Divide";
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin";
-
-const loginSchema = z.object({
-    username: z.string().regex(regexUsername, "Username must be 6-30 characters"),
-    password: z.string().regex(regexPassword, "Password must be 6-30 characters, contain at least one uppercase letter, one lowercase letter, and one number"),
-});
-
-type LoginSchema = z.infer<typeof loginSchema>;
+import { useTranslation } from "react-i18next";
 
 export default function AddNewAccount() {
+    const { t } = useTranslation();
     const { showToast } = useToastStore();
     const usernameRef = useRef<TextInput>(null);
     const passwordRef = useRef<TextInput>(null);
     const { saveAccount } = useSavedAccountStore();
     const { showLoading, hideLoading } = useLoadingStore();
     const { hideModal } = useModalStore();
+
+    const loginSchema = z.object({
+        username: z.string().regex(regexUsername, t('validation.usernameInvalid')),
+        password: z.string().regex(regexPassword, t('validation.passwordInvalid')),
+    });
+
+    type LoginSchema = z.infer<typeof loginSchema>;
 
     const { control, handleSubmit, formState: { errors } } = useForm<LoginSchema>({
         resolver: zodResolver(loginSchema),
@@ -61,7 +63,7 @@ export default function AddNewAccount() {
                 avatarUrl: result.data.avatarUrl,
             });
             showToast({
-                message: "Add account successfully",
+                message: t('addAccount.addAccountSuccess'),
                 type: "success",
             });
             hideModal();
@@ -95,7 +97,7 @@ export default function AddNewAccount() {
             });
             hideModal();
             showToast({
-                message: "Add account successfully",
+                message: t('addAccount.addAccountSuccess'),
                 type: "success",
             });
         },
@@ -128,7 +130,7 @@ export default function AddNewAccount() {
                 })
             } else {
                 showToast({
-                    message: "Google sign-in failed",
+                    message: t('errors.googleSignInFailed'),
                     type: "error",
                 })
             }
@@ -137,26 +139,26 @@ export default function AddNewAccount() {
                 switch (error.code) {
                     case statusCodes.IN_PROGRESS:
                         showToast({
-                            message: "Google sign-in in progress",
+                            message: t('errors.googleSignInInProgress'),
                             type: "error",
                         })
                         break;
                     case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
                         showToast({
-                            message: "Google Play Services not available",
+                            message: t('errors.googlePlayNotAvailable'),
                             type: "error",
                         })
                         break;
                     default:
                         showToast({
-                            message: "Google sign-in failed",
+                            message: t('errors.googleSignInFailed'),
                             type: "error",
                         })
                         break;
                 }
             } else {
                 showToast({
-                    message: "Google sign-in failed",
+                    message: t('errors.googleSignInFailed'),
                     type: "error",
                 })
             }
@@ -190,8 +192,8 @@ export default function AddNewAccount() {
                     name="username"
                     render={({ field: { onChange, onBlur, value } }) => (
                         <Input
-                            label="Username"
-                            placeholder="Enter your username"
+                            label={t('common.username')}
+                            placeholder={t('login.usernamePlaceholder')}
                             icon="person-outline"
                             required
                             value={value}
@@ -210,8 +212,8 @@ export default function AddNewAccount() {
                     name="password"
                     render={({ field: { onChange, onBlur, value } }) => (
                         <Input
-                            label="Password"
-                            placeholder="Enter your password"
+                            label={t('common.password')}
+                            placeholder={t('login.passwordPlaceholder')}
                             icon="lock-closed-outline"
                             required
                             secureTextEntry
@@ -228,7 +230,7 @@ export default function AddNewAccount() {
                     )}
                 />
                 <Button
-                    title={"Add Account"}
+                    title={t('editInfo.addAccount')}
                     variant={"soft"}
                     onPress={handleSubmit(onSubmit)}
                     leftIcon="add-outline"
@@ -238,7 +240,7 @@ export default function AddNewAccount() {
 
             <View className={"flex flex-row gap-4 my-6 items-center"}>
                 <Divide className={"flex-1"} />
-                <Text className={"text-sm text-grey-400"}>Or continue with</Text>
+                <Text className={"text-sm text-grey-400"}>{t('common.orContinueWith')}</Text>
                 <Divide className={"flex-1"} />
             </View>
 
@@ -250,7 +252,7 @@ export default function AddNewAccount() {
                     onPress={handleGoogleLogin}
                 >
                     <Image source={require("@/assets/images/google.png")} style={{ width: 20, height: 20 }} />
-                    <Text className={"text-base font-semibold text-grey-700"}>Add with Google</Text>
+                    <Text className={"text-base font-semibold text-grey-700"}>{t('common.addWithGoogle')}</Text>
                 </Pressable>
             </View>
         </>

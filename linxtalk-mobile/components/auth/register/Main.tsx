@@ -1,45 +1,48 @@
-import {View, Text, StyleSheet, Pressable} from "react-native";
-import {KeyboardAwareScrollView} from "react-native-keyboard-controller";
-import {SafeAreaView} from "react-native-safe-area-context";
-import {z} from "zod";
-import {Controller, useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {useRouter} from "expo-router";
-import {useRef} from "react";
-import {TextInput} from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { z } from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
+import { useRef } from "react";
+import { TextInput } from "react-native";
 import Input from "@/library/Input";
 import Button from "@/library/Button";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import {regexPassword, regexUsername} from "@/constants/regex";
-import {useMutation} from "@tanstack/react-query";
-import {RegisterRequest} from "@/constants/type";
-import {post} from "@/services/axios";
-import {AUTH} from "@/constants/api";
-import {LinearGradient} from "expo-linear-gradient";
-import {Colors} from "@/constants/theme";
-import {useToastStore} from "@/store/toast-store";
-import {useLoadingStore} from "@/store/loading-store";
-
-const registerSchema = z.object({
-    username: z.string().regex(regexUsername, "Username must be 6-30 characters"),
-    displayName: z.string().min(1, "Display name is required"),
-    password: z.string().regex(regexPassword, "Password must be 6-30 characters, contain at least one uppercase letter, one lowercase letter, and one number"),
-    confirmPassword: z.string().min(1, "Confirm password is required"),
-}).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-});
-
-type RegisterSchema = z.infer<typeof registerSchema>;
+import { regexPassword, regexUsername } from "@/constants/regex";
+import { useMutation } from "@tanstack/react-query";
+import { RegisterRequest } from "@/constants/type";
+import { post } from "@/services/axios";
+import { AUTH } from "@/constants/api";
+import { LinearGradient } from "expo-linear-gradient";
+import { Colors } from "@/constants/theme";
+import { useToastStore } from "@/store/toast-store";
+import { useLoadingStore } from "@/store/loading-store";
+import { useTranslation } from "react-i18next";
 
 export default function Main() {
     const router = useRouter();
+    const { t } = useTranslation();
     const usernameRef = useRef<TextInput>(null);
     const passwordRef = useRef<TextInput>(null);
     const confirmPasswordRef = useRef<TextInput>(null);
-    const {showLoading, hideLoading} = useLoadingStore();
-    const {showToast} = useToastStore();
-    const {control, handleSubmit, formState: {errors}} = useForm<RegisterSchema>({
+    const { showLoading, hideLoading } = useLoadingStore();
+    const { showToast } = useToastStore();
+
+    const registerSchema = z.object({
+        username: z.string().regex(regexUsername, t('validation.usernameInvalid')),
+        displayName: z.string().min(1, t('validation.displayNameRequired')),
+        password: z.string().regex(regexPassword, t('validation.passwordInvalid')),
+        confirmPassword: z.string().min(1, t('validation.confirmPasswordRequired')),
+    }).refine((data) => data.password === data.confirmPassword, {
+        message: t('validation.passwordsDontMatch'),
+        path: ["confirmPassword"],
+    });
+
+    type RegisterSchema = z.infer<typeof registerSchema>;
+
+    const { control, handleSubmit, formState: { errors } } = useForm<RegisterSchema>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
             username: '',
@@ -49,12 +52,12 @@ export default function Main() {
         },
     });
 
-    const {isPending, mutate} = useMutation({
+    const { isPending, mutate } = useMutation({
         mutationFn: async (data: RegisterRequest) => {
             const res = await post<BaseResponse<any>>(`${AUTH}/register`, data);
             return res.data;
         },
-        onMutate: () => {   
+        onMutate: () => {
             showLoading();
         },
         onSuccess: (data) => {
@@ -85,8 +88,8 @@ export default function Main() {
         <>
             <LinearGradient
                 colors={[Colors.primary[400], "#FFFFFF"]}
-                start={{x: 0, y: 0}}
-                end={{x: 0.5, y: 0.5}}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0.5, y: 0.5 }}
                 className="absolute w-full h-full"
             />
             <SafeAreaView className={"flex-1"}>
@@ -103,10 +106,10 @@ export default function Main() {
                                 style={styles.ball}
                                 className={"bg-primary-50 h-24 w-24 rounded-full border border-primary-100 items-center justify-center mb-5"}
                             >
-                                <Ionicons name="person-add" size={40} color="#1FBAC3"/>
+                                <Ionicons name="person-add" size={40} color="#1FBAC3" />
                             </View>
-                            <Text className={"text-3xl font-bold text-primary-500"}>Create Account</Text>
-                            <Text className={"text-base text-grey-500 mt-2"}>Join the Linxtalk community</Text>
+                            <Text className={"text-3xl font-bold text-primary-500"}>{t('register.title')}</Text>
+                            <Text className={"text-base text-grey-500 mt-2"}>{t('register.subtitle')}</Text>
                         </View>
 
                         {/* Form */}
@@ -114,10 +117,10 @@ export default function Main() {
                             <Controller
                                 control={control}
                                 name="displayName"
-                                render={({field: {onChange, onBlur, value}}) => (
+                                render={({ field: { onChange, onBlur, value } }) => (
                                     <Input
-                                        label="Display Name"
-                                        placeholder="Your full name"
+                                        label={t('common.displayName')}
+                                        placeholder={t('register.displayNamePlaceholder')}
                                         icon="person-circle-outline"
                                         required
                                         value={value}
@@ -133,11 +136,11 @@ export default function Main() {
                             <Controller
                                 control={control}
                                 name="username"
-                                render={({field: {onChange, onBlur, value}}) => (
+                                render={({ field: { onChange, onBlur, value } }) => (
                                     <Input
                                         ref={usernameRef}
-                                        label="Username"
-                                        placeholder="Choose a username"
+                                        label={t('common.username')}
+                                        placeholder={t('register.usernamePlaceholder')}
                                         icon="person-outline"
                                         required
                                         value={value}
@@ -154,11 +157,11 @@ export default function Main() {
                             <Controller
                                 control={control}
                                 name="password"
-                                render={({field: {onChange, onBlur, value}}) => (
+                                render={({ field: { onChange, onBlur, value } }) => (
                                     <Input
                                         ref={passwordRef}
-                                        label="Password"
-                                        placeholder="Create a password"
+                                        label={t('common.password')}
+                                        placeholder={t('register.passwordPlaceholder')}
                                         icon="lock-closed-outline"
                                         required
                                         secureTextEntry
@@ -175,11 +178,11 @@ export default function Main() {
                             <Controller
                                 control={control}
                                 name="confirmPassword"
-                                render={({field: {onChange, onBlur, value}}) => (
+                                render={({ field: { onChange, onBlur, value } }) => (
                                     <Input
                                         ref={confirmPasswordRef}
-                                        label="Confirm Password"
-                                        placeholder="Repeat your password"
+                                        label={t('common.confirmPassword')}
+                                        placeholder={t('register.confirmPasswordPlaceholder')}
                                         icon="checkmark-circle-outline"
                                         required
                                         secureTextEntry
@@ -199,7 +202,7 @@ export default function Main() {
                         {/* Register button */}
                         <View className="mt-8">
                             <Button
-                                title={"Register"}
+                                title={t('common.register')}
                                 variant={"primary"}
                                 onPress={handleSubmit(onSubmit)}
                                 rightIcon="person-add-outline"
@@ -209,14 +212,14 @@ export default function Main() {
                         </View>
 
                         {/* Spacer */}
-                        <View className={"flex-1"}/>
+                        <View className={"flex-1"} />
 
                         {/* Index link */}
                         <View className={"flex flex-row items-center justify-center mt-8 mb-6"}>
-                            <Text className={"text-sm text-grey-500"}>Already have an account? </Text>
+                            <Text className={"text-sm text-grey-500"}>{t('register.alreadyHaveAccount')} </Text>
                             <Pressable onPress={() => router.replace("/login")}>
                                 <Text
-                                    className={"text-sm font-semibold text-primary-500 underline underline-offset-1"}>Login</Text>
+                                    className={"text-sm font-semibold text-primary-500 underline underline-offset-1"}>{t('register.loginLink')}</Text>
                             </Pressable>
                         </View>
                     </KeyboardAwareScrollView>
@@ -239,14 +242,14 @@ const styles = StyleSheet.create({
     },
     ball: {
         shadowColor: '#1FBAC3',
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
         shadowRadius: 8,
         elevation: 8,
     },
     googleBtn: {
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: 1},
+        shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
         elevation: 1,

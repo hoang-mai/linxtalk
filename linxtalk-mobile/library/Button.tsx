@@ -105,7 +105,7 @@ export default function Button({
             {...rest}
         >
             {renderIcon(leftIcon)}
-            <Text className={`text-xl ${textClass}`}>{title}</Text>
+            <Text numberOfLines={1} className={`text-xl ${textClass}`}>{title}</Text>
             {renderIcon(rightIcon)}
         </Pressable>
     );

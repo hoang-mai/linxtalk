@@ -72,9 +72,11 @@ const Input = forwardRef<TextInput, InputProps>(({
         <View
           className={"flex flex-row gap-1 absolute -top-2.5 left-4 z-10 bg-white px-1 rounded-md"}>
           <Animated.Text
+            numberOfLines={1}
             style={labelStyle}
+            className={"text-sm font-medium"}
           >
-            <Text className={"text-sm font-medium"}>{label}</Text>
+            {label}
           </Animated.Text>
           {required && <Text className={disable ? "text-grey-600" : "text-red-500"}> *</Text>}
         </View>

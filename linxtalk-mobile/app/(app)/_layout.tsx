@@ -2,8 +2,10 @@ import { TabList, TabSlot, TabTrigger, Tabs } from 'expo-router/ui';
 import { TabButton } from '@/components/app/layouts/TabButton';
 import { Colors } from "@/constants/theme";
 import { useSegments } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 export default function AppLayout() {
     const segments = useSegments();
+    const { t } = useTranslation();
 
     const isChildScreen = segments.length > 2;
     return (
@@ -21,13 +23,13 @@ export default function AppLayout() {
                 display: isChildScreen ? "none" : "flex",
             }}>
                 <TabTrigger name="index" href="/" asChild>
-                    <TabButton icon="chatbubbles-outline">Messages</TabButton>
+                    <TabButton icon="chatbubbles-outline">{t('tabs.messages')}</TabButton>
                 </TabTrigger>
                 <TabTrigger name="friends/index" href="/friends" asChild>
-                    <TabButton icon="people-outline">Friends</TabButton>
+                    <TabButton icon="people-outline">{t('tabs.friends')}</TabButton>
                 </TabTrigger>
                 <TabTrigger name="settings/index" href="/settings" asChild>
-                    <TabButton icon="settings-outline">Settings</TabButton>
+                    <TabButton icon="settings-outline">{t('tabs.settings')}</TabButton>
                 </TabTrigger>
             </TabList>
         </Tabs>

@@ -1,0 +1,104 @@
+{
+    "common": {
+        "username": "Username",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "displayName": "Display Name",
+        "email": "Email",
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout",
+        "save": "Save",
+        "cancel": "Cancel",
+        "orContinueWith": "Or continue with",
+        "loginWithGoogle": "Login with Google",
+        "addWithGoogle": "Add with Google"
+    },
+    "login": {
+        "welcomeBack": "Welcome back",
+        "subtitle": "Login to your Linxtalk account",
+        "usernamePlaceholder": "Enter your username",
+        "passwordPlaceholder": "Enter your password",
+        "forgotPassword": "Forgot password?",
+        "loginWithAnotherAccount": "Login with another account",
+        "noAccount": "Don't have an account?",
+        "registerLink": "Register"
+    },
+    "register": {
+        "title": "Create Account",
+        "subtitle": "Join the Linxtalk community",
+        "displayNamePlaceholder": "Your full name",
+        "usernamePlaceholder": "Choose a username",
+        "passwordPlaceholder": "Create a password",
+        "confirmPasswordPlaceholder": "Repeat your password",
+        "alreadyHaveAccount": "Already have an account?",
+        "loginLink": "Login"
+    },
+    "saveAccount": {
+        "selectAccount": "Select account",
+        "welcomeBack": "Welcome back",
+        "enterPasswordToContinue": "Enter your password to continue",
+        "loginQuickly": "Login quickly with your saved account",
+        "noSavedAccounts": "No saved accounts",
+        "chooseAnotherAccount": "← Choose another account",
+        "loginWithNewAccount": "Login with new account"
+    },
+    "settings": {
+        "general": "General",
+        "notifications": "Notifications",
+        "manageNotifications": "Manage your notifications",
+        "language": "Language",
+        "changeLanguage": "Change your language",
+        "about": "About",
+        "learnMore": "Learn more about Linxtalk",
+        "accountActions": "Account Actions",
+        "setPhoto": "Set Photo",
+        "editInfo": "Edit Info",
+        "savedAccounts": "Saved Accounts"
+    },
+    "editInfo": {
+        "account": "Account",
+        "yourInfo": "Your info",
+        "phoneNumber": "Phone number",
+        "phoneNumberPlaceholder": "Enter your phone number",
+        "birthday": "Birthday",
+        "linkYourEmail": "Link your email",
+        "yourName": "Your name",
+        "displayNameLabel": "Display name",
+        "displayNamePlaceholder": "Enter your display name",
+        "bio": "Bio",
+        "bioPlaceholder": "Tell us about yourself",
+        "addAccount": "Add Account",
+        "addNewAccount": "Add New Account",
+        "maxAccountMessage": "You can only have {{max}} accounts saved"
+    },
+    "relogin": {
+        "title": "Re-login"
+    },
+    "addAccount": {
+        "addAccountSuccess": "Add account successfully"
+    },
+    "errors": {
+        "googleSignInFailed": "Google sign-in failed",
+        "googleSignInInProgress": "Google sign-in in progress",
+        "googlePlayNotAvailable": "Google Play Services not available",
+        "pleaseSignInWith": "Please sign in with {{email}}",
+        "linkEmailFailed": "Link email failed",
+        "linkEmailInProgress": "Link email in progress"
+    },
+    "validation": {
+        "usernameInvalid": "Username must be 6-30 characters",
+        "passwordInvalid": "Password must be 6-30 characters, contain at least one uppercase letter, one lowercase letter, and one number",
+        "displayNameRequired": "Display name is required",
+        "displayNameMax": "Display name must be at most 50 characters",
+        "confirmPasswordRequired": "Confirm password is required",
+        "passwordsDontMatch": "Passwords don't match",
+        "phoneNumberInvalid": "Invalid phone number",
+        "bioMax": "Bio must be at most 100 characters"
+    },
+    "tabs": {
+        "messages": "Messages",
+        "friends": "Friends",
+        "settings": "Settings"
+    }
+}

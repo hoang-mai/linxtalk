@@ -3,11 +3,13 @@ import { useAuthStore } from '@/store/auth-store';
 import { isTokenExpired } from '@/utils/fn-common';
 import { useAccountStore } from '@/store/account-store';
 import { AUTH } from '@/constants/api';
+import { useLanguageStore } from '@/store/language-store';
 
 const axiosInstance = axios.create({
     baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://10.145.54.187:8080',
     headers: {
         'Content-Type': 'application/json',
+        'Accept-Language': useLanguageStore.getState().language,
     },
 });
 

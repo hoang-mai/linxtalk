@@ -19,12 +19,7 @@ import { getDeviceId } from "@/utils/fn-common";
 import { useLoadingStore } from "@/store/loading-store";
 import { useModalStore } from "@/store/modal-store";
 import { useRouter } from "expo-router";
-
-const passwordSchema = z.object({
-    password: z.string().regex(regexPassword, "Password must be 6-30 characters, contain at least one uppercase letter, one lowercase letter, and one number"),
-});
-
-type PasswordSchema = z.infer<typeof passwordSchema>;
+import { useTranslation } from "react-i18next";
 
 interface ReloginAccountProps {
     account: SavedAccount;
@@ -32,12 +27,19 @@ interface ReloginAccountProps {
 
 export default function ReloginAccount({ account }: ReloginAccountProps) {
     const router = useRouter();
+    const { t } = useTranslation();
     const { showToast } = useToastStore();
     const { setTokens } = useAuthStore();
     const { setAccount } = useAccountStore();
     const passwordRef = useRef<TextInput>(null);
     const { showLoading, hideLoading } = useLoadingStore();
     const { hideModal } = useModalStore();
+
+    const passwordSchema = z.object({
+        password: z.string().regex(regexPassword, t('validation.passwordInvalid')),
+    });
+
+    type PasswordSchema = z.infer<typeof passwordSchema>;
 
     const { control, handleSubmit, formState: { errors } } = useForm<PasswordSchema>({
         resolver: zodResolver(passwordSchema),
@@ -123,8 +125,8 @@ export default function ReloginAccount({ account }: ReloginAccountProps) {
                 name="password"
                 render={({ field: { onChange, onBlur, value } }) => (
                     <Input
-                        label="Password"
-                        placeholder="Enter your password"
+                        label={t('common.password')}
+                        placeholder={t('login.passwordPlaceholder')}
                         icon="lock-closed-outline"
                         required
                         secureTextEntry
@@ -144,7 +146,7 @@ export default function ReloginAccount({ account }: ReloginAccountProps) {
             {/* Login button */}
             <View style={{ marginTop: 12 }}>
                 <Button
-                    title="Login"
+                    title={t('common.login')}
                     variant="primary"
                     rightIcon="log-in-outline"
                     onPress={handleSubmit(onSubmit)}

@@ -26,15 +26,11 @@ import { getDeviceId } from "@/utils/fn-common";
 import { useAccountStore } from "@/store/account-store";
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin";
 import { Image } from "expo-image";
-
-const passwordSchema = z.object({
-    password: z.string().regex(regexPassword, "Password must be 6-30 characters, contain at least one uppercase letter, one lowercase letter, and one number"),
-});
-
-type PasswordSchema = z.infer<typeof passwordSchema>;
+import { useTranslation } from "react-i18next";
 
 export default function Main() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { savedAccounts, removeAccount, saveAccount } = useSavedAccountStore();
     const { setAccount } = useAccountStore();
     const { setTokens } = useAuthStore();
@@ -42,6 +38,13 @@ export default function Main() {
     const [selectedAccount, setSelectedAccount] = useState<SavedAccount | null>(null);
     const passwordRef = useRef<TextInput>(null);
     const { showLoading, hideLoading } = useLoadingStore();
+
+    const passwordSchema = z.object({
+        password: z.string().regex(regexPassword, t('validation.passwordInvalid')),
+    });
+
+    type PasswordSchema = z.infer<typeof passwordSchema>;
+
     const { control, handleSubmit, formState: { errors }, reset } = useForm<PasswordSchema>({
         resolver: zodResolver(passwordSchema),
         defaultValues: {
@@ -171,7 +174,7 @@ export default function Main() {
                 const signedInEmail = response.data.user.email;
                 if (signedInEmail !== targetAccount.email) {
                     showToast({
-                        message: `Please sign in with ${targetAccount.email}`,
+                        message: t('errors.pleaseSignInWith', { email: targetAccount.email }),
                         type: "error",
                     });
                     return;
@@ -188,23 +191,23 @@ export default function Main() {
                     appVersion: Application.nativeApplicationVersion || "unknown",
                 });
             } else {
-                showToast({ message: "Google sign-in failed", type: "error" });
+                showToast({ message: t('errors.googleSignInFailed'), type: "error" });
             }
         } catch (error) {
             if (isErrorWithCode(error)) {
                 switch (error.code) {
                     case statusCodes.IN_PROGRESS:
-                        showToast({ message: "Google sign-in in progress", type: "error" });
+                        showToast({ message: t('errors.googleSignInInProgress'), type: "error" });
                         break;
                     case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-                        showToast({ message: "Google Play Services not available", type: "error" });
+                        showToast({ message: t('errors.googlePlayNotAvailable'), type: "error" });
                         break;
                     default:
-                        showToast({ message: "Google sign-in failed", type: "error" });
+                        showToast({ message: t('errors.googleSignInFailed'), type: "error" });
                         break;
                 }
             } else {
-                showToast({ message: "Google sign-in failed", type: "error" });
+                showToast({ message: t('errors.googleSignInFailed'), type: "error" });
             }
         } finally {
             await GoogleSignin.signOut();
@@ -297,12 +300,12 @@ export default function Main() {
                             <Ionicons name="people" size={40} color="#1FBAC3" />
                         </View>
                         <Text className="text-2xl font-bold text-primary-500">
-                            {selectedAccount ? "Welcome back" : "Select account"}
+                            {selectedAccount ? t('saveAccount.welcomeBack') : t('saveAccount.selectAccount')}
                         </Text>
                         <Text className="text-base text-grey-500 mt-2">
                             {selectedAccount
-                                ? "Enter your password to continue"
-                                : "Login quickly with your saved account"}
+                                ? t('saveAccount.enterPasswordToContinue')
+                                : t('saveAccount.loginQuickly')}
                         </Text>
                     </View>
 
@@ -343,8 +346,8 @@ export default function Main() {
                                 name="password"
                                 render={({ field: { onChange, onBlur, value } }) => (
                                     <Input
-                                        label="Password"
-                                        placeholder="Enter your password"
+                                        label={t('common.password')}
+                                        placeholder={t('login.passwordPlaceholder')}
                                         icon="lock-closed-outline"
                                         required
                                         secureTextEntry
@@ -364,7 +367,7 @@ export default function Main() {
                             {/* Login button */}
                             <View style={{ marginTop: 12 }}>
                                 <Button
-                                    title="Login"
+                                    title={t('common.login')}
                                     variant="primary"
                                     rightIcon="log-in-outline"
                                     onPress={handleSubmit(onSubmit)}
@@ -375,7 +378,7 @@ export default function Main() {
                             {/* Back to account list */}
                             <Pressable className="self-center" onPress={handleBack} style={{ marginTop: 12 }}>
                                 <Text className="text-sm font-medium text-primary-500">
-                                    ← Choose another account
+                                    {t('saveAccount.chooseAnotherAccount')}
                                 </Text>
                             </Pressable>
                         </KeyboardAwareScrollView>
@@ -392,7 +395,7 @@ export default function Main() {
                                     <View className="items-center py-8">
                                         <Ionicons name="person-outline" size={48} color={Colors.grey["300"]} />
                                         <Text className="text-grey-400 mt-3 text-base">
-                                            No saved accounts
+                                            {t('saveAccount.noSavedAccounts')}
                                         </Text>
                                     </View>
                                 }
@@ -403,7 +406,7 @@ export default function Main() {
                     {/* Bottom actions */}
                     <View className="px-4 pb-6 pt-2">
                         <Button
-                            title="Login with new account"
+                            title={t('saveAccount.loginWithNewAccount')}
                             variant="outline"
                             leftIcon="log-in-outline"
                             onPress={handleLoginOther}

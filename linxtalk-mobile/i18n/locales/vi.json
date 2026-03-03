@@ -1,0 +1,104 @@
+{
+    "common": {
+        "username": "Tên đăng nhập",
+        "password": "Mật khẩu",
+        "confirmPassword": "Xác nhận mật khẩu",
+        "displayName": "Tên hiển thị",
+        "email": "Email",
+        "login": "Đăng nhập",
+        "register": "Đăng ký",
+        "logout": "Đăng xuất",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "orContinueWith": "Hoặc tiếp tục với",
+        "loginWithGoogle": "Đăng nhập với Google",
+        "addWithGoogle": "Thêm với Google"
+    },
+    "login": {
+        "welcomeBack": "Chào mừng trở lại",
+        "subtitle": "Đăng nhập vào tài khoản Linxtalk",
+        "usernamePlaceholder": "Nhập tên đăng nhập",
+        "passwordPlaceholder": "Nhập mật khẩu",
+        "forgotPassword": "Quên mật khẩu?",
+        "loginWithAnotherAccount": "Đăng nhập tài khoản khác",
+        "noAccount": "Chưa có tài khoản?",
+        "registerLink": "Đăng ký"
+    },
+    "register": {
+        "title": "Tạo tài khoản",
+        "subtitle": "Tham gia cộng đồng Linxtalk",
+        "displayNamePlaceholder": "Họ và tên của bạn",
+        "usernamePlaceholder": "Chọn tên đăng nhập",
+        "passwordPlaceholder": "Tạo mật khẩu",
+        "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
+        "alreadyHaveAccount": "Đã có tài khoản?",
+        "loginLink": "Đăng nhập"
+    },
+    "saveAccount": {
+        "selectAccount": "Chọn tài khoản",
+        "welcomeBack": "Chào mừng trở lại",
+        "enterPasswordToContinue": "Nhập mật khẩu để tiếp tục",
+        "loginQuickly": "Đăng nhập nhanh với tài khoản đã lưu",
+        "noSavedAccounts": "Không có tài khoản đã lưu",
+        "chooseAnotherAccount": "← Chọn tài khoản khác",
+        "loginWithNewAccount": "Đăng nhập tài khoản mới"
+    },
+    "settings": {
+        "general": "Chung",
+        "notifications": "Thông báo",
+        "manageNotifications": "Quản lý thông báo của bạn",
+        "language": "Ngôn ngữ",
+        "changeLanguage": "Thay đổi ngôn ngữ",
+        "about": "Giới thiệu",
+        "learnMore": "Tìm hiểu thêm về Linxtalk",
+        "accountActions": "Tài khoản",
+        "setPhoto": "Đặt ảnh đại diện",
+        "editInfo": "Chỉnh sửa thông tin",
+        "savedAccounts": "Tài khoản đã lưu"
+    },
+    "editInfo": {
+        "account": "Tài khoản",
+        "yourInfo": "Thông tin của bạn",
+        "phoneNumber": "Số điện thoại",
+        "phoneNumberPlaceholder": "Nhập số điện thoại",
+        "birthday": "Ngày sinh",
+        "linkYourEmail": "Liên kết email",
+        "yourName": "Tên của bạn",
+        "displayNameLabel": "Tên hiển thị",
+        "displayNamePlaceholder": "Nhập tên hiển thị",
+        "bio": "Tiểu sử",
+        "bioPlaceholder": "Giới thiệu về bản thân",
+        "addAccount": "Thêm tài khoản",
+        "addNewAccount": "Thêm tài khoản mới",
+        "maxAccountMessage": "Bạn chỉ có thể lưu tối đa {{max}} tài khoản"
+    },
+    "relogin": {
+        "title": "Đăng nhập lại"
+    },
+    "addAccount": {
+        "addAccountSuccess": "Thêm tài khoản thành công"
+    },
+    "errors": {
+        "googleSignInFailed": "Đăng nhập Google thất bại",
+        "googleSignInInProgress": "Đang đăng nhập Google",
+        "googlePlayNotAvailable": "Google Play Services không khả dụng",
+        "pleaseSignInWith": "Vui lòng đăng nhập với {{email}}",
+        "linkEmailFailed": "Liên kết email thất bại",
+        "linkEmailInProgress": "Đang liên kết email"
+    },
+    "validation": {
+        "usernameInvalid": "Tên đăng nhập phải từ 6-30 ký tự",
+        "passwordInvalid": "Mật khẩu phải từ 6-30 ký tự, chứa ít nhất một chữ hoa, một chữ thường và một số",
+        "displayNameRequired": "Tên hiển thị là bắt buộc",
+        "displayNameMax": "Tên hiển thị tối đa 50 ký tự",
+        "confirmPasswordRequired": "Xác nhận mật khẩu là bắt buộc",
+        "passwordsDontMatch": "Mật khẩu không khớp",
+        "phoneNumberInvalid": "Số điện thoại không hợp lệ",
+        "bioMax": "Tiểu sử tối đa 100 ký tự"
+    },
+    "tabs": {
+        "messages": "Tin nhắn",
+        "friends": "Bạn bè",
+        "settings": "Cài đặt"
+    }
+}

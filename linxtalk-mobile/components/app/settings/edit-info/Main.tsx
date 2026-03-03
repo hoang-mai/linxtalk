@@ -1,21 +1,21 @@
-import {FlatList, Platform, Pressable, Text, View} from "react-native";
-import React, {useLayoutEffect, useState} from "react";
+import { FlatList, Platform, Pressable, Text, View } from "react-native";
+import React, { useLayoutEffect, useState } from "react";
 import Input from "@/library/Input";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import {useAccountStore} from "@/store/account-store";
-import {useNavigation, useRouter} from "expo-router";
+import { useAccountStore } from "@/store/account-store";
+import { useNavigation, useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import {Controller, useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {z} from "zod";
-import {regexPhoneNumber} from "@/constants/regex";
-import {useSavedAccountStore} from "@/store/saved-account-store";
-import {useModalStore} from "@/store/modal-store";
-import {useLoadingStore} from "@/store/loading-store";
-import {useToastStore} from "@/store/toast-store";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import {get, post, put} from "@/services/axios";
-import {AUTH, USER} from "@/constants/api";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { regexPhoneNumber } from "@/constants/regex";
+import { useSavedAccountStore } from "@/store/saved-account-store";
+import { useModalStore } from "@/store/modal-store";
+import { useLoadingStore } from "@/store/loading-store";
+import { useToastStore } from "@/store/toast-store";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { get, post, put } from "@/services/axios";
+import { AUTH, USER } from "@/constants/api";
 import {
     AuthResponse,
     LinkEmailRequest,
@@ -25,37 +25,39 @@ import {
     SwitchAccountRequest,
     UpdateProfileRequest
 } from "@/constants/type";
-import {useAuthStore} from "@/store/auth-store";
-import {Colors} from "@/constants/theme";
-import {getDeviceId} from "@/utils/fn-common";
-import {GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes} from "@react-native-google-signin/google-signin";
+import { useAuthStore } from "@/store/auth-store";
+import { Colors } from "@/constants/theme";
+import { getDeviceId } from "@/utils/fn-common";
+import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin";
 import * as Device from "expo-device";
 import * as Application from "expo-application";
 import AddNewAccount from "../AddNewAccount";
 import ReloginAccount from "../ReloginAccount";
-import {MAX_ACCOUNT} from "@/constants/constant";
-import {KeyboardAwareScrollView} from "react-native-keyboard-controller";
-
-const editInfoSchema = z.object({
-    phoneNumber: z.string().regex(regexPhoneNumber, "Invalid phone number").optional(),
-    birthday: z.string().optional(),
-    displayName: z.string().min(1, "Display name is required").max(50, "Display name must be at most 50 characters"),
-    bio: z.string().max(100, "Bio must be at most 100 characters").optional(),
-});
-
-type EditInfoForm = z.infer<typeof editInfoSchema>;
+import { MAX_ACCOUNT } from "@/constants/constant";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { useTranslation } from "react-i18next";
 
 export default function Main() {
     const queryClient = useQueryClient();
     const router = useRouter();
-    const {account, setAccount} = useAccountStore();
-    const {setTokens} = useAuthStore();
+    const { t } = useTranslation();
+    const { account, setAccount } = useAccountStore();
+    const { setTokens } = useAuthStore();
     const navigation = useNavigation();
-    const {savedAccounts, removeAccount, saveAccount} = useSavedAccountStore();
-    const {showModal} = useModalStore();
-    const {showLoading, hideLoading} = useLoadingStore();
-    const {showToast} = useToastStore();
+    const { savedAccounts, removeAccount, saveAccount } = useSavedAccountStore();
+    const { showModal } = useModalStore();
+    const { showLoading, hideLoading } = useLoadingStore();
+    const { showToast } = useToastStore();
     const [showDatePicker, setShowDatePicker] = useState(false);
+
+    const editInfoSchema = z.object({
+        phoneNumber: z.string().regex(regexPhoneNumber, t('validation.phoneNumberInvalid')).optional(),
+        birthday: z.string().optional(),
+        displayName: z.string().min(1, t('validation.displayNameRequired')).max(50, t('validation.displayNameMax')),
+        bio: z.string().max(100, t('validation.bioMax')).optional(),
+    });
+
+    type EditInfoForm = z.infer<typeof editInfoSchema>;
 
     const saveAccountExceptCurrentAccount = savedAccounts.filter((savedAccount) => {
         if (savedAccount.username && account.username) return savedAccount.username !== account.username;
@@ -63,7 +65,7 @@ export default function Main() {
         return true;
     });
 
-    const {data} = useQuery({
+    const { data } = useQuery({
         queryKey: ["profile"],
         placeholderData: (prevData) => prevData,
         queryFn: async () => {
@@ -72,7 +74,7 @@ export default function Main() {
                 const res = await get<BaseResponse<ProfileResponse>>(`${USER}/profile`);
                 return res.data.data;
             } catch (error: any) {
-                showToast({message: error.message, type: "error"});
+                showToast({ message: error.message, type: "error" });
                 throw error;
             } finally {
                 hideLoading();
@@ -87,7 +89,7 @@ export default function Main() {
         bio: data.bio ?? undefined,
     } : undefined;
 
-    const {control, handleSubmit, formState: {errors, isDirty }} = useForm<EditInfoForm>({
+    const { control, handleSubmit, formState: { errors, isDirty } } = useForm<EditInfoForm>({
         resolver: zodResolver(editInfoSchema),
         defaultValues: {
             phoneNumber: undefined,
@@ -99,7 +101,7 @@ export default function Main() {
     });
 
 
-    const {mutate: mutateUpdateProfile} = useMutation({
+    const { mutate: mutateUpdateProfile } = useMutation({
         mutationFn: async (data: UpdateProfileRequest) => {
             const res = await put<BaseResponse<any>>(`${USER}/profile`, data);
             return res.data;
@@ -116,7 +118,7 @@ export default function Main() {
                 message: result.message,
                 type: "success",
             });
-            queryClient.invalidateQueries({queryKey: ["profile"]});
+            queryClient.invalidateQueries({ queryKey: ["profile"] });
             router.back();
         },
         onError: (error) => {
@@ -129,9 +131,9 @@ export default function Main() {
             hideLoading();
         },
     });
-    
 
-    const {mutate: mutateRemoveAccount} = useMutation({
+
+    const { mutate: mutateRemoveAccount } = useMutation({
         mutationFn: async (data: SwitchAccountRequest) => {
             const res = await post<BaseResponse<any>>(`${AUTH}/remove-account`, data);
             return res.data;
@@ -141,7 +143,7 @@ export default function Main() {
         }
     });
 
-    const {mutate: mutateSwitchAccount} = useMutation({
+    const { mutate: mutateSwitchAccount } = useMutation({
         mutationFn: async (data: SwitchAccountRequest) => {
             const res = await post<BaseResponse<AuthResponse>>(`${AUTH}/switch-account`, data);
             return res.data;
@@ -164,7 +166,7 @@ export default function Main() {
         }
     });
 
-    const {mutate: googleMutate} = useMutation({
+    const { mutate: googleMutate } = useMutation({
         mutationFn: async (data: LoginWithGoogleRequest) => {
             const res = await post<BaseResponse<AuthResponse>>(`${AUTH}/login-google`, data);
             return res.data;
@@ -199,7 +201,7 @@ export default function Main() {
         },
     });
 
-    const {mutate: linkEmailMutate} = useMutation({
+    const { mutate: linkEmailMutate } = useMutation({
         mutationFn: async (data: LinkEmailRequest) => {
             const res = await post<BaseResponse<any>>(`${AUTH}/link-email`, data);
             return res.data;
@@ -226,19 +228,19 @@ export default function Main() {
 
     const handleAddNewAccount = () => {
         showModal({
-            title: "Add New Account",
-            children: <AddNewAccount/>,
+            title: t('editInfo.addNewAccount'),
+            children: <AddNewAccount />,
         });
     };
 
     const handleRemoveAccount = async (account: SavedAccount) => {
         const deviceId = await getDeviceId();
-        mutateRemoveAccount({username: account.username, deviceId, email: account.email});
+        mutateRemoveAccount({ username: account.username, deviceId, email: account.email });
     };
 
     const handleSwitchAccount = async (account: SavedAccount) => {
         const deviceId = await getDeviceId();
-        mutateSwitchAccount({username: account.username, deviceId, email: account.email}, {
+        mutateSwitchAccount({ username: account.username, deviceId, email: account.email }, {
             onError: (error) => {
                 showToast({
                     message: error.message,
@@ -248,8 +250,8 @@ export default function Main() {
                     handleGoogleRelogin(account);
                 } else {
                     showModal({
-                        title: "Re-login",
-                        children: <ReloginAccount account={account}/>,
+                        title: t('relogin.title'),
+                        children: <ReloginAccount account={account} />,
                     });
                 }
             },
@@ -265,7 +267,7 @@ export default function Main() {
                 const signedInEmail = response.data.user.email;
                 if (signedInEmail !== targetAccount.email) {
                     showToast({
-                        message: `Please sign in with ${targetAccount.email}`,
+                        message: t('errors.pleaseSignInWith', { email: targetAccount.email }),
                         type: "error",
                     });
                     return;
@@ -282,23 +284,23 @@ export default function Main() {
                     appVersion: Application.nativeApplicationVersion || "unknown",
                 });
             } else {
-                showToast({message: "Google sign-in failed", type: "error"});
+                showToast({ message: t('errors.googleSignInFailed'), type: "error" });
             }
         } catch (error) {
             if (isErrorWithCode(error)) {
                 switch (error.code) {
                     case statusCodes.IN_PROGRESS:
-                        showToast({message: "Google sign-in in progress", type: "error"});
+                        showToast({ message: t('errors.googleSignInInProgress'), type: "error" });
                         break;
                     case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-                        showToast({message: "Google Play Services not available", type: "error"});
+                        showToast({ message: t('errors.googlePlayNotAvailable'), type: "error" });
                         break;
                     default:
-                        showToast({message: "Google sign-in failed", type: "error"});
+                        showToast({ message: t('errors.googleSignInFailed'), type: "error" });
                         break;
                 }
             } else {
-                showToast({message: "Google sign-in failed", type: "error"});
+                showToast({ message: t('errors.googleSignInFailed'), type: "error" });
             }
         } finally {
             await GoogleSignin.signOut();
@@ -315,7 +317,7 @@ export default function Main() {
                 })
             } else {
                 showToast({
-                    message: "Link email failed",
+                    message: t('errors.linkEmailFailed'),
                     type: "error",
                 })
             }
@@ -324,26 +326,26 @@ export default function Main() {
                 switch (error.code) {
                     case statusCodes.IN_PROGRESS:
                         showToast({
-                            message: "Link email in progress",
+                            message: t('errors.linkEmailInProgress'),
                             type: "error",
                         })
                         break;
                     case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
                         showToast({
-                            message: "Google Play Services not available",
+                            message: t('errors.googlePlayNotAvailable'),
                             type: "error",
                         })
                         break;
                     default:
                         showToast({
-                            message: "Link email failed",
+                            message: t('errors.linkEmailFailed'),
                             type: "error",
                         })
                         break;
                 }
             } else {
                 showToast({
-                    message: "Link email failed",
+                    message: t('errors.linkEmailFailed'),
                     type: "error",
                 })
             }
@@ -352,12 +354,12 @@ export default function Main() {
         }
     }
 
-    const renderAccount = ({item}: { item: SavedAccount }) => (
+    const renderAccount = ({ item }: { item: SavedAccount }) => (
         <Pressable className="flex-row items-center" onPress={() => handleSwitchAccount(item)}>
             <View
                 style={{
                     shadowColor: '#000',
-                    shadowOffset: {width: 0, height: 1},
+                    shadowOffset: { width: 0, height: 1 },
                     shadowOpacity: 0.05,
                     shadowRadius: 2,
                     elevation: 1,
@@ -381,7 +383,7 @@ export default function Main() {
                 onPress={() => handleRemoveAccount(item)}
                 hitSlop={8}
             >
-                <Ionicons name="close-circle-outline" size={24} color={Colors.grey["400"]}/>
+                <Ionicons name="close-circle-outline" size={24} color={Colors.grey["400"]} />
             </Pressable>
         </Pressable>
     );
@@ -393,7 +395,7 @@ export default function Main() {
         navigation.setOptions({
             headerRight: () => isDirty ? (
                 <Pressable onPress={handleSubmit(onSubmit)}>
-                    <Ionicons name="checkmark-outline" size={24} color="black"/>
+                    <Ionicons name="checkmark-outline" size={24} color="black" />
                 </Pressable>
             ) : null,
         });
@@ -404,17 +406,17 @@ export default function Main() {
         <KeyboardAwareScrollView
             className="px-4"
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{paddingBottom: 20}}
+            contentContainerStyle={{ paddingBottom: 20 }}
         >
             {/* Section: Your Info */}
-            <Section title="Your info">
+            <Section title={t('editInfo.yourInfo')}>
                 <Controller
                     control={control}
                     name="phoneNumber"
-                    render={({field: {onChange, onBlur, value}}) => (
+                    render={({ field: { onChange, onBlur, value } }) => (
                         <Input
-                            label="Phone number"
-                            placeholder="Enter your phone number"
+                            label={t('editInfo.phoneNumber')}
+                            placeholder={t('editInfo.phoneNumberPlaceholder')}
                             value={value}
                             onChangeText={onChange}
                             onBlur={onBlur}
@@ -428,7 +430,7 @@ export default function Main() {
                 <Controller
                     control={control}
                     name="birthday"
-                    render={({field: {onChange, value}}) => {
+                    render={({ field: { onChange, value } }) => {
                         const dateValue = value ? new Date(value) : undefined;
                         const formattedDate = dateValue
                             ? `${String(dateValue.getDate()).padStart(2, '0')}/${String(dateValue.getMonth() + 1).padStart(2, '0')}/${dateValue.getFullYear()}`
@@ -441,7 +443,7 @@ export default function Main() {
                                         <View
                                             className="flex flex-row gap-1 absolute -top-2.5 left-4 z-10 bg-white px-1 rounded-md">
                                             <Text className="text-sm font-medium"
-                                                  style={{color: Colors.primary["400"]}}>Birthday</Text>
+                                                style={{ color: Colors.primary["400"] }}>{t('editInfo.birthday')}</Text>
                                         </View>
                                         <View className="relative flex flex-row items-center bg-white">
                                             <View
@@ -453,12 +455,12 @@ export default function Main() {
                                                 }}
                                             >
                                                 <Text className="text-base"
-                                                      style={{color: formattedDate ? Colors.grey["900"] : Colors.grey["600"]}}>
+                                                    style={{ color: formattedDate ? Colors.grey["900"] : Colors.grey["600"] }}>
                                                     {formattedDate || "DD/MM/YYYY"}
                                                 </Text>
                                             </View>
                                             <View className="absolute left-6 top-0 bottom-0 justify-center">
-                                                <Ionicons name="calendar-outline" size={20} color={Colors.grey["500"]}/>
+                                                <Ionicons name="calendar-outline" size={20} color={Colors.grey["500"]} />
                                             </View>
                                         </View>
                                     </View>
@@ -484,36 +486,36 @@ export default function Main() {
                 {/* Link email */}
                 <View className="flex flex-col w-full gap-1 relative">
                     <View className="flex flex-row gap-1 absolute -top-2.5 left-4 z-10 bg-white px-1 rounded-md">
-                        <Text className="text-sm font-medium" style={{color: Colors.primary["400"]}}>Email</Text>
+                        <Text className="text-sm font-medium" style={{ color: Colors.primary["400"] }}>{t('common.email')}</Text>
                     </View>
                     <View className="relative flex flex-row items-center bg-white">
                         <Pressable
                             className="w-full rounded-full py-4 pl-14 pr-4 bg-white"
-                            style={{borderWidth: 1.5, borderRadius: 999, borderColor: Colors.primary["400"]}}
+                            style={{ borderWidth: 1.5, borderRadius: 999, borderColor: Colors.primary["400"] }}
                             onPress={handleLinkEmail}
                             disabled={account.username === null || account.username === undefined}
                         >
                             <Text className="text-base"
-                                  style={{color: account.email ? Colors.grey["900"] : Colors.grey["600"]}}>
-                                {account.email || "Link your email"}
+                                style={{ color: account.email ? Colors.grey["900"] : Colors.grey["600"] }}>
+                                {account.email || t('editInfo.linkYourEmail')}
                             </Text>
                         </Pressable>
                         <View className="absolute left-6 top-0 bottom-0 justify-center">
-                            <Ionicons name="mail-outline" size={20} color={Colors.grey["500"]}/>
+                            <Ionicons name="mail-outline" size={20} color={Colors.grey["500"]} />
                         </View>
                     </View>
                 </View>
             </Section>
 
             {/* Section: Your Name */}
-            <Section title="Your name">
+            <Section title={t('editInfo.yourName')}>
                 <Controller
                     control={control}
                     name="displayName"
-                    render={({field: {onChange, onBlur, value}}) => (
+                    render={({ field: { onChange, onBlur, value } }) => (
                         <Input
-                            label="Display name"
-                            placeholder="Enter your display name"
+                            label={t('editInfo.displayNameLabel')}
+                            placeholder={t('editInfo.displayNamePlaceholder')}
                             value={value}
                             onChangeText={onChange}
                             onBlur={onBlur}
@@ -527,14 +529,14 @@ export default function Main() {
             </Section>
 
             {/* Section: Your Bio */}
-            <Section title="Bio">
+            <Section title={t('editInfo.bio')}>
                 <Controller
                     control={control}
                     name="bio"
-                    render={({field: {onChange, onBlur, value}}) => (
+                    render={({ field: { onChange, onBlur, value } }) => (
                         <Input
-                            label="Bio"
-                            placeholder="Tell us about yourself"
+                            label={t('editInfo.bio')}
+                            placeholder={t('editInfo.bioPlaceholder')}
                             value={value}
                             onChangeText={onChange}
                             onBlur={onBlur}
@@ -551,15 +553,15 @@ export default function Main() {
             {/* Section: Saved Accounts */}
             <View className="mt-6">
                 <View className="flex-col rounded-2xl p-4 bg-white gap-4">
-                    <Text className="text-lg font-bold text-grey-700">Saved Accounts</Text>
+                    <Text className="text-lg font-bold text-grey-700">{t('settings.savedAccounts')}</Text>
                     <FlatList
                         data={saveAccountExceptCurrentAccount}
                         keyExtractor={(item) => item.username || item.email || ""}
                         renderItem={renderAccount}
-                        contentContainerStyle={{paddingBottom: 8}}
+                        contentContainerStyle={{ paddingBottom: 8 }}
                         showsVerticalScrollIndicator={false}
                         scrollEnabled={false}
-                        ItemSeparatorComponent={() => <View className="h-4"/>}
+                        ItemSeparatorComponent={() => <View className="h-4" />}
                     />
                     {savedAccounts.length < MAX_ACCOUNT && (
                         <View>
@@ -568,22 +570,22 @@ export default function Main() {
                                 onPress={handleAddNewAccount}
                             >
                                 <View className="bg-primary-50 rounded-full w-12 h-12 items-center justify-center mr-4">
-                                    <Ionicons name="person-add-outline" size={24} color={Colors.primary["500"]}/>
+                                    <Ionicons name="person-add-outline" size={24} color={Colors.primary["500"]} />
                                 </View>
-                                <Text className="text-lg font-medium">Add Account</Text>
+                                <Text className="text-lg font-medium">{t('editInfo.addAccount')}</Text>
                             </Pressable>
                         </View>
                     )}
                 </View>
                 <Text
-                    className="text-sm text-grey-500 mt-2 ml-4">{`You can only have ${MAX_ACCOUNT} accounts saved`}</Text>
+                    className="text-sm text-grey-500 mt-2 ml-4">{t('editInfo.maxAccountMessage', { max: MAX_ACCOUNT })}</Text>
             </View>
 
         </KeyboardAwareScrollView>
     );
 }
 
-function Section({title, children}: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <View className="mt-6">
             <View className="flex-col rounded-3xl p-5 bg-white gap-5">

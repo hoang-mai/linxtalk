@@ -20,47 +20,51 @@ import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@
 import * as Device from "expo-device";
 import * as Application from "expo-application";
 import { LinearGradient } from "expo-linear-gradient";
-
-const SETTINGS_ITEMS: ListItemProps[] = [
-    {
-        title: "General",
-        items: [
-            {
-                icon: "notifications-outline",
-                title: "Notifications",
-                description: "Manage your notifications",
-                onPress: () => { }
-            },
-            {
-                icon: "language-outline",
-                title: "Language",
-                description: "Change your language",
-                onPress: () => { }
-            },
-        ]
-    },
-    {
-        title: "About",
-        items: [
-            {
-                icon: "information-circle-outline",
-                title: "About",
-                description: "Learn more about Linxtalk",
-                onPress: () => { }
-            },
-        ]
-    }
-]
-
+import { useTranslation } from "react-i18next";
 
 export default function Main() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { logout, setTokens } = useAuthStore();
     const { account, clearAccount, setAccount } = useAccountStore();
     const { savedAccounts, removeAccount, saveAccount } = useSavedAccountStore();
     const { showModal } = useModalStore();
     const { showLoading, hideLoading } = useLoadingStore();
     const { showToast } = useToastStore();
+
+    const SETTINGS_ITEMS: ListItemProps[] = [
+        {
+            title: t('settings.general'),
+            items: [
+                {
+                    icon: "notifications-outline",
+                    title: t('settings.notifications'),
+                    description: t('settings.manageNotifications'),
+                    onPress: () => { }
+                },
+                {
+                    icon: "language-outline",
+                    title: t('settings.language'),
+                    description: t('settings.changeLanguage'),
+                    onPress: () => {
+                        router.push("/settings/language");
+                    }
+                },
+            ]
+        },
+        {
+            title: t('settings.about'),
+            items: [
+                {
+                    icon: "information-circle-outline",
+                    title: t('settings.about'),
+                    description: t('settings.learnMore'),
+                    onPress: () => { }
+                },
+            ]
+        }
+    ];
+
     const saveAccountExceptCurrentAccount = savedAccounts.filter((savedAccount) => {
         if (savedAccount.username && account.username) return savedAccount.username !== account.username;
         if (savedAccount.email && account.email) return savedAccount.email !== account.email;
@@ -155,7 +159,7 @@ export default function Main() {
                     handleGoogleRelogin(account);
                 } else {
                     showModal({
-                        title: "Re-login",
+                        title: t('relogin.title'),
                         children: <ReloginAccount account={account} />,
                     });
                 }
@@ -172,7 +176,7 @@ export default function Main() {
                 const signedInEmail = response.data.user.email;
                 if (signedInEmail !== targetAccount.email) {
                     showToast({
-                        message: `Please sign in with ${targetAccount.email}`,
+                        message: t('errors.pleaseSignInWith', { email: targetAccount.email }),
                         type: "error",
                     });
                     return;
@@ -189,23 +193,23 @@ export default function Main() {
                     appVersion: Application.nativeApplicationVersion || "unknown",
                 });
             } else {
-                showToast({ message: "Google sign-in failed", type: "error" });
+                showToast({ message: t('errors.googleSignInFailed'), type: "error" });
             }
         } catch (error) {
             if (isErrorWithCode(error)) {
                 switch (error.code) {
                     case statusCodes.IN_PROGRESS:
-                        showToast({ message: "Google sign-in in progress", type: "error" });
+                        showToast({ message: t('errors.googleSignInInProgress'), type: "error" });
                         break;
                     case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-                        showToast({ message: "Google Play Services not available", type: "error" });
+                        showToast({ message: t('errors.googlePlayNotAvailable'), type: "error" });
                         break;
                     default:
-                        showToast({ message: "Google sign-in failed", type: "error" });
+                        showToast({ message: t('errors.googleSignInFailed'), type: "error" });
                         break;
                 }
             } else {
-                showToast({ message: "Google sign-in failed", type: "error" });
+                showToast({ message: t('errors.googleSignInFailed'), type: "error" });
             }
         } finally {
             await GoogleSignin.signOut();
@@ -274,13 +278,13 @@ export default function Main() {
                     className="h-[1px] mx-12 mt-8"
                 />
                 <View className="flex-col mt-4 gap-4">
-                    <ListItem title={"Account Actions"} items={[
-                        { icon: "camera-outline", title: "Set Photo", description: null, onPress: () => { } },
-                        { icon: "create-outline", title: "Edit Info", description: null, onPress: () => { router.push("/settings/edit-info") } },
+                    <ListItem title={t('settings.accountActions')} items={[
+                        { icon: "camera-outline", title: t('settings.setPhoto'), description: null, onPress: () => { } },
+                        { icon: "create-outline", title: t('settings.editInfo'), description: null, onPress: () => { router.push("/settings/edit-info") } },
                     ]} />
                     {saveAccountExceptCurrentAccount.length > 0 && (
                         <View className="flex-col rounded-2xl mx-4 p-4 bg-white gap-4">
-                            <Text className="text-lg font-bold text-grey-700">Saved Accounts</Text>
+                            <Text className="text-lg font-bold text-grey-700">{t('settings.savedAccounts')}</Text>
                             <FlatList
                                 data={saveAccountExceptCurrentAccount}
                                 keyExtractor={(item) => item.username || item.email || ""}
@@ -306,7 +310,7 @@ export default function Main() {
                     }}
                 >
                     <Ionicons name="log-out-outline" size={24} color={Colors.red["600"]} />
-                    <Text className="text-lg font-medium ml-2" style={{ color: Colors.red["600"] }}>Logout</Text>
+                    <Text className="text-lg font-medium ml-2" style={{ color: Colors.red["600"] }}>{t('common.logout')}</Text>
                 </Pressable>
             </ScrollView>
         </SafeAreaView>
@@ -348,4 +352,3 @@ function ListItem({ title, items }: ListItemProps) {
         </View>
     );
 }
-

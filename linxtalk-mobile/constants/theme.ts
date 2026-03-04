@@ -71,3 +71,41 @@ export const Colors = {
     grey: greyColor,
     toast: toastColor,
 };
+
+import type { Theme } from "@react-navigation/native";
+
+export const LightTheme: Theme = {
+    dark: false,
+    colors: {
+        primary: primaryColor[500],       
+        background: "#F6F8F8",    
+        card: "#FCFDFD",
+        text: "#0F172A",          
+        border: greyColor[200],        
+        notification: redColor[600],  
+    },
+    fonts: {
+        regular: { fontFamily: "System", fontWeight: "400" },
+        medium: { fontFamily: "System", fontWeight: "500" },
+        bold: { fontFamily: "System", fontWeight: "700" },
+        heavy: { fontFamily: "System", fontWeight: "900" },
+    },
+};
+
+export const DarkTheme: Theme = {
+    dark: true,
+    colors: {
+        primary: primaryColor[500],       
+        background: "#122020",
+        card: "#172727",
+        text: "#F6F8F8",
+        border: greyColor[200],
+        notification: redColor[600],  
+    },
+    fonts: {
+        regular: { fontFamily: "System", fontWeight: "400" },
+        medium: { fontFamily: "System", fontWeight: "500" },
+        bold: { fontFamily: "System", fontWeight: "700" },
+        heavy: { fontFamily: "System", fontWeight: "900" },
+    },
+};

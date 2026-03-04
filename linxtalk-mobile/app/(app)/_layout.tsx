@@ -11,10 +11,9 @@ export default function AppLayout() {
     return (
         <Tabs>
             <TabSlot />
-            <TabList className="absolute bottom-2 left-0 right-0 flex-row justify-center items-center rounded-full border" style={{
+            <TabList className="absolute bottom-2 left-0 right-0 flex-row justify-center items-center rounded-full border bg-white dark:bg-background-dark" style={{
                 borderColor: Colors.grey["200"],
                 marginHorizontal: 64,
-                backgroundColor: "white",
                 shadowColor: Colors.grey["100"],
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.5,

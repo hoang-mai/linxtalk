@@ -247,12 +247,12 @@ export default function AddNewAccount() {
             <View className="flex flex-col gap-4">
                 {/* Google login */}
                 <Pressable
-                    className={"flex flex-row items-center justify-center gap-3 rounded-full py-4 border border-grey-200 bg-white"}
+                    className={"flex flex-row items-center justify-center gap-3 rounded-full py-4 border border-grey-200 bg-white dark:bg-background-dark"}
                     style={styles.googleBtn}
                     onPress={handleGoogleLogin}
                 >
                     <Image source={require("@/assets/images/google.png")} style={{ width: 20, height: 20 }} />
-                    <Text className={"text-base font-semibold text-grey-700"}>{t('common.addWithGoogle')}</Text>
+                    <Text className={"text-base font-semibold text-grey-800 dark:text-grey-100"}>{t('common.addWithGoogle')}</Text>
                 </Pressable>
             </View>
         </>

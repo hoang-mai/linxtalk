@@ -105,16 +105,16 @@ export default function ReloginAccount({ account }: ReloginAccountProps) {
                         shadowRadius: 4,
                         elevation: 3,
                     }}
-                    className="bg-primary-50 h-14 w-14 rounded-full border border-primary-100 items-center justify-center"
+                    className="bg-primary-50 dark:bg-primary-900 h-14 w-14 rounded-full border border-primary-100 dark:border-primary-800 items-center justify-center"
                 >
                     <Text className="text-2xl font-bold text-primary-500">
                         {account.displayName.charAt(0).toUpperCase()}
                     </Text>
                 </View>
-                <Text className="text-lg font-semibold text-grey-900">
+                <Text className="text-lg font-semibold text-grey-900 dark:text-grey-100">
                     {account.displayName}
                 </Text>
-                <Text className="text-sm text-grey-500 mt-0.5">
+                <Text className="text-sm text-grey-500 dark:text-grey-400 mt-0.5">
                     @{account.username}
                 </Text>
             </View>

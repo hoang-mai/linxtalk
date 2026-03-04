@@ -1,7 +1,7 @@
-import {Pressable, PressableProps, Text} from "react-native";
-import {useState} from "react";
-import {Ionicons} from "@expo/vector-icons";
-import {Colors} from "@/constants/theme";
+import { Pressable, PressableProps, Text } from "react-native";
+import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "@/constants/theme";
 
 type ButtonVariant = "primary" | "secondary" | "outline" | "soft";
 
@@ -30,42 +30,42 @@ const variantStyles: Record<
         container: "bg-primary-500",
         text: "text-white font-semibold",
         pressed: "bg-primary-600",
-        disabled: {container: "bg-grey-300", text: "text-white font-semibold"},
+        disabled: { container: "bg-grey-300 dark:bg-grey-700", text: "text-white font-semibold" },
     },
     secondary: {
-        container: "bg-white",
+        container: "bg-white dark:bg-background-dark",
         text: "text-primary-500 font-semibold",
-        pressed: "bg-white",
-        disabled: {container: "bg-grey-200", text: "text-grey-400 font-semibold"},
+        pressed: "bg-grey-50 dark:bg-grey-800",
+        disabled: { container: "bg-grey-200 dark:bg-grey-800", text: "text-grey-400 font-semibold" },
     },
     outline: {
-        container: "bg-white border border-primary-500",
-        text: "text-primary-600 font-semibold",
-        pressed: "bg-primary-50 border border-primary-500",
+        container: "bg-white dark:bg-background-dark border border-primary-500",
+        text: "text-primary-600 dark:text-primary-400 font-semibold",
+        pressed: "bg-primary-50 dark:bg-primary-900 border border-primary-500",
         disabled: {
-            container: "bg-white border border-grey-200",
-            text: "text-grey-300 font-semibold",
+            container: "bg-white dark:bg-background-dark border border-grey-200 dark:border-grey-700",
+            text: "text-grey-300 dark:text-grey-600 font-semibold",
         },
     },
     soft: {
-        container: "bg-primary-50",
-        text: "text-primary-600 font-semibold",
-        pressed: "bg-primary-100",
-        disabled: {container: "bg-grey-200", text: "text-grey-400 font-semibold"},
+        container: "bg-primary-50 dark:bg-primary-900",
+        text: "text-primary-600 dark:text-primary-400 font-semibold",
+        pressed: "bg-primary-100 dark:bg-primary-800",
+        disabled: { container: "bg-grey-200 dark:bg-grey-800", text: "text-grey-400 font-semibold" },
     },
 };
 
 export default function Button({
-                                   title,
-                                   variant = "primary",
-                                   className = "",
-                                   loading = false,
-                                   leftIcon,
-                                   rightIcon,
-                                   disabled,
-                                   onPress,
-                                   ...rest
-                               }: ButtonProps) {
+    title,
+    variant = "primary",
+    className = "",
+    loading = false,
+    leftIcon,
+    rightIcon,
+    disabled,
+    onPress,
+    ...rest
+}: ButtonProps) {
     const [pressed, setPressed] = useState(false);
     const styles = variantStyles[variant];
 

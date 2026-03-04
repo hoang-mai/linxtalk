@@ -29,9 +29,11 @@ import { getDeviceId } from "@/utils/fn-common";
 import { useLoadingStore } from "@/store/loading-store";
 import { useAccountStore } from "@/store/account-store";
 import { useTranslation } from "react-i18next";
+import { useColorScheme } from "react-native";
 
 export default function Main() {
     const router = useRouter();
+    const colorScheme = useColorScheme();
     const { t } = useTranslation();
     const { showToast } = useToastStore();
     const usernameRef = useRef<TextInput>(null);
@@ -203,13 +205,16 @@ export default function Main() {
     return (
         <>
             <LinearGradient
-                colors={[Colors.primary[400], "#FFFFFF"]}
+                colors={colorScheme === "dark"
+                    ? [Colors.primary[800], "#122020"]
+                    : [Colors.primary[400], "#FFFFFF"]
+                }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0.5, y: 0.5 }}
                 className="absolute w-full h-full"
             />
             <SafeAreaView className={"flex-1"}>
-                <View style={styles.card} className="flex-1 mx-6 mt-16 mb-6 border border-white rounded-2xl bg-white">
+                <View style={styles.card} className="flex-1 mx-6 mt-16 mb-6 border border-white dark:border-background-dark rounded-2xl bg-white dark:bg-background-dark">
                     <KeyboardAwareScrollView
                         className={"flex-1"}
                         contentContainerClassName={"flex-grow px-8 pt-10"}
@@ -220,12 +225,12 @@ export default function Main() {
                         <View className={"items-center mb-8"}>
                             <View
                                 style={styles.ball}
-                                className={"bg-primary-50 h-24 w-24 rounded-full border border-primary-100 items-center justify-center mb-5"}
+                                className={"bg-primary-50 dark:bg-primary-900 h-24 w-24 rounded-full border border-primary-100 dark:border-primary-800 items-center justify-center mb-5"}
                             >
                                 <Ionicons name="chatbubbles" size={40} color="#1FBAC3" />
                             </View>
                             <Text className={"text-3xl font-bold text-primary-500"}>{t('login.welcomeBack')}</Text>
-                            <Text numberOfLines={1} className={"text-base text-grey-500 mt-2"}>{t('login.subtitle')}</Text>
+                            <Text numberOfLines={1} className={"text-base text-grey-500 dark:text-grey-400 mt-2"}>{t('login.subtitle')}</Text>
                         </View>
 
                         {/* Form */}
@@ -299,12 +304,12 @@ export default function Main() {
                         <View className="flex flex-col gap-4">
                             {/* Google login */}
                             <Pressable
-                                className={"flex flex-row items-center justify-center gap-3 rounded-full py-4 border border-grey-200 bg-white"}
+                                className={"flex flex-row items-center justify-center gap-3 rounded-full py-4 border border-grey-200 bg-white dark:bg-background-dark"}
                                 style={styles.googleBtn}
                                 onPress={handleGoogleLogin}
                             >
                                 <Image source={require("@/assets/images/google.png")} style={{ width: 20, height: 20 }} />
-                                <Text className={"text-base font-semibold text-grey-700"}>{t('common.loginWithGoogle')}</Text>
+                                <Text className={"text-base font-semibold text-grey-800 dark:text-grey-100"}>{t('common.loginWithGoogle')}</Text>
                             </Pressable>
                             {isSavedAccount && <View className="pb-6 pt-2">
                                 <Button

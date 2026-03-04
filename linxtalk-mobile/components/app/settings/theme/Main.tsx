@@ -1,25 +1,35 @@
 import { View, Text } from "react-native";
 import { Colors } from "@/constants/theme";
-import { useLanguageStore } from "@/store/language-store";
+import { useThemeStore, ThemeMode } from "@/store/theme-store";
 import RadioButton from "@/library/RadioButton";
-import { LANGUAGES } from "@/constants/constant";
+import { THEMES } from "@/constants/constant";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function Main() {
-    const { language, setLanguage } = useLanguageStore();
+    const { theme, setTheme } = useThemeStore();
 
     return (
         <View className="flex-1 px-4 pt-6">
             <View className="rounded-3xl bg-white dark:bg-background-dark p-4 gap-2">
-                {LANGUAGES.map((item) => {
-                    const isSelected = language === item.code;
+                {THEMES.map((item) => {
+                    const isSelected = theme === item.code;
                     return (
                         <RadioButton
                             key={item.code}
                             selected={isSelected}
-                            onPress={() => setLanguage(item.code)}
+                            onPress={() => setTheme(item.code as ThemeMode)}
                         >
                             <View className="flex-row items-center gap-4">
-                                <Text className="text-2xl">{item.flag}</Text>
+                                <View
+                                    className="w-10 h-10 rounded-full items-center justify-center"
+                                    style={{ backgroundColor: item.iconBg }}
+                                >
+                                    <Ionicons
+                                        name={item.icon as keyof typeof Ionicons.glyphMap}
+                                        size={22}
+                                        color={item.iconColor}
+                                    />
+                                </View>
                                 <Text
                                     className={`text-lg font-medium ${isSelected ? "text-primary-500" : "text-grey-800 dark:text-grey-100"}`}
                                 >

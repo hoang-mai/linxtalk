@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./app/**/*.{js,jsx,ts,tsx}",
     "./components/**/*.{js,jsx,ts,tsx}",
@@ -50,6 +51,9 @@ module.exports = {
           error: "var(--color-toast-error)",
           warning: "var(--color-toast-warning)",
           info: "var(--color-toast-info)",
+        },
+        background: {
+          dark: "var(--color-background-dark)",
         },
       },
     },

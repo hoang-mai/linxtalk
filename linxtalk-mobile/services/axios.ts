@@ -9,10 +9,8 @@ const axiosInstance = axios.create({
     baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://10.145.54.187:8080',
     headers: {
         'Content-Type': 'application/json',
-        'Accept-Language': useLanguageStore.getState().language,
     },
 });
-
 let isRefreshing = false;
 let refreshPromise: Promise<string> | null = null;
 
@@ -35,6 +33,7 @@ const refreshAccessToken = async (): Promise<string> => {
 
 axiosInstance.interceptors.request.use(
     async (config) => {
+        config.headers['Accept-Language'] = useLanguageStore.getState().language;
         const { accessToken, refreshToken } = useAuthStore.getState();
 
         if (accessToken && isTokenExpired(accessToken) && refreshToken) {

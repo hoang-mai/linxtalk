@@ -36,6 +36,7 @@ import ReloginAccount from "../ReloginAccount";
 import { MAX_ACCOUNT } from "@/constants/constant";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useTranslation } from "react-i18next";
+import Icon from "@/library/Icon";
 
 export default function Main() {
     const queryClient = useQueryClient();
@@ -364,17 +365,17 @@ export default function Main() {
                     shadowRadius: 2,
                     elevation: 1,
                 }}
-                className="bg-primary-50 w-12 h-12 rounded-full border border-primary-100 items-center justify-center"
+                className="bg-primary-50 dark:bg-primary-900 w-12 h-12 rounded-full border border-primary-100 dark:border-primary-800 items-center justify-center"
             >
                 <Text className="text-2xl font-bold text-primary-500">
                     {item.displayName.charAt(0).toUpperCase()}
                 </Text>
             </View>
             <View className="flex-1 ml-4">
-                <Text className="text-base font-semibold text-grey-900" numberOfLines={1}>
+                <Text className="text-base font-semibold text-grey-800 dark:text-grey-100" numberOfLines={1}>
                     {item.displayName}
                 </Text>
-                <Text className="text-sm text-grey-500 mt-0.5" numberOfLines={1}>
+                <Text className="text-sm text-grey-500 dark:text-grey-400 mt-0.5" numberOfLines={1}>
                     {item.username ? `@${item.username}` : item.email}
                 </Text>
             </View>
@@ -395,7 +396,7 @@ export default function Main() {
         navigation.setOptions({
             headerRight: () => isDirty ? (
                 <Pressable onPress={handleSubmit(onSubmit)}>
-                    <Ionicons name="checkmark-outline" size={24} color="black" />
+                    <Icon name="checkmark-outline" size={24} color={"black"} darkColor={"white"} />
                 </Pressable>
             ) : null,
         });
@@ -441,26 +442,25 @@ export default function Main() {
                                 <Pressable onPress={() => setShowDatePicker(true)}>
                                     <View className="flex flex-col w-full gap-1 relative">
                                         <View
-                                            className="flex flex-row gap-1 absolute -top-2.5 left-4 z-10 bg-white px-1 rounded-md">
+                                            className="flex flex-row gap-1 absolute -top-2.5 left-4 z-10 bg-white dark:bg-background-dark px-1 rounded-md">
                                             <Text className="text-sm font-medium"
                                                 style={{ color: Colors.primary["400"] }}>{t('editInfo.birthday')}</Text>
                                         </View>
-                                        <View className="relative flex flex-row items-center bg-white">
+                                        <View className="relative flex flex-row items-center bg-white dark:bg-background-dark">
                                             <View
-                                                className="w-full rounded-full py-4 pl-14 pr-4 bg-white"
+                                                className="w-full rounded-full py-4 pl-14 pr-4 bg-white dark:bg-background-dark"
                                                 style={{
                                                     borderWidth: 1.5,
                                                     borderRadius: 999,
                                                     borderColor: Colors.primary["400"]
                                                 }}
                                             >
-                                                <Text className="text-base"
-                                                    style={{ color: formattedDate ? Colors.grey["900"] : Colors.grey["600"] }}>
+                                                <Text className={`text-base ${formattedDate ? "text-grey-800 dark:text-grey-100" : "text-grey-500 dark:text-grey-200"}`}>
                                                     {formattedDate || "DD/MM/YYYY"}
                                                 </Text>
                                             </View>
                                             <View className="absolute left-6 top-0 bottom-0 justify-center">
-                                                <Ionicons name="calendar-outline" size={20} color={Colors.grey["500"]} />
+                                                <Icon name="calendar-outline" size={20} color={Colors.grey["500"]} darkColor={Colors.grey["200"]} />
                                             </View>
                                         </View>
                                     </View>
@@ -485,23 +485,22 @@ export default function Main() {
                 />
                 {/* Link email */}
                 <View className="flex flex-col w-full gap-1 relative">
-                    <View className="flex flex-row gap-1 absolute -top-2.5 left-4 z-10 bg-white px-1 rounded-md">
+                    <View className="flex flex-row gap-1 absolute -top-2.5 left-4 z-10 bg-white dark:bg-background-dark px-1 rounded-md">
                         <Text className="text-sm font-medium" style={{ color: Colors.primary["400"] }}>{t('common.email')}</Text>
                     </View>
-                    <View className="relative flex flex-row items-center bg-white">
+                    <View className="relative flex flex-row items-center bg-white dark:bg-background-dark">
                         <Pressable
-                            className="w-full rounded-full py-4 pl-14 pr-4 bg-white"
+                            className="w-full rounded-full py-4 pl-14 pr-4 bg-white dark:bg-background-dark"
                             style={{ borderWidth: 1.5, borderRadius: 999, borderColor: Colors.primary["400"] }}
                             onPress={handleLinkEmail}
                             disabled={account.username === null || account.username === undefined}
                         >
-                            <Text className="text-base"
-                                style={{ color: account.email ? Colors.grey["900"] : Colors.grey["600"] }}>
+                            <Text className={`text-base ${account.email ? "text-grey-800 dark:text-grey-100" : "text-grey-600 dark:text-grey-200"}`}>
                                 {account.email || t('editInfo.linkYourEmail')}
                             </Text>
                         </Pressable>
                         <View className="absolute left-6 top-0 bottom-0 justify-center">
-                            <Ionicons name="mail-outline" size={20} color={Colors.grey["500"]} />
+                            <Icon name="mail-outline" size={20} color={Colors.grey["500"]} darkColor={Colors.grey["200"]} />
                         </View>
                     </View>
                 </View>
@@ -552,8 +551,8 @@ export default function Main() {
 
             {/* Section: Saved Accounts */}
             <View className="mt-6">
-                <View className="flex-col rounded-2xl p-4 bg-white gap-4">
-                    <Text className="text-lg font-bold text-grey-700">{t('settings.savedAccounts')}</Text>
+                <View className="flex-col rounded-2xl p-4 bg-white dark:bg-background-dark gap-4">
+                    <Text className="text-lg font-bold text-grey-800 dark:text-grey-100">{t('settings.savedAccounts')}</Text>
                     <FlatList
                         data={saveAccountExceptCurrentAccount}
                         keyExtractor={(item) => item.username || item.email || ""}
@@ -569,16 +568,16 @@ export default function Main() {
                                 className="flex-row items-center"
                                 onPress={handleAddNewAccount}
                             >
-                                <View className="bg-primary-50 rounded-full w-12 h-12 items-center justify-center mr-4">
+                                <View className="bg-primary-50 dark:bg-primary-900 rounded-full w-12 h-12 items-center justify-center mr-4">
                                     <Ionicons name="person-add-outline" size={24} color={Colors.primary["500"]} />
                                 </View>
-                                <Text className="text-lg font-medium">{t('editInfo.addAccount')}</Text>
+                                <Text className="text-lg font-medium text-grey-800 dark:text-grey-100">{t('editInfo.addAccount')}</Text>
                             </Pressable>
                         </View>
                     )}
                 </View>
                 <Text
-                    className="text-sm text-grey-500 mt-2 ml-4">{t('editInfo.maxAccountMessage', { max: MAX_ACCOUNT })}</Text>
+                    className="text-sm text-grey-500 dark:text-grey-400 mt-2 ml-4">{t('editInfo.maxAccountMessage', { max: MAX_ACCOUNT })}</Text>
             </View>
 
         </KeyboardAwareScrollView>
@@ -588,8 +587,8 @@ export default function Main() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <View className="mt-6">
-            <View className="flex-col rounded-3xl p-5 bg-white gap-5">
-                <Text className="text-lg font-bold text-grey-700">{title}</Text>
+            <View className="flex-col rounded-3xl p-5 bg-white dark:bg-background-dark gap-5">
+                <Text className="text-lg font-bold text-grey-800 dark:text-grey-100">{title}</Text>
                 {children}
             </View>
         </View>

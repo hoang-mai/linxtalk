@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable, FlatList, Platform, TextInput } from "react-native";
+import { View, Text, StyleSheet, Pressable, FlatList, Platform, TextInput, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useSavedAccountStore } from "@/store/saved-account-store";
@@ -30,6 +30,7 @@ import { useTranslation } from "react-i18next";
 
 export default function Main() {
     const router = useRouter();
+    const colorScheme = useColorScheme();
     const { t } = useTranslation();
     const { savedAccounts, removeAccount, saveAccount } = useSavedAccountStore();
     const { setAccount } = useAccountStore();
@@ -240,7 +241,7 @@ export default function Main() {
                 shadowRadius: 2,
                 elevation: 1,
             }}
-            className="flex-row items-center bg-white rounded-2xl px-4 py-4 mb-3 border border-grey-100"
+            className="flex-row items-center bg-white dark:bg-background-dark rounded-2xl px-4 py-4 mb-3 border border-grey-100"
             onPress={() => handleSelectAccount(item)}
         >
             {/* Avatar */}
@@ -252,7 +253,7 @@ export default function Main() {
                     shadowRadius: 2,
                     elevation: 1,
                 }}
-                className="bg-primary-50 h-14 w-14 rounded-full border border-primary-100 items-center justify-center"
+                className="bg-primary-50 dark:bg-primary-900 h-14 w-14 rounded-full border border-primary-100 dark:border-primary-800 items-center justify-center"
             >
                 <Text className="text-2xl font-bold text-primary-500">
                     {item.displayName.charAt(0).toUpperCase()}
@@ -261,10 +262,10 @@ export default function Main() {
 
             {/* Info */}
             <View className="flex-1 ml-4">
-                <Text className="text-base font-semibold text-grey-900" numberOfLines={1}>
+                <Text className="text-base font-semibold text-grey-900 dark:text-grey-100" numberOfLines={1}>
                     {item.displayName}
                 </Text>
-                <Text className="text-sm text-grey-500 mt-0.5" numberOfLines={1}>
+                <Text className="text-sm text-grey-500 dark:text-grey-400 mt-0.5" numberOfLines={1}>
                     {item.username ? `@${item.username}` : item.email}
                 </Text>
             </View>
@@ -283,26 +284,29 @@ export default function Main() {
     return (
         <>
             <LinearGradient
-                colors={[Colors.primary[400], "#FFFFFF"]}
+                colors={colorScheme === "dark"
+                    ? [Colors.primary[800], "#122020"]
+                    : [Colors.primary[400], "#FFFFFF"]
+                }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0.5, y: 0.5 }}
                 className="absolute w-full h-full"
             />
             <SafeAreaView className="flex-1">
-                <View style={styles.card} className="flex-1 mx-6 mt-16 mb-6 border border-white rounded-2xl bg-white">
+                <View style={styles.card} className="flex-1 mx-6 mt-16 mb-6 border border-white dark:border-background-dark rounded-2xl bg-white dark:bg-background-dark">
 
                     {/* Header */}
                     <View className="items-center pt-10 pb-6 px-4">
                         <View
                             style={styles.ball}
-                            className="bg-primary-50 h-24 w-24 rounded-full border border-primary-100 items-center justify-center mb-5"
+                            className="bg-primary-50 dark:bg-primary-900 h-24 w-24 rounded-full border border-primary-100 dark:border-primary-800 items-center justify-center mb-5"
                         >
                             <Ionicons name="people" size={40} color="#1FBAC3" />
                         </View>
                         <Text className="text-2xl font-bold text-primary-500">
                             {selectedAccount ? t('saveAccount.welcomeBack') : t('saveAccount.selectAccount')}
                         </Text>
-                        <Text className="text-base text-grey-500 mt-2">
+                        <Text className="text-base text-grey-500 dark:text-grey-400 mt-2">
                             {selectedAccount
                                 ? t('saveAccount.enterPasswordToContinue')
                                 : t('saveAccount.loginQuickly')}
@@ -326,16 +330,16 @@ export default function Main() {
                                         shadowRadius: 4,
                                         elevation: 3,
                                     }}
-                                    className="bg-primary-50 h-14 w-14 rounded-full border border-primary-100 items-center justify-center"
+                                    className="bg-primary-50 dark:bg-primary-900 h-14 w-14 rounded-full border border-primary-100 dark:border-primary-800 items-center justify-center"
                                 >
                                     <Text className="text-2xl font-bold text-primary-500">
                                         {selectedAccount.displayName.charAt(0).toUpperCase()}
                                     </Text>
                                 </View>
-                                <Text className="text-lg font-semibold text-grey-900">
+                                <Text className="text-lg font-semibold text-grey-900 dark:text-grey-100">
                                     {selectedAccount.displayName}
                                 </Text>
-                                <Text className="text-sm text-grey-500 mt-0.5">
+                                <Text className="text-sm text-grey-500 dark:text-grey-400 mt-0.5">
                                     @{selectedAccount.username}
                                 </Text>
                             </View>

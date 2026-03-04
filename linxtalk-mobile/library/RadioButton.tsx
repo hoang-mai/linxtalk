@@ -13,9 +13,9 @@ interface RadioButtonProps {
 }
 
 export default function RadioButton({ selected, onPress, children, style }: RadioButtonProps) {
-    const bgStyle = useAnimatedStyle(() => ({
-        backgroundColor: withTiming(
-            selected ? Colors.primary["50"] : "rgba(255,255,255,0)",
+    const containerStyle = useAnimatedStyle(() => ({
+        borderColor: withTiming(
+            selected ? Colors.primary["500"] : "rgba(255,255,255,0)",
             { duration: 300, easing: Easing.out(Easing.cubic) }
         ),
     }));
@@ -34,8 +34,16 @@ export default function RadioButton({ selected, onPress, children, style }: Radi
 
     return (
         <AnimatedPressable
+            className="bg-white dark:bg-background-dark"
             onPress={onPress}
-            style={[styles.container, bgStyle, style]}
+            style={[styles.container, containerStyle, style, selected &&
+            {
+                shadowColor: Colors.primary["500"],
+                shadowOffset: { width: 0, height: 2 },
+                shadowRadius: 3.84,
+                elevation: 10,
+                shadowOpacity: 0.25
+            }]}
         >
             <View style={styles.content}>
                 {children}
@@ -55,6 +63,7 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         paddingHorizontal: 16,
         borderRadius: 16,
+        borderWidth: 2,
     },
     content: {
         flexDirection: "row",

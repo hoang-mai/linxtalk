@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, useColorScheme } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 
 export default function Main() {
     const router = useRouter();
+    const colorScheme = useColorScheme();
     const { t } = useTranslation();
     const usernameRef = useRef<TextInput>(null);
     const passwordRef = useRef<TextInput>(null);
@@ -87,13 +88,16 @@ export default function Main() {
     return (
         <>
             <LinearGradient
-                colors={[Colors.primary[400], "#FFFFFF"]}
+                colors={colorScheme === "dark"
+                    ? [Colors.primary[800], "#122020"]
+                    : [Colors.primary[400], "#FFFFFF"]
+                }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0.5, y: 0.5 }}
                 className="absolute w-full h-full"
             />
             <SafeAreaView className={"flex-1"}>
-                <View style={styles.card} className="flex-1 mx-6 mt-16 mb-6 border border-white rounded-2xl bg-white">
+                <View style={styles.card} className="flex-1 mx-6 mt-16 mb-6 border border-white dark:border-background-dark rounded-2xl bg-white dark:bg-background-dark">
                     <KeyboardAwareScrollView
                         className={"flex-1"}
                         contentContainerClassName={"flex-grow px-10 pt-10"}
@@ -104,12 +108,12 @@ export default function Main() {
                         <View className={"items-center mb-8"}>
                             <View
                                 style={styles.ball}
-                                className={"bg-primary-50 h-24 w-24 rounded-full border border-primary-100 items-center justify-center mb-5"}
+                                className={"bg-primary-50 dark:bg-primary-900 h-24 w-24 rounded-full border border-primary-100 dark:border-primary-800 items-center justify-center mb-5"}
                             >
                                 <Ionicons name="person-add" size={40} color="#1FBAC3" />
                             </View>
                             <Text className={"text-3xl font-bold text-primary-500"}>{t('register.title')}</Text>
-                            <Text className={"text-base text-grey-500 mt-2"}>{t('register.subtitle')}</Text>
+                            <Text className={"text-base text-grey-500 dark:text-grey-400 mt-2"}>{t('register.subtitle')}</Text>
                         </View>
 
                         {/* Form */}

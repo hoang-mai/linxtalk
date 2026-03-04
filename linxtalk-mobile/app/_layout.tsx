@@ -14,6 +14,10 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useAccountStore } from '@/store/account-store';
 import ModalGlobal from '@/components/modals/ModalGlobal';
 import { useLanguageStore } from '@/store/language-store';
+import { useThemeStore } from '@/store/theme-store';
+import { useColorScheme } from 'react-native';
+import { ThemeProvider } from '@react-navigation/native';
+import { LightTheme, DarkTheme } from '@/constants/theme';
 
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
@@ -25,29 +29,33 @@ export default function RootLayout() {
   const { isHydrated: isSavedAccountHydrated } = useSavedAccountStore();
   const { isHydrated: isAccountHydrated } = useAccountStore();
   const { isHydrated: isLanguageHydrated } = useLanguageStore();
+  const { isHydrated: isThemeHydrated } = useThemeStore();
+  const colorScheme = useColorScheme();
 
-  if (!isAuthHydrated || !isSavedAccountHydrated || !isAccountHydrated || !isLanguageHydrated) {
+  if (!isAuthHydrated || !isSavedAccountHydrated || !isAccountHydrated || !isLanguageHydrated || !isThemeHydrated) {
     return null;
   }
 
   return (
-    <SafeAreaProvider>
-      <KeyboardProvider>
-        <QueryClientProvider client={queryClient}>
-          <StatusBar style="auto" />
-          <Loading />
-          <ModalGlobal />
-          <Toast />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Protected guard={isAuthenticated}>
-              <Stack.Screen name='(app)' />
-            </Stack.Protected>
-            <Stack.Protected guard={!isAuthenticated}>
-              <Stack.Screen name='(auth)' />
-            </Stack.Protected>
-          </Stack>
-        </QueryClientProvider>
-      </KeyboardProvider>
-    </SafeAreaProvider>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : LightTheme}>
+      <SafeAreaProvider>
+        <KeyboardProvider>
+          <QueryClientProvider client={queryClient}>
+            <StatusBar style="auto" />
+            <Loading />
+            <ModalGlobal />
+            <Toast />
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Protected guard={isAuthenticated}>
+                <Stack.Screen name='(app)' />
+              </Stack.Protected>
+              <Stack.Protected guard={!isAuthenticated}>
+                <Stack.Screen name='(auth)' />
+              </Stack.Protected>
+            </Stack>
+          </QueryClientProvider>
+        </KeyboardProvider>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }

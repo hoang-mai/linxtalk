@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TextInputProps, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, TextInputProps, TouchableOpacity, useColorScheme } from "react-native";
 import React, { useState, forwardRef } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
@@ -38,6 +38,7 @@ const Input = forwardRef<TextInput, InputProps>(({
 }, ref) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const focused = useSharedValue(0);
+  const colorScheme = useColorScheme();
 
   const handleFocus = (e: any) => {
     focused.value = withTiming(1, { duration: 200 });
@@ -70,7 +71,7 @@ const Input = forwardRef<TextInput, InputProps>(({
     <View className={"flex flex-col w-full gap-1 relative"}>
       {label && (
         <View
-          className={"flex flex-row gap-1 absolute -top-2.5 left-4 z-10 bg-white px-1 rounded-md"}>
+          className={"flex flex-row gap-1 absolute -top-2.5 left-4 z-10 bg-white dark:bg-background-dark px-1 rounded-md"}>
           <Animated.Text
             numberOfLines={1}
             style={labelStyle}
@@ -81,13 +82,13 @@ const Input = forwardRef<TextInput, InputProps>(({
           {required && <Text className={disable ? "text-grey-600" : "text-red-500"}> *</Text>}
         </View>
       )}
-      <View className={"relative flex flex-row items-center bg-white"}>
+      <View className={"relative flex flex-row items-center bg-white dark:bg-background-dark"}>
         <Animated.View style={borderStyle}>
           <TextInput
             ref={ref}
-            className={`w-full rounded-full py-4 text-base text-black ${icon ? "pl-14" : "pl-6"} ${secureTextEntry ? "pr-12" : "pr-4"} ${disable ? "bg-gray-50" : error ? "bg-red-50" : "bg-white"} ${maxCharCount != null ? "pr-10" : ""}`}
+            className={`w-full rounded-full py-4 text-base text-grey-800 dark:text-grey-100 ${icon ? "pl-14" : "pl-6"} ${secureTextEntry ? "pr-12" : "pr-4"} ${disable ? "bg-gray-50" : error ? "bg-red-50" : "bg-white dark:bg-background-dark"} ${maxCharCount != null ? "pr-10" : ""}`}
             placeholder={placeholder}
-            placeholderTextColor={Colors.grey["600"]}
+            placeholderTextColor={colorScheme === "dark" ? Colors.grey["200"] : Colors.grey["500"]}
             secureTextEntry={secureTextEntry && !isPasswordVisible}
             onFocus={disable ? undefined : handleFocus}
             onBlur={disable ? undefined : handleBlur}
@@ -101,7 +102,7 @@ const Input = forwardRef<TextInput, InputProps>(({
         {icon && (
           <View className="absolute left-6 top-0 bottom-0 justify-center">
             <Ionicons
-              color={disable ? Colors.grey["600"] : Colors.grey["500"]}
+              color={disable ? Colors.grey["600"] : colorScheme === "dark" ? Colors.grey["200"] : Colors.grey["500"]}
               name={icon}
               size={20} />
           </View>

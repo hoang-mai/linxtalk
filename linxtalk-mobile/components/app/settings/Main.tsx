@@ -7,7 +7,6 @@ import { AuthResponse, LoginWithGoogleRequest, LogoutRequest, SavedAccount, Swit
 import { useRouter } from "expo-router";
 import { useAccountStore } from "@/store/account-store";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import React from "react";
 import { Colors } from "@/constants/theme";
 import { useSavedAccountStore } from "@/store/saved-account-store";
@@ -21,6 +20,8 @@ import * as Device from "expo-device";
 import * as Application from "expo-application";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
+import Icon from "@/library/Icon";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function Main() {
     const router = useRouter();
@@ -48,6 +49,14 @@ export default function Main() {
                     description: t('settings.changeLanguage'),
                     onPress: () => {
                         router.push("/settings/language");
+                    }
+                },
+                {
+                    icon: "color-palette-outline",
+                    title: t('settings.theme'),
+                    description: t('settings.changeTheme'),
+                    onPress: () => {
+                        router.push("/settings/theme");
                     }
                 },
             ]
@@ -227,7 +236,7 @@ export default function Main() {
                     shadowRadius: 2,
                     elevation: 1,
                 }}
-                className="bg-primary-50 w-12 h-12 rounded-full border border-primary-100 items-center justify-center"
+                className="bg-primary-50 dark:bg-primary-900 w-12 h-12 rounded-full border border-primary-100 dark:border-primary-800 items-center justify-center"
             >
                 <Text className="text-2xl font-bold text-primary-500">
                     {item.displayName.charAt(0).toUpperCase()}
@@ -236,10 +245,10 @@ export default function Main() {
 
             {/* Info */}
             <View className="flex-1 ml-4">
-                <Text className="text-base font-semibold text-grey-900" numberOfLines={1}>
+                <Text className="text-base font-semibold text-grey-800 dark:text-grey-100" numberOfLines={1}>
                     {item.displayName}
                 </Text>
-                <Text className="text-sm text-grey-500 mt-0.5" numberOfLines={1}>
+                <Text className="text-sm text-grey-500 dark:text-grey-400 mt-0.5" numberOfLines={1}>
                     {item.username ? `@${item.username}` : item.email}
                 </Text>
             </View>
@@ -259,15 +268,15 @@ export default function Main() {
                             shadowRadius: 4,
                             elevation: 3,
                         }}
-                        className="bg-primary-50 h-24 w-24 rounded-full border border-primary-100 items-center justify-center"
+                        className="bg-primary-50 dark:bg-primary-900 h-24 w-24 rounded-full border border-primary-100 dark:border-primary-800 items-center justify-center"
                     >
-                        <Text className="text-4xl font-bold text-primary-500">
+                        <Text className="text-4xl font-bold text-primary-500 ">
                             {account.displayName?.charAt(0).toUpperCase()}
                         </Text>
                     </View>
                     <View className="items-center gap-1">
-                        <Text className="text-3xl font-bold">{account.displayName}</Text>
-                        <Text className="text-sm text-gray-500">{account.email || `@${account.username}`}</Text>
+                        <Text className="text-3xl font-bold dark:text-grey-100">{account.displayName}</Text>
+                        <Text className="text-sm text-grey-500 dark:text-grey-400">{account.email || `@${account.username}`}</Text>
                     </View>
                 </View>
 
@@ -283,8 +292,8 @@ export default function Main() {
                         { icon: "create-outline", title: t('settings.editInfo'), description: null, onPress: () => { router.push("/settings/edit-info") } },
                     ]} />
                     {saveAccountExceptCurrentAccount.length > 0 && (
-                        <View className="flex-col rounded-2xl mx-4 p-4 bg-white gap-4">
-                            <Text className="text-lg font-bold text-grey-700">{t('settings.savedAccounts')}</Text>
+                        <View className="flex-col rounded-2xl mx-4 p-4 bg-white dark:bg-background-dark gap-4">
+                            <Text className="text-lg font-bold text-grey-800 dark:text-grey-100">{t('settings.savedAccounts')}</Text>
                             <FlatList
                                 data={saveAccountExceptCurrentAccount}
                                 keyExtractor={(item) => item.username || item.email || ""}
@@ -303,13 +312,9 @@ export default function Main() {
                 </View>
                 <Pressable
                     onPress={handleLogout}
-                    className="flex-row items-center justify-center rounded-full h-14 mx-4 mt-4 border "
-                    style={{
-                        backgroundColor: Colors.red["50"],
-                        borderColor: Colors.red["200"],
-                    }}
+                    className="flex-row items-center justify-center rounded-full h-14 mx-4 mt-4 border bg-red-50 dark:bg-transparent border-red-200 dark:border-red-800 "
                 >
-                    <Ionicons name="log-out-outline" size={24} color={Colors.red["600"]} />
+                    <Icon name="log-out-outline" size={24} color={Colors.red["600"]} />
                     <Text className="text-lg font-medium ml-2" style={{ color: Colors.red["600"] }}>{t('common.logout')}</Text>
                 </Pressable>
             </ScrollView>
@@ -332,18 +337,20 @@ interface ListItemProps {
 function ListItem({ title, items }: ListItemProps) {
     return (
         <View className="flex-col gap-2">
-            <View className="flex-col rounded-3xl mx-4 p-4 bg-white gap-4">
-                {title && <Text className="text-lg font-bold text-grey-700">{title}</Text>}
+            <View className="flex-col rounded-3xl mx-4 p-4 bg-white dark:bg-background-dark gap-4">
+                {title && <Text className="text-lg font-bold text-grey-800 dark:text-grey-100">{title}</Text>}
                 {items.map((item, index) => (
                     <Pressable
                         key={index}
                         onPress={item.onPress}
                         className="flex-row items-center justify-between"
                     >
-                        {item.icon && <View className="bg-primary-50 p-2 rounded-full w-12 h-12 items-center justify-center mr-4"><Ionicons name={item.icon} size={24} color={Colors.primary["500"]} /></View>}
+                        {item.icon && <View className="bg-primary-50 dark:bg-primary-900 p-2 rounded-full w-12 h-12 items-center justify-center mr-4">
+                            <Icon name={item.icon} size={24} color={Colors.primary["500"]} />
+                        </View>}
                         <View className="flex-1">
-                            {item.title && <Text className="text-lg font-medium">{item.title}</Text>}
-                            {item.description && <Text className="text-sm text-gray-500">{item.description}</Text>}
+                            {item.title && <Text className="text-lg font-medium text-grey-800 dark:text-grey-100">{item.title}</Text>}
+                            {item.description && <Text className="text-sm text-grey-500 dark:text-grey-400">{item.description}</Text>}
                         </View>
 
                     </Pressable>

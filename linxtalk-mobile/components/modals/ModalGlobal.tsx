@@ -4,6 +4,8 @@ import { useModalStore } from "@/store/modal-store";
 import { BlurView } from "expo-blur";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
+import Icon from "@/library/Icon";
+import { Colors } from "@/constants/theme";
 
 export default function ModalGlobal() {
     const { visible, title, children, height, hideModal } = useModalStore();
@@ -32,7 +34,7 @@ export default function ModalGlobal() {
                 contentContainerStyle={{ flexGrow: 1, alignItems: "center", justifyContent: "center" }}
             >
                 <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} />
-                <View className="bg-white mx-10 p-8 rounded-2xl" style={height ? { height } : undefined}>
+                <View className="bg-white dark:bg-background-dark mx-10 p-8 rounded-2xl" style={height ? { height } : undefined}>
                     <Animated.View style={[{ position: 'absolute', top: 12, right: 12, zIndex: 10 }, animatedStyle]}>
                         <Pressable
                             onPress={hideModal}
@@ -40,10 +42,10 @@ export default function ModalGlobal() {
                             onPressOut={handlePressOut}
                             className="p-1"
                         >
-                            <Ionicons name="close" size={24} color="#9CA3AF" />
+                            <Icon name="close" size={24} color={Colors.grey["200"]} darkColor={Colors.grey["500"]} />
                         </Pressable>
                     </Animated.View>
-                    {title && <Text className="text-xl font-medium mb-4 text-center">{title}</Text>}
+                    {title && <Text className="text-xl font-medium mb-4 text-center text-black dark:text-white">{title}</Text>}
                     {children}
                 </View>
             </KeyboardAwareScrollView>

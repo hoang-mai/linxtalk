@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Account } from "@/constants/type";
+import { SavedAccount } from "@/constants/type";
 
 interface AccountState {
-    account: Account;
+    account: SavedAccount;
     isHydrated: boolean;
-    setAccount: (account: Account) => void;
+    setAccount: (account: SavedAccount) => void;
     clearAccount: () => void;
     setIsHydrated: (isHydrated: boolean) => void;
 }
@@ -17,16 +17,19 @@ export const useAccountStore = create<AccountState>()(
             account: {
                 username: null,
                 email: null,
-                displayName: null,
+                displayName: "",
                 avatarUrl: null,
+                phoneNumber: null,
+                birthday: null,
+                bio: null,
             },
             isHydrated: false,
-            setAccount: (account: Account) => set({ account }),
+            setAccount: (account: SavedAccount) => set({ account }),
             clearAccount: () => set({
                 account: {
                     username: null,
                     email: null,
-                    displayName: null,
+                    displayName: "",
                     avatarUrl: null,
                 }
             }),

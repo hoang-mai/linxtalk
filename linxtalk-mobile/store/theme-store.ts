@@ -14,7 +14,7 @@ interface ThemeState {
 
 const applyTheme = (theme: ThemeMode) => {
     if (theme === 'system') {
-        Appearance.setColorScheme(null);
+        Appearance.setColorScheme('unspecified');
     } else {
         Appearance.setColorScheme(theme);
     }

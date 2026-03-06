@@ -3,7 +3,8 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import "./global.css"
 import '@/i18n';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { queryClient, persistOptions } from '@/components/providers/query-client';
 import { useAuthStore } from '@/store/auth-store';
 import { useSavedAccountStore } from '@/store/saved-account-store';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -22,7 +23,6 @@ import { LightTheme, DarkTheme } from '@/constants/theme';
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
 });
-const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const { isHydrated: isAuthHydrated, isAuthenticated } = useAuthStore();
@@ -40,7 +40,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : LightTheme}>
       <SafeAreaProvider>
         <KeyboardProvider>
-          <QueryClientProvider client={queryClient}>
+          <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
             <StatusBar style="auto" />
             <Loading />
             <ModalGlobal />
@@ -53,7 +53,7 @@ export default function RootLayout() {
                 <Stack.Screen name='(auth)' />
               </Stack.Protected>
             </Stack>
-          </QueryClientProvider>
+          </PersistQueryClientProvider>
         </KeyboardProvider>
       </SafeAreaProvider>
     </ThemeProvider>

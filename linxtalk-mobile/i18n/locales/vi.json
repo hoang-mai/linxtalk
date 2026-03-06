@@ -86,7 +86,9 @@
         "googlePlayNotAvailable": "Google Play Services không khả dụng",
         "pleaseSignInWith": "Vui lòng đăng nhập với {{email}}",
         "linkEmailFailed": "Liên kết email thất bại",
-        "linkEmailInProgress": "Đang liên kết email"
+        "linkEmailInProgress": "Đang liên kết email",
+        "noNetwork": "Không có kết nối mạng",
+        "networkRestored": "Đã khôi phục kết nối mạng"
     },
     "validation": {
         "usernameInvalid": "Tên đăng nhập phải từ 6-30 ký tự",

@@ -57,13 +57,6 @@ export interface SavedAccount {
   avatarUrl: string | null;
 }
 
-export interface Account {
-  username: string | null;
-  email: string | null;
-  displayName: string;
-  avatarUrl: string | null;
-}
-
 export interface SwitchAccountRequest {
   username: string | null;
   email: string | null;

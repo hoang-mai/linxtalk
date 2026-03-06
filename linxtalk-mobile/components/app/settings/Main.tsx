@@ -1,6 +1,7 @@
 import { useAuthStore } from "@/store/auth-store";
-import { FlatList, Platform, Pressable, ScrollView, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { useMutation } from "@tanstack/react-query";
+import { queryClient, asyncStoragePersister } from "@/components/providers/query-client";
 import { post } from "@/services/axios";
 import { AUTH } from "@/constants/api";
 import { AuthResponse, LoginWithGoogleRequest, LogoutRequest, SavedAccount, SwitchAccountRequest } from "@/constants/type";
@@ -86,9 +87,11 @@ export default function Main() {
         },
         onSettled: async () => {
             const { username, email } = account;
-            logout();
-            removeAccount(username, email);
-            clearAccount();
+            logout(); // Xóa token
+            removeAccount(username, email); // Xóa account khỏi savedAccount
+            clearAccount(); // Xóa account khỏi Account
+            queryClient.clear();
+            await asyncStoragePersister.removeClient(); // Xóa toàn bộ cache query
             router.replace("/(auth)/save-account");
         }
     });
@@ -101,7 +104,9 @@ export default function Main() {
         onMutate: () => {
             showLoading();
         },
-        onSuccess: (result) => {
+        onSuccess: async (result) => {
+            queryClient.clear();
+            await asyncStoragePersister.removeClient(); // Xóa cache của account cũ
             setTokens(result.data.accessToken, result.data.refreshToken);
             setAccount({
                 username: result.data.username,
@@ -125,6 +130,8 @@ export default function Main() {
             showLoading();
         },
         onSuccess: async (result) => {
+            queryClient.clear();
+            await asyncStoragePersister.removeClient(); // Xóa cache của account cũ
             setTokens(result.data.accessToken, result.data.refreshToken);
             saveAccount({
                 username: result.data.username,
@@ -294,15 +301,13 @@ export default function Main() {
                     {saveAccountExceptCurrentAccount.length > 0 && (
                         <View className="flex-col rounded-2xl mx-4 p-4 bg-white dark:bg-background-dark gap-4">
                             <Text className="text-lg font-bold text-grey-800 dark:text-grey-100">{t('settings.savedAccounts')}</Text>
-                            <FlatList
-                                data={saveAccountExceptCurrentAccount}
-                                keyExtractor={(item) => item.username || item.email || ""}
-                                renderItem={renderAccount}
-                                contentContainerStyle={{ paddingBottom: 8 }}
-                                showsVerticalScrollIndicator={false}
-                                scrollEnabled={false}
-                                ItemSeparatorComponent={() => <View className="h-4" />}
-                            />
+                            <View className="gap-4" style={{ paddingBottom: 8 }}>
+                                {saveAccountExceptCurrentAccount.map((item) => (
+                                    <React.Fragment key={item.username || item.email || ""}>
+                                        {renderAccount({ item })}
+                                    </React.Fragment>
+                                ))}
+                            </View>
                         </View>
                     )}
 

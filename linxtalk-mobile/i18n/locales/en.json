@@ -86,7 +86,9 @@
         "googlePlayNotAvailable": "Google Play Services not available",
         "pleaseSignInWith": "Please sign in with {{email}}",
         "linkEmailFailed": "Link email failed",
-        "linkEmailInProgress": "Link email in progress"
+        "linkEmailInProgress": "Link email in progress",
+        "noNetwork": "No internet connection",
+        "networkRestored": "Internet connection restored"
     },
     "validation": {
         "usernameInvalid": "Username must be 6-30 characters",

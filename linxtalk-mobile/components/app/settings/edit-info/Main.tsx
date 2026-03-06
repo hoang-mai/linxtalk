@@ -1,5 +1,5 @@
 import { FlatList, Platform, Pressable, Text, View } from "react-native";
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import Input from "@/library/Input";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useAccountStore } from "@/store/account-store";
@@ -14,6 +14,7 @@ import { useModalStore } from "@/store/modal-store";
 import { useLoadingStore } from "@/store/loading-store";
 import { useToastStore } from "@/store/toast-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { asyncStoragePersister } from "@/components/providers/query-client";
 import { get, post, put } from "@/services/axios";
 import { AUTH, USER } from "@/constants/api";
 import {
@@ -66,22 +67,27 @@ export default function Main() {
         return true;
     });
 
-    const { data } = useQuery({
+    const { data, isFetching, isLoading } = useQuery({
         queryKey: ["profile"],
-        placeholderData: (prevData) => prevData,
+        staleTime: 12 * 60 * 60 * 1000,
         queryFn: async () => {
             try {
-                showLoading();
                 const res = await get<BaseResponse<ProfileResponse>>(`${USER}/profile`);
                 return res.data.data;
             } catch (error: any) {
                 showToast({ message: error.message, type: "error" });
                 throw error;
-            } finally {
-                hideLoading();
             }
         },
     });
+
+    useEffect(() => {
+        if (isLoading) {
+            showLoading();
+        } else {
+            hideLoading();
+        }
+    }, [isLoading])
 
     const formValues = data ? {
         phoneNumber: data.phoneNumber ?? undefined,
@@ -152,7 +158,9 @@ export default function Main() {
         onMutate: () => {
             showLoading();
         },
-        onSuccess: (result) => {
+        onSuccess: async (result) => {
+            queryClient.clear();
+            await asyncStoragePersister.removeClient();
             setTokens(result.data.accessToken, result.data.refreshToken);
             setAccount({
                 username: result.data.username,
@@ -175,7 +183,9 @@ export default function Main() {
         onMutate: () => {
             showLoading();
         },
-        onSuccess: (result) => {
+        onSuccess: async (result) => {
+            queryClient.clear();
+            await asyncStoragePersister.removeClient();
             setTokens(result.data.accessToken, result.data.refreshToken);
             saveAccount({
                 username: result.data.username,
@@ -425,6 +435,7 @@ export default function Main() {
                             icon="call-outline"
                             error={errors.phoneNumber?.message}
                             isBlurAndSubmit
+                            loading={isFetching}
                         />
                     )}
                 />
@@ -439,7 +450,7 @@ export default function Main() {
 
                         return (
                             <>
-                                <Pressable onPress={() => setShowDatePicker(true)}>
+                                <Pressable disabled={isFetching} onPress={() => setShowDatePicker(true)}>
                                     <View className="flex flex-col w-full gap-1 relative">
                                         <View
                                             className="flex flex-row gap-1 absolute -top-2.5 left-4 z-10 bg-white dark:bg-background-dark px-1 rounded-md">
@@ -493,7 +504,7 @@ export default function Main() {
                             className="w-full rounded-full py-4 pl-14 pr-4 bg-white dark:bg-background-dark"
                             style={{ borderWidth: 1.5, borderRadius: 999, borderColor: Colors.primary["400"] }}
                             onPress={handleLinkEmail}
-                            disabled={account.username === null || account.username === undefined}
+                            disabled={account.username === null || account.username === undefined || isFetching}
                         >
                             <Text className={`text-base ${account.email ? "text-grey-800 dark:text-grey-100" : "text-grey-600 dark:text-grey-200"}`}>
                                 {account.email || t('editInfo.linkYourEmail')}
@@ -522,6 +533,7 @@ export default function Main() {
                             error={errors.displayName?.message}
                             maxCharCount={50}
                             isBlurAndSubmit
+                            loading={isFetching}
                         />
                     )}
                 />
@@ -544,6 +556,7 @@ export default function Main() {
                             error={errors.bio?.message}
                             maxCharCount={100}
                             isBlurAndSubmit
+                            loading={isFetching}
                         />
                     )}
                 />
@@ -553,20 +566,19 @@ export default function Main() {
             <View className="mt-6">
                 <View className="flex-col rounded-2xl p-4 bg-white dark:bg-background-dark gap-4">
                     <Text className="text-lg font-bold text-grey-800 dark:text-grey-100">{t('settings.savedAccounts')}</Text>
-                    <FlatList
-                        data={saveAccountExceptCurrentAccount}
-                        keyExtractor={(item) => item.username || item.email || ""}
-                        renderItem={renderAccount}
-                        contentContainerStyle={{ paddingBottom: 8 }}
-                        showsVerticalScrollIndicator={false}
-                        scrollEnabled={false}
-                        ItemSeparatorComponent={() => <View className="h-4" />}
-                    />
+                    <View className="gap-4" style={{ paddingBottom: 8 }}>
+                        {saveAccountExceptCurrentAccount.map((item) => (
+                            <React.Fragment key={item.username || item.email || ""}>
+                                {renderAccount({ item })}
+                            </React.Fragment>
+                        ))}
+                    </View>
                     {savedAccounts.length < MAX_ACCOUNT && (
                         <View>
                             <Pressable
                                 className="flex-row items-center"
                                 onPress={handleAddNewAccount}
+                                disabled={isFetching}
                             >
                                 <View className="bg-primary-50 dark:bg-primary-900 rounded-full w-12 h-12 items-center justify-center mr-4">
                                     <Ionicons name="person-add-outline" size={24} color={Colors.primary["500"]} />

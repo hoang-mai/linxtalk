@@ -1,0 +1,15 @@
+package com.linxtalk.enumeration;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum FriendRequestStatus {
+    PENDING("PENDING"),
+    ACCEPTED("ACCEPTED"),
+    DECLINED("DECLINED"),
+    CANCELLED("CANCELLED");
+
+    private final String status;
+}

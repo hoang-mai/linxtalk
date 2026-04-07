@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 public class UserSearchResponse {
     private String id;
     private String username;
+    private String email;
     private String displayName;
     private String avatarUrl;
+    private FriendRequestResponse friendRequestResponse;
 }

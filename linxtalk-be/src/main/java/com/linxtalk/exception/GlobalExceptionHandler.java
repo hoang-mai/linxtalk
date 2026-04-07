@@ -26,6 +26,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<BaseResponse<Void>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        BaseResponse<Void> response = BaseResponse.<Void>builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
     @ExceptionHandler(DuplicateException.class)
     public ResponseEntity<BaseResponse<Void>> handleDuplicate(DuplicateException ex) {
         BaseResponse<Void> response = BaseResponse.<Void>builder()

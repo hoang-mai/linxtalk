@@ -36,6 +36,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final TokenBlacklistService tokenBlacklistService;
+    private final com.linxtalk.mapper.AuthMapper authMapper;
 
     @Value("${google.client-id}")
     private String googleClientId;
@@ -66,14 +67,7 @@ public class AuthService {
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
         saveDeviceToken(user, request, refreshToken);
 
-        return AuthResponse.builder()
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .displayName(user.getDisplayName())
-            .avatarUrl(user.getAvatarUrl())
-            .build();
+        return authMapper.toAuthResponse(user, accessToken, refreshToken);
     }
 
     public AuthResponse addAccount(LoginRequest request) {
@@ -87,12 +81,7 @@ public class AuthService {
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
         saveDeviceToken(user, request, refreshToken);
 
-        return AuthResponse.builder()
-            .displayName(user.getDisplayName())
-            .avatarUrl(user.getAvatarUrl())
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .build();
+        return authMapper.toAuthResponse(user);
     }
 
     public AuthResponse switchAccount(SwitchAccountRequest request) {
@@ -115,7 +104,7 @@ public class AuthService {
         String oldRefreshToken = deviceToken.getRefreshToken();
 
         try {
-            if (jwtUtil.isTokenExpired(oldRefreshToken) || !jwtUtil.isRefreshToken(oldRefreshToken)) {
+            if (jwtUtil.isTokenExpired(oldRefreshToken) || jwtUtil.isRefreshToken(oldRefreshToken)) {
                 throw new AuthenticationException(MessageError.SESSION_EXPIRED);
             }
         } catch (AuthenticationException e) {
@@ -131,14 +120,7 @@ public class AuthService {
         deviceToken.setLastActiveAt(Instant.now());
         deviceTokenRepository.save(deviceToken);
 
-        return AuthResponse.builder()
-            .accessToken(newAccessToken)
-            .refreshToken(newRefreshToken)
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .displayName(user.getDisplayName())
-            .avatarUrl(user.getAvatarUrl())
-            .build();
+        return authMapper.toAuthResponse(user, newAccessToken, newRefreshToken);
     }
 
     public void removeAccount(SwitchAccountRequest request) {
@@ -161,7 +143,7 @@ public class AuthService {
             .orElseThrow(() -> new AuthenticationException(MessageError.INVALID_REFRESH_TOKEN));
 
         try {
-            if (jwtUtil.isTokenExpired(refreshToken) || !jwtUtil.isRefreshToken(refreshToken)) {
+            if (jwtUtil.isTokenExpired(refreshToken) || jwtUtil.isRefreshToken(refreshToken)) {
                 deviceTokenRepository.delete(deviceToken);
                 throw new AuthenticationException(MessageError.INVALID_REFRESH_TOKEN);
             }
@@ -182,14 +164,7 @@ public class AuthService {
         deviceToken.setLastActiveAt(Instant.now());
         deviceTokenRepository.save(deviceToken);
 
-        return AuthResponse.builder()
-            .accessToken(newAccessToken)
-            .refreshToken(newRefreshToken)
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .displayName(user.getDisplayName())
-            .avatarUrl(user.getAvatarUrl())
-            .build();
+        return authMapper.toAuthResponse(user, newAccessToken, newRefreshToken);
     }
 
     private void saveDeviceToken(User user, LoginRequest request, String refreshToken) {
@@ -268,14 +243,7 @@ public class AuthService {
 
         saveGoogleDeviceToken(user, request, refreshToken);
 
-        return AuthResponse.builder()
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .displayName(user.getDisplayName())
-            .avatarUrl(user.getAvatarUrl())
-            .build();
+        return authMapper.toAuthResponse(user, accessToken, refreshToken);
     }
 
     private void saveGoogleDeviceToken(User user, LoginWithGoogleRequest request, String refreshToken) {

@@ -86,9 +86,9 @@ public class JwtUtil {
 
     public boolean isRefreshToken(String token) {
         try {
-            return TokenType.REFRESH_TOKEN == extractTokenType(token);
+            return TokenType.REFRESH_TOKEN != extractTokenType(token);
         } catch (Exception e) {
-            return false;
+            return true;
         }
     }
 

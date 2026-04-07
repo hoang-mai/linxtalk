@@ -3,21 +3,32 @@ package com.linxtalk.service;
 import com.linxtalk.dto.request.UpdateProfileRequest;
 import com.linxtalk.dto.response.ProfileResponse;
 import com.linxtalk.dto.response.UserSearchResponse;
+import com.linxtalk.entity.FriendRequest;
 import com.linxtalk.entity.User;
 import com.linxtalk.exception.ResourceNotFoundException;
+import com.linxtalk.mapper.UserMapper;
+import com.linxtalk.repository.FriendRequestRepository;
 import com.linxtalk.repository.UserRepository;
 import com.linxtalk.utils.FnCommon;
 import com.linxtalk.utils.MessageError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FriendRequestRepository friendRequestRepository;
+    private final UserMapper userMapper;
 
     public UserSearchResponse searchUser(String query) {
+        String currentUserId = FnCommon.getUserId();
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException(MessageError.USER_NOT_FOUND, currentUserId));
         User user;
 
         if (query.startsWith("@")) {
@@ -32,12 +43,24 @@ public class UserService {
                     .orElseThrow(() -> new ResourceNotFoundException(MessageError.USER_NOT_FOUND, query));
         }
 
-        return UserSearchResponse.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .displayName(user.getDisplayName())
-                .avatarUrl(user.getAvatarUrl())
-                .build();
+        if (Objects.equals(currentUserId, user.getId())
+                || isBlocked(currentUser.getBlockedUserIds(), user.getId())
+                || isBlocked(user.getBlockedUserIds(), currentUserId)) {
+            throw new ResourceNotFoundException(MessageError.USER_NOT_FOUND, query);
+        }
+
+        FriendRequest friendRequest = friendRequestRepository.findBySenderIdAndReceiverId(currentUserId, user.getId())
+                .orElse(friendRequestRepository.findBySenderIdAndReceiverId(user.getId(), currentUserId)
+                        .orElse(null));
+        return userMapper.toUserSearchResponse(user, friendRequest);
+    }
+
+    private boolean isBlocked(List<String> blockedUserIds, String userId) {
+        if (blockedUserIds == null || userId == null) {
+            return false;
+        }
+
+        return blockedUserIds.stream().anyMatch(id -> Objects.equals(id, userId));
     }
 
     public void updateProfile(UpdateProfileRequest request) {
@@ -57,13 +80,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(MessageError.USER_NOT_FOUND));
 
-        return ProfileResponse.builder()
-                .phoneNumber(user.getPhoneNumber())
-                .birthday(user.getBirthday())
-                .email(user.getEmail())
-                .displayName(user.getDisplayName())
-                .bio(user.getBio())
-                .build();
+        return userMapper.toProfileResponse(user);
     }
 
 }

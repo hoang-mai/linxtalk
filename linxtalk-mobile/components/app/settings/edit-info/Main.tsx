@@ -70,14 +70,14 @@ export default function Main() {
     const { data, isFetching, isLoading } = useQuery({
         queryKey: ["profile"],
         staleTime: 12 * 60 * 60 * 1000,
-        queryFn: async () => {
-            try {
-                const res = await get<BaseResponse<ProfileResponse>>(`${USER}/profile`);
-                return res.data.data;
-            } catch (error: any) {
-                showToast({ message: error.message, type: "error" });
-                throw error;
-            }
+        queryFn: () => {
+            return get<BaseResponse<ProfileResponse>>(`${USER}/profile`)
+                .then((res) => {
+                    return res.data.data;
+                }).catch((error: Error) => {
+                    showToast({ message: error.message, type: "error" });
+                    throw error;
+                })
         },
     });
 

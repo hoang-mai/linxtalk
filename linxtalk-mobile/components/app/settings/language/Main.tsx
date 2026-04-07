@@ -1,5 +1,4 @@
 import { View, Text } from "react-native";
-import { Colors } from "@/constants/theme";
 import { useLanguageStore } from "@/store/language-store";
 import RadioButton from "@/library/RadioButton";
 import { LANGUAGES } from "@/constants/constant";

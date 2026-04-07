@@ -13,4 +13,6 @@ public class MessageSuccess {
     public static final String LINK_EMAIL_SUCCESS = "link.email.success";
     public static final String UPDATE_PROFILE_SUCCESS = "update.profile.success";
     public static final String GET_PROFILE_SUCCESS = "get.profile.success";
+    public static final String CREATE_FRIEND_REQUEST_SUCCESS = "friend.request.created.success";
+    public static final String UPDATE_FRIEND_REQUEST_STATUS_SUCCESS = "friend.request.status.updated.success";
 }

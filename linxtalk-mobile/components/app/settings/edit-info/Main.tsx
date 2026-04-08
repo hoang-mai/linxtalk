@@ -76,7 +76,6 @@ export default function Main() {
                     return res.data.data;
                 }).catch((error: Error) => {
                     showToast({ message: error.message, type: "error" });
-                    throw error;
                 })
         },
     });

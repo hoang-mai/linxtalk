@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum FriendRequestStatus {
     PENDING("PENDING"),
     ACCEPTED("ACCEPTED"),
-    DECLINED("DECLINED"),
+    REJECTED("REJECTED"),
     CANCELLED("CANCELLED");
 
     private final String status;

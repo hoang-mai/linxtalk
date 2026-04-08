@@ -4,9 +4,15 @@ import { isTokenExpired } from '@/utils/fn-common';
 import { useAccountStore } from '@/store/account-store';
 import { AUTH } from '@/constants/api';
 import { useLanguageStore } from '@/store/language-store';
+import NetInfo from '@react-native-community/netinfo';
+import { offlineQueue } from '@/services/offline-queue';
+import { useToastStore } from '@/store/toast-store';
+import i18n from '@/i18n';
+import { OfflineError, QueuedError } from '@/constants/error';
 
 const axiosInstance = axios.create({
     baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://10.145.54.187:8080',
+    timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -34,6 +40,29 @@ const refreshAccessToken = async (): Promise<string> => {
 axiosInstance.interceptors.request.use(
     async (config) => {
         config.headers['Accept-Language'] = useLanguageStore.getState().language;
+
+        const strategy: NetworkStrategy = config.networkStrategy || 'fail-fast';
+        const netState = await NetInfo.fetch();
+        const isConnected = !!netState.isConnected;
+
+        if (!isConnected) {
+            switch (strategy) {
+                case 'fail-fast':
+                    return Promise.reject(new OfflineError());
+                case 'offline-queue':
+                case 'optimistic-timeout':
+                    if (config.method && config.method.toUpperCase() !== 'GET') {
+                        await offlineQueue.enqueue({
+                            method: config.method.toUpperCase() as 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+                            url: config.url || '',
+                            data: config.data,
+                            label: config.networkLabel,
+                        });
+                    }
+                    return Promise.reject(new QueuedError());
+            }
+        }
+
         const { accessToken, refreshToken } = useAuthStore.getState();
 
         if (accessToken && isTokenExpired(accessToken) && refreshToken) {
@@ -93,4 +122,4 @@ const del = <T,>(url: string, config?: AxiosRequestConfig): Promise<AxiosRespons
     return axiosInstance.delete<T>(url, config);
 };
 
-export { get, post, patch, put, del };
+export { get, post, patch, put, del, axiosInstance};

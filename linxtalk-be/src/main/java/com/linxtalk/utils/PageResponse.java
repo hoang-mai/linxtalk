@@ -1,7 +1,10 @@
 package com.linxtalk.utils;
 
 import lombok.Builder;
+import lombok.Data;
 
+import java.util.List;
+@Data
 @Builder
 public class PageResponse<T> {
     private int pageSize;
@@ -10,5 +13,5 @@ public class PageResponse<T> {
     private int totalPages;
     private boolean hasNext;
     private boolean hasPrevious;
-    private T[] data;
+    private List<T> data;
 }

@@ -3,10 +3,14 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import { useToastStore } from '@/store/toast-store';
+import { offlineQueue } from '@/services/offline-queue';
+import { axiosInstance } from '@/services/axios';
 import i18n from '@/i18n';
 
 const PERSISTED_QUERY_KEYS: string[] = [
     "profile",
+    "incoming-friend-requests",
+    "incoming-friend-requests-see-all"
 ];
 
 export const queryClient = new QueryClient({
@@ -16,7 +20,7 @@ export const queryClient = new QueryClient({
             networkMode: 'online',
         },
         mutations: {
-            networkMode: 'online',
+            networkMode: 'always',
         },
     },
 });
@@ -55,8 +59,11 @@ onlineManager.setEventListener((setOnline) => {
                 message: i18n.t('errors.networkRestored'),
                 type: 'success',
             });
+
+            offlineQueue.processQueue();
         }
 
         isFirstLoad = false;
     });
 });
+

@@ -8,12 +8,15 @@ type ButtonVariant = "primary" | "secondary" | "outline" | "soft";
 type IconProp = React.ReactNode | keyof typeof Ionicons.glyphMap;
 
 interface ButtonProps extends PressableProps {
-    title: string;
+    title?: string;
     variant?: ButtonVariant;
     className?: string;
+    textClassName?: string;
     loading?: boolean;
     leftIcon?: IconProp;
     rightIcon?: IconProp;
+    leftIconColor?: string;
+    rightIconColor?: string;
     onPress?: () => void;
 }
 
@@ -59,9 +62,12 @@ export default function Button({
     title,
     variant = "primary",
     className = "",
+    textClassName = "",
     loading = false,
     leftIcon,
     rightIcon,
+    leftIconColor,
+    rightIconColor,
     disabled,
     onPress,
     ...rest
@@ -77,12 +83,12 @@ export default function Button({
 
     const textClass = disabled ? styles.disabled.text : styles.text;
 
-    const renderIcon = (icon: IconProp) => {
+    const renderIcon = (icon: IconProp, customColor?: string) => {
         if (!icon) return null;
         if (typeof icon === "string") {
             const baseColor = variant === "primary" ? "#FFFFFF" : Colors.primary["500"];
             const disabledColor = variant === "primary" ? "#FFFFFF" : Colors.grey["400"];
-            const iconColor = disabled ? disabledColor : baseColor;
+            const iconColor = disabled ? disabledColor : (customColor || baseColor);
 
             return (
                 <Ionicons
@@ -104,9 +110,9 @@ export default function Button({
             onPressOut={() => setPressed(false)}
             {...rest}
         >
-            {renderIcon(leftIcon)}
-            <Text numberOfLines={1} className={`text-xl ${textClass}`}>{title}</Text>
-            {renderIcon(rightIcon)}
+            {renderIcon(leftIcon, leftIconColor)}
+            {title ? <Text numberOfLines={1} className={`${textClassName} 'text-xl' ${textClass}`}>{title}</Text> : null}
+            {renderIcon(rightIcon, rightIconColor)}
         </Pressable>
     );
 }

@@ -31,10 +31,6 @@ public class FriendRequest {
     @Field(targetType = FieldType.OBJECT_ID)
     private String senderId;
 
-    private String senderName;
-
-    private String senderAvatarUrl;
-
     @Indexed
     @Field(targetType = FieldType.OBJECT_ID)
     private String receiverId;

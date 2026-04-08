@@ -47,8 +47,6 @@ public class UserMapper {
         return FriendRequestResponse.builder()
                 .id(friendRequest.getId())
                 .senderId(friendRequest.getSenderId())
-                .senderName(friendRequest.getSenderName())
-                .senderAvatarUrl(friendRequest.getSenderAvatarUrl())
                 .receiverId(friendRequest.getReceiverId())
                 .message(friendRequest.getMessage())
                 .status(friendRequest.getStatus())

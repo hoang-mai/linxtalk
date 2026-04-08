@@ -81,3 +81,33 @@ export interface ProfileResponse {
   displayName: string;
   bio: string | null;
 }
+
+export interface UserSearchResponse {
+  id: string;
+  username: string | null;
+  email: string | null;
+  displayName: string;
+  avatarUrl: string | null;
+  friendRequestResponse: FriendRequestResponse | null;
+}
+
+export interface FriendRequestResponse {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  status: "PENDING" | "ACCEPTED" | "REJECTED" | "CANCELLED";
+  respondedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  sender: UserSearchResponse | null;
+}
+
+export interface CreateFriendRequestRequest {
+  receiverId: string;
+  message: string;
+}
+
+export interface UpdateFriendRequestStatusRequest {
+  status: "PENDING" | "ACCEPTED" | "REJECTED" | "CANCELLED";
+}

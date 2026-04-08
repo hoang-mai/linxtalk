@@ -23,4 +23,14 @@ declare global {
         message: string;
         type: ToastType;
     }
+
+    type NetworkStrategy = "fail-fast" | "offline-queue" | "optimistic-timeout";
+}
+
+declare module 'axios' {
+    interface AxiosRequestConfig {
+        networkStrategy?: NetworkStrategy;
+        networkTimeout?: number;
+        networkLabel?: string;
+    }
 }

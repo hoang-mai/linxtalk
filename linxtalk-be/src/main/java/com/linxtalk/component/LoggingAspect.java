@@ -46,8 +46,8 @@ public class LoggingAspect {
             Instant endTime = Instant.now();
             long duration = Duration.between(startTime, endTime).toMillis();
             Object body = result instanceof ResponseEntity<?> re ? re.getBody() : result;
-            log.info("Method [{}] completed with result: {}. End time: {}. Duration: {} ms",
-                    methodName, toJson(body), endTime, duration);
+            log.info("Method [{}] completed. End time: {}. Duration: {} ms. Result: {}",
+                    methodName, endTime, duration, toJson(body));
             return result;
         } catch (Throwable e) {
             log.error("Method [{}] failed with exception: {}. Time: {}",

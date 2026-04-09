@@ -158,8 +158,6 @@ export default function Main() {
             showLoading();
         },
         onSuccess: async (result) => {
-            queryClient.clear();
-            await asyncStoragePersister.removeClient();
             setTokens(result.data.accessToken, result.data.refreshToken);
             setAccount({
                 username: result.data.username,
@@ -167,6 +165,9 @@ export default function Main() {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            await queryClient.resetQueries();
+            await asyncStoragePersister.removeClient();
+            router.dismissTo("/settings");
             router.replace("/");
         },
         onSettled: () => {
@@ -183,8 +184,6 @@ export default function Main() {
             showLoading();
         },
         onSuccess: async (result) => {
-            queryClient.clear();
-            await asyncStoragePersister.removeClient();
             setTokens(result.data.accessToken, result.data.refreshToken);
             saveAccount({
                 username: result.data.username,
@@ -198,6 +197,9 @@ export default function Main() {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            await queryClient.resetQueries();
+            await asyncStoragePersister.removeClient();
+            router.dismissTo("/settings");
             router.replace("/");
         },
         onError: (error) => {

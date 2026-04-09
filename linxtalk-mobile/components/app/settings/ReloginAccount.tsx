@@ -20,6 +20,7 @@ import { useLoadingStore } from "@/store/loading-store";
 import { useModalStore } from "@/store/modal-store";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { queryClient, asyncStoragePersister } from "@/components/providers/query-client";
 
 interface ReloginAccountProps {
     account: SavedAccount;
@@ -56,7 +57,7 @@ export default function ReloginAccount({ account }: ReloginAccountProps) {
         onMutate: () => {
             showLoading();
         },
-        onSuccess: (result) => {
+        onSuccess: async (result) => {
             setTokens(result.data.accessToken, result.data.refreshToken);
             setAccount({
                 username: result.data.username,
@@ -64,6 +65,8 @@ export default function ReloginAccount({ account }: ReloginAccountProps) {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            await queryClient.resetQueries();
+            await asyncStoragePersister.removeClient();
             hideModal();
             router.replace("/");
         },

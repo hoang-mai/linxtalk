@@ -1,6 +1,8 @@
 import { Colors } from "@/constants/theme";
 import Icon from "@/library/Icon";
 import { View, TextInput, useColorScheme, ScrollView, Text } from "react-native";
+import { useModalStore } from "@/store/modal-store";
+import AddMessageModal from "./AddMessageModal";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, interpolateColor } from "react-native-reanimated";
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -41,6 +43,7 @@ export default function Main() {
     const userId = getUserId();
     const [searchQuery, setSearchQuery] = useState("");
     const debouncedSearchQuery = useDebounce(searchQuery, 500);
+    const { showModal } = useModalStore();
 
     const { data: searchResult, isFetching: isFetchingSearch } = useQuery({
         queryKey: ["search-friends", debouncedSearchQuery],
@@ -114,7 +117,7 @@ export default function Main() {
         }
     })
 
-    const handleAddFriend = (searchResult: UserSearchResponse) => {
+    const handleAddFriend = (searchResult: UserSearchResponse, message: string) => {
         if (requestTimeoutRef.current) {
             clearTimeout(requestTimeoutRef.current);
             requestTimeoutRef.current = null;
@@ -126,13 +129,14 @@ export default function Main() {
                 friendRequestResponse: {
                     ...(old.friendRequestResponse as any),
                     status: "PENDING",
-                    senderId: userId
+                    senderId: userId,
+                    message: message
                 }
             } : old
         );
 
         requestTimeoutRef.current = setTimeout(() => {
-            addFriend({ receiverId: searchResult.id, message: "" });
+            addFriend({ receiverId: searchResult.id, message });
             requestTimeoutRef.current = null;
         }, 1000);
     }
@@ -152,11 +156,12 @@ export default function Main() {
                 }
             } : old
         );
-
-        requestTimeoutRef.current = setTimeout(() => {
-            updateStatus({ data: { status }, friendRequestId: searchResult.friendRequestResponse?.id as string });
-            requestTimeoutRef.current = null;
-        }, 1000);
+        if (searchResult.friendRequestResponse && searchResult.friendRequestResponse.id) {
+            requestTimeoutRef.current = setTimeout(() => {
+                updateStatus({ data: { status }, friendRequestId: searchResult.friendRequestResponse!.id });
+                requestTimeoutRef.current = null;
+            }, 1000);
+        }
     }
 
     const renderAction = () => {
@@ -169,7 +174,10 @@ export default function Main() {
             return (
                 <Button
                     title={"Add friend"}
-                    onPress={() => handleAddFriend(searchResult)}
+                    onPress={() => showModal({
+                        title: "Add Friend",
+                        children: <AddMessageModal onSend={(msg) => handleAddFriend(searchResult, msg)} />
+                    })}
                     className="rounded-full px-4 py-1.5"
                     textClassName="text-sm"
                 />
@@ -233,64 +241,64 @@ export default function Main() {
 
     return (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 20 }} showsVerticalScrollIndicator={false}>
-            <View className="relative">
-                <Animated.View style={borderStyle}>
-                    <TextInput
-                        placeholder="Search by @username or email"
-                        placeholderTextColor={colorScheme === "dark" ? Colors.grey["400"] : Colors.grey["500"]}
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        onFocus={handleFocus}
-                        onBlur={handleBlur}
-                        autoFocus
-                        className="w-full py-3.5 text-base text-grey-800 dark:text-grey-100 pl-14 pr-4 bg-white dark:bg-background-dark rounded-full"
-                    />
-                </Animated.View>
-                <Icon
-                    name="search-outline"
-                    size={24}
-                    color={Colors.primary["400"]}
-                    className="absolute left-4 top-0 bottom-0 justify-center mt-3.5"
-                />
-                {searchQuery.length > 0 && (
+                <View className="relative">
+                    <Animated.View style={borderStyle}>
+                        <TextInput
+                            placeholder="Search by @username or email"
+                            placeholderTextColor={colorScheme === "dark" ? Colors.grey["400"] : Colors.grey["500"]}
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
+                            autoFocus
+                            className="w-full py-3.5 text-base text-grey-800 dark:text-grey-100 pl-14 pr-4 bg-white dark:bg-background-dark rounded-full"
+                        />
+                    </Animated.View>
                     <Icon
-                        onPress={() => setSearchQuery("")}
-                        name="close-circle"
+                        name="search-outline"
                         size={24}
-                        color={Colors.grey["400"]}
-                        className="absolute right-4 top-0 bottom-0 justify-center mt-3.5"
+                        color={Colors.primary["400"]}
+                        className="absolute left-4 top-0 bottom-0 justify-center mt-3.5"
                     />
+                    {searchQuery.length > 0 && (
+                        <Icon
+                            onPress={() => setSearchQuery("")}
+                            name="close-circle"
+                            size={24}
+                            color={Colors.grey["400"]}
+                            className="absolute right-4 top-0 bottom-0 justify-center mt-3.5"
+                        />
+                    )}
+                </View>
+                <Text className="text-xl font-bold dark:text-white mt-4">Result</Text>
+
+                {isFetchingSearch ? (
+                    <View className="mt-4 gap-4">
+                        <View className="flex-row items-center gap-4 bg-white dark:bg-background-dark p-4 rounded-xl border border-grey-200 dark:border-grey-800">
+                            <Skeleton width={50} height={50} borderRadius={25} />
+                            <View className="gap-2 flex-1">
+                                <Skeleton width="60%" height={16} />
+                                <Skeleton width="40%" height={14} />
+                            </View>
+                        </View>
+                    </View>
+                ) : searchResult ? (
+                    <View className="mt-4 gap-4">
+                        <View className="flex-row items-center gap-4 bg-white dark:bg-background-dark p-4 rounded-xl border border-grey-200 dark:border-grey-800">
+                            <View className="w-14 h-14 rounded-full bg-grey-200 overflow-hidden" />
+                            <View className=" flex-1">
+                                <Text className="text-xl font-bold dark:text-white">{searchResult.displayName}</Text>
+                                <Text className="text-sm text-grey-500 dark:text-grey-400">{searchResult.username ? `@${searchResult.username}` : searchResult.email}</Text>
+                            </View>
+                            {renderAction()}
+                        </View>
+
+                    </View>
+                ) : (
+                    <View className="mt-4 gap-4">
+                        <Text className="text-center text-grey-500 dark:text-grey-400">No result found</Text>
+                    </View>
                 )}
-            </View>
-            <Text className="text-xl font-bold dark:text-white mt-4">Result</Text>
-
-            {isFetchingSearch ? (
-                <View className="mt-4 gap-4">
-                    <View className="flex-row items-center gap-4 bg-white dark:bg-background-dark p-4 rounded-xl border border-grey-200 dark:border-grey-800">
-                        <Skeleton width={50} height={50} borderRadius={25} />
-                        <View className="gap-2 flex-1">
-                            <Skeleton width="60%" height={16} />
-                            <Skeleton width="40%" height={14} />
-                        </View>
-                    </View>
-                </View>
-            ) : searchResult ? (
-                <View className="mt-4 gap-4">
-                    <View className="flex-row items-center gap-4 bg-white dark:bg-background-dark p-4 rounded-xl border border-grey-200 dark:border-grey-800">
-                        <View className="w-14 h-14 rounded-full bg-grey-200 overflow-hidden" />
-                        <View className=" flex-1">
-                            <Text className="text-xl font-bold dark:text-white">{searchResult.displayName}</Text>
-                            <Text className="text-sm text-grey-500 dark:text-grey-400">{searchResult.username ? `@${searchResult.username}` : searchResult.email}</Text>
-                        </View>
-                        {renderAction()}
-                    </View>
-
-                </View>
-            ) : (
-                <View className="mt-4 gap-4">
-                    <Text className="text-center text-grey-500 dark:text-grey-400">No result found</Text>
-                </View>
-            )}
-        </ScrollView>
+            </ScrollView>
     );
 }

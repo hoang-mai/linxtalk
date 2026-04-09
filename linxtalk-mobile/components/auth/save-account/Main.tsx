@@ -27,6 +27,7 @@ import { useAccountStore } from "@/store/account-store";
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin";
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
+import { queryClient, asyncStoragePersister } from "@/components/providers/query-client";
 
 export default function Main() {
     const router = useRouter();
@@ -61,7 +62,7 @@ export default function Main() {
         onMutate: () => {
             showLoading();
         },
-        onSuccess: (result) => {
+        onSuccess: async (result) => {
             hideLoading();
             setTokens(result.data.accessToken, result.data.refreshToken);
             saveAccount({
@@ -76,6 +77,8 @@ export default function Main() {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            await queryClient.resetQueries();
+            await asyncStoragePersister.removeClient();
             router.replace("/(app)");
         },
         onError: (error) => {
@@ -95,7 +98,7 @@ export default function Main() {
         onMutate: () => {
             showLoading();
         },
-        onSuccess: (result) => {
+        onSuccess: async (result) => {
             setTokens(result.data.accessToken, result.data.refreshToken);
             setAccount({
                 username: result.data.username,
@@ -103,6 +106,8 @@ export default function Main() {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            await queryClient.resetQueries();
+            await asyncStoragePersister.removeClient();
             router.replace("/(app)");
         },
 
@@ -127,6 +132,8 @@ export default function Main() {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            await queryClient.resetQueries();
+            await asyncStoragePersister.removeClient();
             router.replace("/(app)");
         },
         onError: (error) => {

@@ -18,6 +18,7 @@ interface InputProps extends TextInputProps {
   icon?: keyof typeof Ionicons.glyphMap;
   isBlurAndSubmit?: boolean;
   maxCharCount?: number;
+  className?: string;
 }
 
 const Input = forwardRef<TextInput, InputProps>(({
@@ -34,6 +35,7 @@ const Input = forwardRef<TextInput, InputProps>(({
   isBlurAndSubmit,
   maxCharCount,
   value,
+  className,
   ...rest
 }, ref) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -63,8 +65,6 @@ const Input = forwardRef<TextInput, InputProps>(({
         ? Colors.grey["600"]
         : interpolateColor(focused.value, [0, 1], [Colors.primary["400"], Colors.primary["600"]]),
     borderWidth: 1.5,
-    borderRadius: 999,
-    width: '100%',
   }));
 
   return (
@@ -83,10 +83,10 @@ const Input = forwardRef<TextInput, InputProps>(({
         </View>
       )}
       <View className={"relative flex flex-row items-center bg-white dark:bg-background-dark"}>
-        <Animated.View style={borderStyle}>
+        <Animated.View style={borderStyle} className={`w-full rounded-full ${className}`}>
           <TextInput
             ref={ref}
-            className={`w-full rounded-full py-4 text-base text-grey-800 dark:text-grey-100 ${icon ? "pl-14" : "pl-6"} ${secureTextEntry ? "pr-12" : "pr-4"} ${disable ? "bg-gray-50" : error ? "bg-red-50" : "bg-white dark:bg-background-dark"} ${maxCharCount != null ? "pr-10" : ""}`}
+            className={`w-full rounded-full py-4 text-base text-grey-800 dark:text-grey-100 ${icon ? "pl-14" : "pl-6"} ${secureTextEntry ? "pr-12" : "pr-4"} ${disable ? "bg-gray-50" : error ? "bg-red-50" : "bg-white dark:bg-background-dark"} ${maxCharCount != null ? "pr-10" : ""} ${className}`}
             placeholder={placeholder}
             placeholderTextColor={colorScheme === "dark" ? Colors.grey["200"] : Colors.grey["500"]}
             secureTextEntry={secureTextEntry && !isPasswordVisible}
@@ -100,7 +100,7 @@ const Input = forwardRef<TextInput, InputProps>(({
           />
         </Animated.View>
         {icon && (
-          <View className="absolute left-6 top-0 bottom-0 justify-center">
+          <View className="absolute left-6 top-5">
             <Ionicons
               color={disable ? Colors.grey["600"] : colorScheme === "dark" ? Colors.grey["200"] : Colors.grey["500"]}
               name={icon}

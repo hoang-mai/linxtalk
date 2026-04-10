@@ -14,11 +14,13 @@ import Loading from '@/components/modals/Loading';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useAccountStore } from '@/store/account-store';
 import ModalGlobal from '@/components/modals/ModalGlobal';
+import BottomSheet from '@/library/BottomSheet';
 import { useLanguageStore } from '@/store/language-store';
 import { useThemeStore } from '@/store/theme-store';
 import { useColorScheme } from 'react-native';
 import { ThemeProvider } from '@react-navigation/native';
 import { LightTheme, DarkTheme } from '@/constants/theme';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
@@ -37,25 +39,28 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : LightTheme}>
-      <SafeAreaProvider>
-        <KeyboardProvider>
-          <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
-            <StatusBar style="auto" />
-            <Loading />
-            <ModalGlobal />
-            <Toast />
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Protected guard={isAuthenticated}>
-                <Stack.Screen name='(app)' />
-              </Stack.Protected>
-              <Stack.Protected guard={!isAuthenticated}>
-                <Stack.Screen name='(auth)' />
-              </Stack.Protected>
-            </Stack>
-          </PersistQueryClientProvider>
-        </KeyboardProvider>
-      </SafeAreaProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : LightTheme}>
+        <SafeAreaProvider>
+          <KeyboardProvider>
+            <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
+              <StatusBar style="auto" />
+              <Loading />
+              <ModalGlobal />
+              <BottomSheet />
+              <Toast />
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Protected guard={isAuthenticated}>
+                  <Stack.Screen name='(app)' />
+                </Stack.Protected>
+                <Stack.Protected guard={!isAuthenticated}>
+                  <Stack.Screen name='(auth)' />
+                </Stack.Protected>
+              </Stack>
+            </PersistQueryClientProvider>
+          </KeyboardProvider>
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

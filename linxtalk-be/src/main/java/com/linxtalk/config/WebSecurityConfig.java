@@ -3,6 +3,7 @@ package com.linxtalk.config;
 import com.linxtalk.security.JwtAuthenticationFilter;
 import com.linxtalk.utils.Constant;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,13 +33,13 @@ public class WebSecurityConfig {
         Constant.AUTH + "/login-google",
         Constant.AUTH + "/add-account",
         Constant.AUTH + "/switch-account",
-        Constant.AUTH + "/remove-account"
+        Constant.AUTH + "/remove-account",
+        "/ws/**"
     };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
@@ -49,16 +50,4 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
 }

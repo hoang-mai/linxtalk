@@ -3,6 +3,7 @@ package com.linxtalk.controller;
 import com.linxtalk.dto.request.CreateFriendRequestRequest;
 import com.linxtalk.dto.request.UpdateFriendRequestStatusRequest;
 import com.linxtalk.dto.response.FriendRequestResponse;
+import com.linxtalk.enumeration.FriendRequestStatus;
 import com.linxtalk.service.FriendRequestService;
 import com.linxtalk.utils.BaseResponse;
 import com.linxtalk.utils.Constant;
@@ -37,10 +38,11 @@ public class FriendRequestController {
     }
 
     @GetMapping
-    public ResponseEntity<BaseResponse<PageResponse<FriendRequestResponse>>> getIncomingFriendRequests(
+    public ResponseEntity<BaseResponse<PageResponse<FriendRequestResponse>>> getFriendRequests(
+            @RequestParam() FriendRequestStatus status,
             @RequestParam(required = false, defaultValue = "0") int pageNo,
             @RequestParam(required = false, defaultValue = "10") int pageSize) {
-        PageResponse<FriendRequestResponse> friendRequests = friendRequestService.getIncomingFriendRequests(pageNo, pageSize);
+        PageResponse<FriendRequestResponse> friendRequests = friendRequestService.getFriendRequests(status, pageNo, pageSize);
 
         BaseResponse<PageResponse<FriendRequestResponse>> response = BaseResponse.<PageResponse<FriendRequestResponse>>builder()
                 .status(HttpStatus.OK.value())

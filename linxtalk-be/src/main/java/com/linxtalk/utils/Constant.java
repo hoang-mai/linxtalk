@@ -1,6 +1,9 @@
 package com.linxtalk.utils;
 
 public class Constant {
+
+    public static final String WEBSOCKET_MAPPING = "/ws";
+
     public static final String REQUEST_MAPPING = "/api/v1";
 
     public static final String USER = REQUEST_MAPPING + "/user";

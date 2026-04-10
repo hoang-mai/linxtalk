@@ -30,7 +30,7 @@ export default function Main() {
         staleTime: 30 * 1000,
         initialPageParam: 0,
         queryFn: ({ pageParam }) => {
-            return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${FRIEND_REQUEST}?pageSize=10&pageNo=${pageParam}`)
+            return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${FRIEND_REQUEST}?pageSize=10&pageNo=${pageParam}&status=PENDING`)
                 .then((res) => {
                     return res.data.data;
                 }).catch((error: Error) => {

@@ -2,7 +2,6 @@ import { View, Text, Modal, Pressable, StyleSheet } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useModalStore } from "@/store/modal-store";
 import { BlurView } from "expo-blur";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
 import Icon from "@/library/Icon";
 import { Colors } from "@/constants/theme";

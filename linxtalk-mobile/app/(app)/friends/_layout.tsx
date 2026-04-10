@@ -37,6 +37,20 @@ export default function FriendsLayout() {
                                 </Pressable>
                             ),
                         }} />
+            <Stack.Screen name="see-all-friends/index" options={{
+                            headerShown: true,
+                            headerTitle: t('friends.seeAllFriends'),
+                            headerShadowVisible: false,
+                            headerTitleStyle: {
+                                fontWeight: "bold",
+                            },
+                            headerTitleAlign: "center",
+                            headerLeft: () => (
+                                <Pressable onPress={() => router.back()}>
+                                    <Icon name="arrow-back-outline" size={24} color={"black"} darkColor={"white"} />
+                                </Pressable>
+                            ),
+                        }} />
         </Stack>
     );
 }

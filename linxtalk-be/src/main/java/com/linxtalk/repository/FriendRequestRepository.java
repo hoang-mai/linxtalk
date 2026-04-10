@@ -13,6 +13,4 @@ import java.util.Optional;
 public interface FriendRequestRepository extends MongoRepository<FriendRequest, String> {
 
     Optional<FriendRequest> findBySenderIdAndReceiverId(String id, String currentUserId);
-
-    Page<FriendRequest> findByReceiverIdAndStatus(String currentUserId, FriendRequestStatus friendRequestStatus, Pageable pageable);
 }

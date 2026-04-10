@@ -14,16 +14,33 @@ import {useLoadingStore} from "@/store/loading-store";
 import {useToastStore} from "@/store/toast-store";
 import {StyleSheet} from "react-native";
 import {queryClient} from "@/components/providers/query-client";
+import { formatRelativeTime } from "@/utils/fn-common";
 
 
 export default function Main() {
     const router = useRouter();
     const { showToast } = useToastStore();
+
+
+    const { data: friends, isLoading: isLoadingFriends } = useQuery({
+        queryKey: ["friends"],
+        staleTime: 0,
+        gcTime: 0,
+        queryFn: () => {
+            return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${FRIEND_REQUEST}?pageSize=10&status=ACCEPTED`)
+                .then((res) => {
+                    return res.data.data;
+                }).catch((error: Error) => {
+                    showToast({ message: error.message, type: "error" });
+                })
+        },
+    });
+
     const { data, isLoading } = useQuery({
         queryKey: ["incoming-friend-requests"],
         staleTime: 30 * 1000,
         queryFn: () => {
-            return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${FRIEND_REQUEST}?pageSize=3`)
+            return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${FRIEND_REQUEST}?pageSize=3&status=PENDING`)
                 .then((res) => {
                     return res.data.data;
                 }).catch((error: Error) => {
@@ -132,14 +149,18 @@ export default function Main() {
                         </View>
                       </View>
 
-                      <View className="flex-row gap-3">
+                      <View className="flex-col gap-2">
                           {request.status === "PENDING" && (
-                              <>
+                            <>
+                              <Text className="text-grey-500 dark:text-grey-400 text-sm">{request.message}</Text>
+                              <View className="flex-row gap-3">
+                                  
                                   <View className="flex-1">
                                       <Button title="Accept" onPress={() => updateStatus({ data: { status: "ACCEPTED" }, friendRequestId: request.id })} />
                                   </View>
                                   <View className="flex-1">
                                       <Button variant="outline" title="Reject" onPress={() => updateStatus({ data: { status: "REJECTED" }, friendRequestId: request.id })} />
+                                  </View>
                                   </View>
                               </>
                           )}
@@ -153,6 +174,48 @@ export default function Main() {
                 <Text className="text-grey-500 dark:text-grey-400 pb-4">No requests found</Text>
           )}
         </ScrollView>
+        <View className="mt-4">
+            <View className="flex-row items-center justify-between mb-4">
+                <View className="flex-row items-center gap-4">
+                    <Text className="text-xl font-bold dark:text-white">Friends</Text>
+                </View>
+                <Button title="See All"
+                    variant="secondary"
+                    textClassName="text-sm"
+                    className="px-3.5"
+                    onPress={() => router.push("/friends/see-all-friends" as any)} />
+            </View>
+        {isLoadingFriends ? (
+            <ScrollView contentContainerStyle={{ gap: 16 }} showsVerticalScrollIndicator={false}>
+                {Array.from({ length: 3 }).map((_, index) => (
+                    <View key={index} className="bg-white dark:bg-background-dark p-5 rounded-2xl border border-grey-200 dark:border-grey-800">
+                        <Skeleton width={56} height={56} borderRadius={28} />
+                    </View>
+                ))}
+            </ScrollView>
+        ) : friends?.data && friends.data.length > 0 ? (
+            <ScrollView contentContainerStyle={{ gap: 16 }} showsVerticalScrollIndicator={false}>
+                {friends.data.map((friend) => (
+                    <View key={friend.id} className="bg-white dark:bg-background-dark p-4 rounded-2xl flex-row items-center gap-4">
+                        <View className="w-14 h-14 rounded-full bg-grey-200 overflow-hidden"/>
+                        <View className="flex-1 flex ">
+                            <Text className="text-lg font-bold text-grey-900 dark:text-grey-100">{friend.sender?.displayName}</Text>
+                            <Text className="text-xs text-grey-500 dark:text-grey-400">{formatRelativeTime(friend.createdAt)}</Text>
+                        </View>
+                        <Button 
+                            leftIcon="chatbubble-ellipses-outline"
+                            variant="soft"
+                            textClassName="text-sm"
+                            className="!px-2 !py-2"
+                            onPress={() => {}}
+                        />
+                    </View>
+                ))}
+            </ScrollView>
+        ) : (
+            <Text className="text-grey-500 dark:text-grey-400 pb-4">No friends found</Text>
+        )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

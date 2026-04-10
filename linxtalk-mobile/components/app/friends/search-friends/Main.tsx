@@ -68,7 +68,6 @@ export default function Main() {
                     friendRequestResponse: data.data
                 } : old
             );
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS] });
         },
         onError: (error) => {
             showToast({
@@ -92,14 +91,18 @@ export default function Main() {
             const res = await patch<BaseResponse<FriendRequestResponse | null>>(`${FRIEND_REQUEST}/${friendRequestId}/status`, data);
             return res.data;
         },
-        onSuccess: (data) => {
+        onSuccess: (data, variables) => {
             queryClient.setQueryData<UserSearchResponse>(["search-friends", debouncedSearchQuery], (old) =>
                 old ? {
                     ...old,
                     friendRequestResponse: data.data
                 } : old
             );
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS] });
+            let keys: string[] = [QUERY_KEYS.INCOMING_FRIEND_REQUESTS, QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL];
+            if(variables.data.status === "ACCEPTED") {
+                keys.push(QUERY_KEYS.FRIENDS_SEE_ALL);
+            }
+            queryClient.invalidateQueries({ queryKey: keys });
         },
         onError: (error) => {
             showToast({

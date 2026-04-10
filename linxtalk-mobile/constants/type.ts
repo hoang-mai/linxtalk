@@ -1,3 +1,5 @@
+import { MessageType } from "./enum";
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
@@ -110,4 +112,11 @@ export interface CreateFriendRequestRequest {
 
 export interface UpdateFriendRequestStatusRequest {
   status: "PENDING" | "ACCEPTED" | "REJECTED" | "CANCELLED";
+}
+
+export interface PrivateMessageRequest {
+  receiverId: string;
+  chatId?: string;
+  messageContent: string;
+  messageType: MessageType;
 }

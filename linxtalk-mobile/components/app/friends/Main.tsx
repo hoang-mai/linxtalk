@@ -84,6 +84,13 @@ export default function Main() {
                 queryClient.setQueryData([QUERY_KEYS.INCOMING_FRIEND_REQUESTS], context.previousData);
             }
         }, 
+        onSuccess:(_, variables) => {
+            let keys: string[] = [QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL];
+            if(variables.data.status === "ACCEPTED") {
+                keys.push(QUERY_KEYS.FRIENDS_SEE_ALL);
+            }
+            queryClient.invalidateQueries({ queryKey: keys });
+        }
     });
 
   return (
@@ -167,7 +174,7 @@ export default function Main() {
                               </>
                           )}
                           {request.status === "ACCEPTED" && (
-                              <Text className="text-primary-600 dark:text-primary-400 font-semibold w-full bg-primary-50 dark:bg-primary-900 p-3 rounded-full text-center">{t('friends.friendsNow')}</Text>
+                              <Text className="mt-7 text-primary-600 dark:text-primary-400 font-semibold w-full bg-primary-50 dark:bg-primary-900 p-3 rounded-full text-center">{t('friends.friendsNow')}</Text>
                           )}
                       </View>
                   </View>
@@ -178,8 +185,15 @@ export default function Main() {
         </ScrollView>
         <View className="mt-4">
             <View className="flex-row items-center justify-between mb-4">
+                <View className="flex flex-row gap-4">
                 <View className="flex-row items-center gap-4">
                     <Text className="text-xl font-bold dark:text-white">{t('friends.title')}</Text>
+                </View>
+                {friends?.totalElements !== undefined && friends.totalElements > 0 && (
+                    <View className="px-2 flex items-center justify-center bg-primary-400 rounded-full ">
+                    <Text className="text-lg text-white font-bold">{friends.totalElements}</Text>
+                    </View>
+                )}
                 </View>
                 <Button title={t('friends.seeAll')}
                     variant="secondary"

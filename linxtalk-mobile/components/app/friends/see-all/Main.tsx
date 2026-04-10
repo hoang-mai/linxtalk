@@ -103,8 +103,12 @@ export default function Main() {
                 queryClient.setQueryData([QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL], context.previousData);
             }
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS, QUERY_KEYS.FRIENDS_SEE_ALL] });
+        onSuccess:(_, variables) => {
+            let keys: string[] = [QUERY_KEYS.INCOMING_FRIEND_REQUESTS];
+            if(variables.data.status === "ACCEPTED") {
+                keys.push(QUERY_KEYS.FRIENDS_SEE_ALL);
+            }
+            queryClient.invalidateQueries({ queryKey: keys });
         }
 
     });

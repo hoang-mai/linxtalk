@@ -44,9 +44,6 @@ public class User {
     @Builder.Default
     private List<LinkedProvider> linkedProviders = new ArrayList<>();
 
-    @Builder.Default
-    private UserStatus status = UserStatus.OFFLINE;
-
     private Instant lastSeenAt;
 
     @Builder.Default
@@ -86,14 +83,6 @@ public class User {
     public static class LinkedProvider {
         private AuthProvider provider;
         private String providerId;
-    }
-
-    public enum UserStatus {
-        ONLINE,
-        OFFLINE,
-        AWAY,
-        DO_NOT_DISTURB,
-        INVISIBLE
     }
 
     @Data

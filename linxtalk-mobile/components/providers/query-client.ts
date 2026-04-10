@@ -4,11 +4,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import { useToastStore } from '@/store/toast-store';
 import i18n from '@/i18n';
+import { QUERY_KEYS } from '@/constants/constant';
 
 const PERSISTED_QUERY_KEYS: string[] = [
-    "profile",
-    "incoming-friend-requests",
-    "incoming-friend-requests-see-all"
+    QUERY_KEYS.PROFILE,
+    QUERY_KEYS.INCOMING_FRIEND_REQUESTS,
+    QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL,
+    QUERY_KEYS.FRIENDS_SEE_ALL,
 ];
 
 export const queryClient = new QueryClient({

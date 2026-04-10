@@ -20,6 +20,7 @@ import { useThemeStore } from '@/store/theme-store';
 import { useColorScheme } from 'react-native';
 import { ThemeProvider } from '@react-navigation/native';
 import { LightTheme, DarkTheme } from '@/constants/theme';
+import { WebSocketProvider } from '@/components/providers/WebSocketProvider';
 
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
@@ -42,19 +43,21 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <KeyboardProvider>
             <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
-              <StatusBar style="auto" />
-              <Loading />
-              <ModalGlobal />
-              <BottomSheet />
-              <Toast />
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Protected guard={isAuthenticated}>
-                  <Stack.Screen name='(app)' />
-                </Stack.Protected>
-                <Stack.Protected guard={!isAuthenticated}>
-                  <Stack.Screen name='(auth)' />
-                </Stack.Protected>
-              </Stack>
+              <WebSocketProvider>
+                <StatusBar style="auto" />
+                <Loading />
+                <ModalGlobal />
+                <BottomSheet />
+                <Toast />
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Protected guard={isAuthenticated}>
+                    <Stack.Screen name='(app)' />
+                  </Stack.Protected>
+                  <Stack.Protected guard={!isAuthenticated}>
+                    <Stack.Screen name='(auth)' />
+                  </Stack.Protected>
+                </Stack>
+              </WebSocketProvider>
             </PersistQueryClientProvider>
           </KeyboardProvider>
         </SafeAreaProvider>

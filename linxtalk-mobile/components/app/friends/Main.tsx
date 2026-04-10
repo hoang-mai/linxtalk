@@ -8,6 +8,7 @@ import {useMutation, useQuery} from "@tanstack/react-query";
 import {get, patch} from "@/services/axios";
 import {FriendRequestResponse, UpdateFriendRequestStatusRequest} from "@/constants/type";
 import {FRIEND_REQUEST} from "@/constants/api";
+import {QUERY_KEYS} from "@/constants/constant";
 import {useEffect} from "react";
 import Skeleton from "@/library/Skeleton";
 import {useLoadingStore} from "@/store/loading-store";
@@ -15,17 +16,18 @@ import {useToastStore} from "@/store/toast-store";
 import {StyleSheet} from "react-native";
 import {queryClient} from "@/components/providers/query-client";
 import { formatRelativeTime } from "@/utils/fn-common";
+import { useTranslation } from "react-i18next";
 
 
 export default function Main() {
     const router = useRouter();
     const { showToast } = useToastStore();
+    const { t } = useTranslation();
 
 
     const { data: friends, isLoading: isLoadingFriends } = useQuery({
-        queryKey: ["friends"],
-        staleTime: 0,
-        gcTime: 0,
+        queryKey: [QUERY_KEYS.FRIENDS],
+        staleTime: 30 * 1000,
         queryFn: () => {
             return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${FRIEND_REQUEST}?pageSize=10&status=ACCEPTED`)
                 .then((res) => {
@@ -37,7 +39,7 @@ export default function Main() {
     });
 
     const { data, isLoading } = useQuery({
-        queryKey: ["incoming-friend-requests"],
+        queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS],
         staleTime: 30 * 1000,
         queryFn: () => {
             return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${FRIEND_REQUEST}?pageSize=3&status=PENDING`)
@@ -58,10 +60,10 @@ export default function Main() {
             return res.data;
         },
         onMutate: async ({ data, friendRequestId }: { data: UpdateFriendRequestStatusRequest, friendRequestId: string }) => {
-            await queryClient.cancelQueries({ queryKey: ["incoming-friend-requests"] });
-            const previousData = queryClient.getQueryData(["incoming-friend-requests"]);
+            await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS] });
+            const previousData = queryClient.getQueryData([QUERY_KEYS.INCOMING_FRIEND_REQUESTS]);
 
-            queryClient.setQueryData(["incoming-friend-requests"], (old: any) => {
+            queryClient.setQueryData([QUERY_KEYS.INCOMING_FRIEND_REQUESTS], (old: any) => {
                 if (!old || !old.data) return old;
                 return {
                     ...old,
@@ -79,7 +81,7 @@ export default function Main() {
                 type: "error",
             });
             if (context?.previousData) {
-                queryClient.setQueryData(["incoming-friend-requests"], context.previousData);
+                queryClient.setQueryData([QUERY_KEYS.INCOMING_FRIEND_REQUESTS], context.previousData);
             }
         }, 
     });
@@ -90,21 +92,21 @@ export default function Main() {
         contentContainerStyle={{ paddingBottom: 100, marginHorizontal: 20 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text className="text-2xl font-bold text-center text-grey-900 dark:text-grey-100">Friends</Text>
+        <Text className="text-2xl font-bold text-center text-grey-900 dark:text-grey-100">{t('friends.title')}</Text>
         <Pressable onPress={()=> router.push("/friends/search-friends")} className="flex-row items-center justify-start gap-2 p-4 bg-white dark:bg-background-dark rounded-full border border-grey-200 dark:border-grey-800 my-4">
           <Icon name="search-outline" size={24} color={Colors.grey["400"]} darkColor={Colors.grey["200"]} />
-          <Text className="text-grey-500 dark:text-grey-400">Search Friends...</Text>
+          <Text className="text-grey-500 dark:text-grey-400">{t('friends.searchFriends')}</Text>
         </Pressable>
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center gap-4">
-            <Text className="text-xl font-bold dark:text-white">Requests</Text>
+            <Text className="text-xl font-bold dark:text-white">{t('friends.requests')}</Text>
             {data?.totalElements !== undefined && data.totalElements > 0 && (
                 <View className="px-2 flex items-center justify-center bg-primary-400 rounded-full ">
                   <Text className="text-lg text-white font-bold">{data.totalElements}</Text>
                 </View>
             )}
           </View>
-          <Button title="See All"
+          <Button title={t('friends.seeAll')}
             variant="secondary"
             textClassName="text-sm"
             className="px-3.5"
@@ -156,30 +158,30 @@ export default function Main() {
                               <View className="flex-row gap-3">
                                   
                                   <View className="flex-1">
-                                      <Button title="Accept" onPress={() => updateStatus({ data: { status: "ACCEPTED" }, friendRequestId: request.id })} />
+                                      <Button title={t('friends.accept')} onPress={() => updateStatus({ data: { status: "ACCEPTED" }, friendRequestId: request.id })} />
                                   </View>
                                   <View className="flex-1">
-                                      <Button variant="outline" title="Reject" onPress={() => updateStatus({ data: { status: "REJECTED" }, friendRequestId: request.id })} />
+                                      <Button variant="outline" title={t('friends.reject')} onPress={() => updateStatus({ data: { status: "REJECTED" }, friendRequestId: request.id })} />
                                   </View>
                                   </View>
                               </>
                           )}
                           {request.status === "ACCEPTED" && (
-                              <Text className="text-primary-600 dark:text-primary-400 font-semibold w-full bg-primary-50 dark:bg-primary-900 p-3 rounded-full text-center">Friends now</Text>
+                              <Text className="text-primary-600 dark:text-primary-400 font-semibold w-full bg-primary-50 dark:bg-primary-900 p-3 rounded-full text-center">{t('friends.friendsNow')}</Text>
                           )}
                       </View>
                   </View>
               ))
           ) : (
-                <Text className="text-grey-500 dark:text-grey-400 pb-4">No requests found</Text>
+                <Text className="text-grey-500 dark:text-grey-400 pb-4">{t('friends.noRequestsFound')}</Text>
           )}
         </ScrollView>
         <View className="mt-4">
             <View className="flex-row items-center justify-between mb-4">
                 <View className="flex-row items-center gap-4">
-                    <Text className="text-xl font-bold dark:text-white">Friends</Text>
+                    <Text className="text-xl font-bold dark:text-white">{t('friends.title')}</Text>
                 </View>
-                <Button title="See All"
+                <Button title={t('friends.seeAll')}
                     variant="secondary"
                     textClassName="text-sm"
                     className="px-3.5"
@@ -213,7 +215,7 @@ export default function Main() {
                 ))}
             </ScrollView>
         ) : (
-            <Text className="text-grey-500 dark:text-grey-400 pb-4">No friends found</Text>
+            <Text className="text-grey-500 dark:text-grey-400 pb-4">{t('friends.noFriendsFound')}</Text>
         )}
         </View>
       </ScrollView>

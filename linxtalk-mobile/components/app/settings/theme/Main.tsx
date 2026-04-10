@@ -4,9 +4,11 @@ import { useThemeStore, ThemeMode } from "@/store/theme-store";
 import RadioButton from "@/library/RadioButton";
 import { THEMES } from "@/constants/constant";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useTranslation } from "react-i18next";
 
 export default function Main() {
     const { theme, setTheme } = useThemeStore();
+    const { t } = useTranslation();
 
     return (
         <View className="flex-1 px-4 pt-6">
@@ -33,7 +35,7 @@ export default function Main() {
                                 <Text
                                     className={`text-lg font-medium ${isSelected ? "text-primary-500" : "text-grey-800 dark:text-grey-100"}`}
                                 >
-                                    {item.label}
+                                    {t(item.labelKey)}
                                 </Text>
                             </View>
                         </RadioButton>

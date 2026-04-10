@@ -7,7 +7,7 @@ import Animated, {
     useSharedValue,
     withTiming,
 } from "react-native-reanimated";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import { useBottomSheetStore } from "@/store/bottom-sheet-store";
 
 const CLOSE_THRESHOLD = 120;
@@ -69,24 +69,26 @@ export default function BottomSheet() {
 
     return (
         <Modal transparent visible={mounted} animationType="none" onRequestClose={hideBottomSheet}>
-            <View style={styles.container}>
-                <Animated.View style={[styles.overlay, overlayStyle]}>
-                    <Pressable
-                        style={StyleSheet.absoluteFill}
-                        onPress={closeOnBackdropPress ? hideBottomSheet : undefined}
-                    />
-                </Animated.View>
-
-                <GestureDetector gesture={panGesture}>
-                    <Animated.View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 12) }, sheetStyle]}>
-                        <View style={styles.handle} />
-                        {title ? (
-                            <Text className="text-lg font-bold text-grey-900 dark:text-grey-100 mb-3">{title}</Text>
-                        ) : null}
-                        {children}
+            <GestureHandlerRootView style={styles.container}>
+                <View style={styles.container}>
+                    <Animated.View style={[styles.overlay, overlayStyle]}>
+                        <Pressable
+                            style={StyleSheet.absoluteFill}
+                            onPress={closeOnBackdropPress ? hideBottomSheet : undefined}
+                        />
                     </Animated.View>
-                </GestureDetector>
-            </View>
+
+                    <GestureDetector gesture={panGesture}>
+                        <Animated.View className="bg-white dark:bg-background-dark" style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 12) }, sheetStyle]}>
+                            <View className="bg-grey-200 dark:bg-grey-700" style={styles.handle} />
+                            {title ? (
+                                <Text className="text-lg font-bold text-grey-900 dark:text-grey-100 mb-3">{title}</Text>
+                            ) : null}
+                            {children}
+                        </Animated.View>
+                    </GestureDetector>
+                </View>
+            </GestureHandlerRootView>
         </Modal>
     );
 }
@@ -101,7 +103,6 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0,0,0,0.35)",
     },
     sheet: {
-        backgroundColor: "white",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         paddingHorizontal: 16,
@@ -111,7 +112,6 @@ const styles = StyleSheet.create({
         width: 44,
         height: 5,
         borderRadius: 999,
-        backgroundColor: "#D1D5DB",
         alignSelf: "center",
         marginBottom: 12,
     },

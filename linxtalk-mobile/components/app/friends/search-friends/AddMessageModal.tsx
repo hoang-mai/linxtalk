@@ -14,7 +14,7 @@ export default function AddMessageModal({ onSend }: AddMessageModalProps) {
     const { t } = useTranslation();
     const { account } = useAccountStore();
     const { hideModal } = useModalStore();
-    const [message, setMessage] = useState(`Hi, I'm ${account.displayName}. Add me on Linxtalk!`);
+    const [message, setMessage] = useState(t('friends.defaultMessage', { name: account.displayName }));
 
     const handleSend = () => {
         onSend(message.trim());
@@ -24,8 +24,8 @@ export default function AddMessageModal({ onSend }: AddMessageModalProps) {
     return (
         <View className="flex flex-col gap-6 w-[320px] max-w-full mt-2">
             <Input
-                label="Message"
-                placeholder="Type a message (optional)"
+                label={t('friends.message')}
+                placeholder={t('friends.messagePlaceholder')}
                 icon="chatbubble-outline"
                 value={message}
                 onChangeText={setMessage}
@@ -36,7 +36,7 @@ export default function AddMessageModal({ onSend }: AddMessageModalProps) {
                 className="!rounded-lg"
             />
             <Button
-                title="Send"
+                title={t('friends.send')}
                 onPress={handleSend}
             />
         </View>

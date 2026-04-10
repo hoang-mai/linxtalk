@@ -106,13 +106,10 @@ export default function Main() {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            hideLoading();
             await queryClient.resetQueries();
             await asyncStoragePersister.removeClient();
             router.replace("/(app)");
-        },
-
-        onSettled: () => {
-            hideLoading();
         },
     });
 
@@ -132,18 +129,17 @@ export default function Main() {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            hideLoading();
             await queryClient.resetQueries();
             await asyncStoragePersister.removeClient();
             router.replace("/(app)");
         },
         onError: (error) => {
+            hideLoading();
             showToast({
                 message: error.message,
                 type: "error",
             });
-        },
-        onSettled: async () => {
-            hideLoading();
         },
     });
 

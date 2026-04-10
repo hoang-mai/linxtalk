@@ -8,6 +8,7 @@ import {useInfiniteQuery, useMutation} from "@tanstack/react-query";
 import {get, patch} from "@/services/axios";
 import {FriendRequestResponse, UpdateFriendRequestStatusRequest} from "@/constants/type";
 import {FRIEND_REQUEST} from "@/constants/api";
+import {QUERY_KEYS} from "@/constants/constant";
 import {useEffect} from "react";
 import Skeleton from "@/library/Skeleton";
 import {useLoadingStore} from "@/store/loading-store";
@@ -15,18 +16,19 @@ import {useToastStore} from "@/store/toast-store";
 import {StyleSheet} from "react-native";
 import {formatRelativeTime} from "@/utils/fn-common";
 import {queryClient} from "@/components/providers/query-client";
+import { useTranslation } from "react-i18next";
 
 
 export default function Main() {
     const { showToast } = useToastStore();
+    const { t } = useTranslation();
     const { 
         data, 
         isLoading, 
         fetchNextPage, 
-        hasNextPage, 
-        isFetchingNextPage 
+        isFetchingNextPage
     } = useInfiniteQuery({
-        queryKey: ["incoming-friend-requests-see-all"],
+        queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL],
         staleTime: 30 * 1000,
         initialPageParam: 0,
         queryFn: ({ pageParam }) => {
@@ -54,7 +56,7 @@ export default function Main() {
 
     useEffect(() => {
         return () => {
-            queryClient.setQueryData(["incoming-friend-requests-see-all"], (data: any) => {
+            queryClient.setQueryData([QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL], (data: any) => {
                 if (!data || !data.pages || !data.pageParams) return data;
                 return {
                     ...data,
@@ -74,10 +76,10 @@ export default function Main() {
             return res.data;
         },
         onMutate: async ({ data, friendRequestId }: { data: UpdateFriendRequestStatusRequest, friendRequestId: string }) => {
-            await queryClient.cancelQueries({ queryKey: ["incoming-friend-requests-see-all"] });
-            const previousData = queryClient.getQueryData(["incoming-friend-requests-see-all"]);
+            await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL] });
+            const previousData = queryClient.getQueryData([QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL]);
 
-            queryClient.setQueryData(["incoming-friend-requests-see-all"], (old: any) => {
+            queryClient.setQueryData([QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL], (old: any) => {
                 if (!old || !old.pages) return old;
                 return {
                     ...old,
@@ -98,11 +100,11 @@ export default function Main() {
                 type: "error",
             });
             if (context?.previousData) {
-                queryClient.setQueryData(["incoming-friend-requests-see-all"], context.previousData);
+                queryClient.setQueryData([QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL], context.previousData);
             }
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["incoming-friend-requests"] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS, QUERY_KEYS.FRIENDS_SEE_ALL] });
         }
 
     });
@@ -154,15 +156,15 @@ export default function Main() {
                             {request.status === "PENDING" && (
                                 <>
                                     <View className="flex-1">
-                                        <Button title="Accept" onPress={() => updateStatus({ data: { status: "ACCEPTED" }, friendRequestId: request.id })} />
+                                        <Button title={t('friends.accept')} onPress={() => updateStatus({ data: { status: "ACCEPTED" }, friendRequestId: request.id })} />
                                     </View>
                                     <View className="flex-1">
-                                        <Button variant="outline" title="Reject" onPress={() => updateStatus({ data: { status: "REJECTED" }, friendRequestId: request.id })} />
+                                        <Button variant="outline" title={t('friends.reject')} onPress={() => updateStatus({ data: { status: "REJECTED" }, friendRequestId: request.id })} />
                                     </View>
                                 </>
                             )}
                             {request.status === "ACCEPTED" && (
-                                <Text className="text-primary-600 dark:text-primary-400 font-semibold w-full bg-primary-50 dark:bg-primary-900 p-3 rounded-full text-center">Friends now</Text>
+                                <Text className="text-primary-600 dark:text-primary-400 font-semibold w-full bg-primary-50 dark:bg-primary-900 p-3 rounded-full text-center">{t('friends.friendsNow')}</Text>
                             )}
                         </View>
                     </View>
@@ -189,8 +191,6 @@ export default function Main() {
                                 </View>
                             </View>
                         </View>
-                    ) : !hasNextPage ? (
-                        <Text className="text-center text-grey-500 dark:text-grey-400">No more requests</Text>
                     ) : null
                 }
             />

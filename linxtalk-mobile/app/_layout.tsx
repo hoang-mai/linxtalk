@@ -20,7 +20,6 @@ import { useThemeStore } from '@/store/theme-store';
 import { useColorScheme } from 'react-native';
 import { ThemeProvider } from '@react-navigation/native';
 import { LightTheme, DarkTheme } from '@/constants/theme';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
@@ -39,7 +38,6 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : LightTheme}>
         <SafeAreaProvider>
           <KeyboardProvider>
@@ -61,6 +59,5 @@ export default function RootLayout() {
           </KeyboardProvider>
         </SafeAreaProvider>
       </ThemeProvider>
-    </GestureHandlerRootView>
   );
 }

@@ -125,13 +125,11 @@ export default function Main() {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            hideLoading();
             await queryClient.resetQueries();
             await asyncStoragePersister.removeClient();
             router.replace("/(app)");
         },
-        onSettled: async () => {
-            hideLoading();
-        }
     });
 
     const onSubmit = async (data: LoginSchema) => {

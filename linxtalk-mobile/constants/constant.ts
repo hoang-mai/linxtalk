@@ -11,8 +11,16 @@ export const LANGUAGES = [
 ];
 
 export const THEMES = [
-    { code: "light", label: "Light", icon: "sunny-outline", iconColor: "#F97316", iconBg: "#FFEDD5" },
-    { code: "dark", label: "Dark", icon: "moon-outline", iconColor: "#6366F1", iconBg: "#E0E7FF" },
-    { code: "system", label: "System", icon: "phone-portrait-outline", iconColor: "#64748B", iconBg: "#F1F5F9" },
+    { code: "light", labelKey: "settings.lightTheme", icon: "sunny-outline", iconColor: "#F97316", iconBg: "#FFEDD5" },
+    { code: "dark", labelKey: "settings.darkTheme", icon: "moon-outline", iconColor: "#6366F1", iconBg: "#E0E7FF" },
+    { code: "system", labelKey: "settings.systemTheme", icon: "phone-portrait-outline", iconColor: "#64748B", iconBg: "#F1F5F9" },
 ];
 
+export const QUERY_KEYS = {
+    PROFILE: "profile",
+    FRIENDS: "friends",
+    FRIENDS_SEE_ALL: "friends-see-all",
+    INCOMING_FRIEND_REQUESTS: "incoming-friend-requests",
+    INCOMING_FRIEND_REQUESTS_SEE_ALL: "incoming-friend-requests-see-all",
+    SEARCH_FRIENDS: "search-friends",
+};

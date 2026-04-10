@@ -17,6 +17,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { asyncStoragePersister } from "@/components/providers/query-client";
 import { get, post, put } from "@/services/axios";
 import { AUTH, USER } from "@/constants/api";
+import { QUERY_KEYS } from "@/constants/constant";
 import {
     AuthResponse,
     LinkEmailRequest,
@@ -68,7 +69,7 @@ export default function Main() {
     });
 
     const { data, isFetching, isLoading } = useQuery({
-        queryKey: ["profile"],
+        queryKey: [QUERY_KEYS.PROFILE],
         staleTime: 12 * 60 * 60 * 1000,
         queryFn: () => {
             return get<BaseResponse<ProfileResponse>>(`${USER}/profile`)
@@ -124,7 +125,7 @@ export default function Main() {
                 message: result.message,
                 type: "success",
             });
-            queryClient.invalidateQueries({ queryKey: ["profile"] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PROFILE] });
             router.back();
         },
         onError: (error) => {
@@ -165,14 +166,12 @@ export default function Main() {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            hideLoading();
             await queryClient.resetQueries();
             await asyncStoragePersister.removeClient();
             router.dismissTo("/settings");
             router.replace("/");
         },
-        onSettled: () => {
-            hideLoading();
-        }
     });
 
     const { mutate: googleMutate } = useMutation({
@@ -197,19 +196,18 @@ export default function Main() {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            hideLoading();
             await queryClient.resetQueries();
             await asyncStoragePersister.removeClient();
             router.dismissTo("/settings");
             router.replace("/");
         },
         onError: (error) => {
+            hideLoading();
             showToast({
                 message: error.message,
                 type: "error",
             });
-        },
-        onSettled: () => {
-            hideLoading();
         },
     });
 

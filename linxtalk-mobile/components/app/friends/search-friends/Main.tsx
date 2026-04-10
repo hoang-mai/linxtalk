@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { get, patch, post } from "@/services/axios";
 import { FRIEND_REQUEST, USER } from "@/constants/api";
+import { QUERY_KEYS } from "@/constants/constant";
 import { CreateFriendRequestRequest, FriendRequestResponse, UpdateFriendRequestStatusRequest, UserSearchResponse } from "@/constants/type";
 import { useDebounce } from "@/hooks/useDebounce";
 import Skeleton from "@/library/Skeleton";
@@ -46,7 +47,7 @@ export default function Main() {
     const { showModal } = useModalStore();
 
     const { data: searchResult, isFetching: isFetchingSearch } = useQuery({
-        queryKey: ["search-friends", debouncedSearchQuery],
+        queryKey: [QUERY_KEYS.SEARCH_FRIENDS, debouncedSearchQuery],
         retry: 0,
         queryFn: async () => {
             const res = await get<BaseResponse<UserSearchResponse>>(`${USER}/search?q=${encodeURIComponent(debouncedSearchQuery)}`);
@@ -67,7 +68,7 @@ export default function Main() {
                     friendRequestResponse: data.data
                 } : old
             );
-            queryClient.invalidateQueries({ queryKey: ["incoming-friend-requests"] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS] });
         },
         onError: (error) => {
             showToast({
@@ -98,7 +99,7 @@ export default function Main() {
                     friendRequestResponse: data.data
                 } : old
             );
-            queryClient.invalidateQueries({ queryKey: ["incoming-friend-requests"] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS] });
         },
         onError: (error) => {
             showToast({
@@ -173,9 +174,9 @@ export default function Main() {
         if (!searchResult.friendRequestResponse || status === "CANCELLED" || status === "REJECTED") {
             return (
                 <Button
-                    title={"Add friend"}
+                    title={t('friends.addFriend')}
                     onPress={() => showModal({
-                        title: "Add Friend",
+                        title: t('friends.addFriendTitle'),
                         children: <AddMessageModal onSend={(msg) => handleAddFriend(searchResult, msg)} />
                     })}
                     className="rounded-full px-4 py-1.5"
@@ -189,7 +190,7 @@ export default function Main() {
                 return (
                     <Button
                         variant="soft"
-                        title={"Cancel"}
+                        title={t('friends.cancel')}
                         onPress={() => handleUpdateStatus(searchResult, "CANCELLED")}
                         className="rounded-full px-4 py-1.5"
                         textClassName="text-sm"
@@ -226,7 +227,7 @@ export default function Main() {
             return (
                 <Button
                     variant="soft"
-                    title={"Message"}
+                    title={t('friends.message')}
                     onPress={() => {
 
                     }}
@@ -244,7 +245,7 @@ export default function Main() {
                 <View className="relative">
                     <Animated.View style={borderStyle}>
                         <TextInput
-                            placeholder="Search by @username or email"
+                            placeholder={t('friends.searchPlaceholder')}
                             placeholderTextColor={colorScheme === "dark" ? Colors.grey["400"] : Colors.grey["500"]}
                             value={searchQuery}
                             onChangeText={setSearchQuery}
@@ -270,7 +271,7 @@ export default function Main() {
                         />
                     )}
                 </View>
-                <Text className="text-xl font-bold dark:text-white mt-4">Result</Text>
+                <Text className="text-xl font-bold dark:text-white mt-4">{t('friends.result')}</Text>
 
                 {isFetchingSearch ? (
                     <View className="mt-4 gap-4">
@@ -296,7 +297,7 @@ export default function Main() {
                     </View>
                 ) : (
                     <View className="mt-4 gap-4">
-                        <Text className="text-center text-grey-500 dark:text-grey-400">No result found</Text>
+                        <Text className="text-center text-grey-500 dark:text-grey-400">{t('friends.noResultFound')}</Text>
                     </View>
                 )}
             </ScrollView>

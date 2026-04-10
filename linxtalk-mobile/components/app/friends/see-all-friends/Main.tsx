@@ -2,6 +2,7 @@ import { FlatList, Pressable, ScrollView, Text, View } from "react-native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { get } from "@/services/axios";
 import { FRIEND_REQUEST } from "@/constants/api";
+import { QUERY_KEYS } from "@/constants/constant";
 import { FriendRequestResponse } from "@/constants/type";
 import { useToastStore } from "@/store/toast-store";
 import Skeleton from "@/library/Skeleton";
@@ -14,13 +15,15 @@ import { Colors } from "@/constants/theme";
 import Button from "@/library/Button";
 import { useBottomSheetStore } from "@/store/bottom-sheet-store";
 import FriendOptionsSheet from "./FriendOptionsSheet";
+import { useTranslation } from "react-i18next";
 
 export default function Main() {
     const { showToast } = useToastStore();
     const { showBottomSheet } = useBottomSheetStore();
+    const { t } = useTranslation();
 
-    const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
-        queryKey: ["friends-see-all"],
+    const { data, isLoading, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
+        queryKey: [QUERY_KEYS.FRIENDS_SEE_ALL],
         staleTime: 30 * 1000,
         initialPageParam: 0,
         queryFn: ({ pageParam }) => {
@@ -38,7 +41,7 @@ export default function Main() {
 
     useEffect(() => {
         return () => {
-            queryClient.setQueryData(["friends-see-all"], (oldData: any) => {
+            queryClient.setQueryData([QUERY_KEYS.FRIENDS_SEE_ALL], (oldData: any) => {
                 if (!oldData?.pages || !oldData?.pageParams) return oldData;
                 return {
                     ...oldData,
@@ -100,7 +103,6 @@ export default function Main() {
                         <Pressable
                         onPress={() =>
                             showBottomSheet({
-                                title: "Friend options",
                                 children: <FriendOptionsSheet friendRequestResponse={friend}/>,
                             })
                         }
@@ -112,7 +114,7 @@ export default function Main() {
                     )}
                     onEndReached={() => fetchNextPage()}
                     onEndReachedThreshold={0.5}
-                    ListEmptyComponent={<Text className="text-center text-grey-500 dark:text-grey-400">No friends found</Text>}
+                    ListEmptyComponent={<Text className="text-center text-grey-500 dark:text-grey-400">{t('friends.noFriendsFound')}</Text>}
                     ListFooterComponent={
                         isFetchingNextPage ? (
                             <View className="bg-white dark:bg-background-dark p-5 rounded-2xl border border-grey-200 dark:border-grey-800">
@@ -124,9 +126,7 @@ export default function Main() {
                                     </View>
                                 </View>
                             </View>
-                        ) : !hasNextPage ? (
-                            <Text className="text-center text-grey-500 dark:text-grey-400">No more friends</Text>
-                        ) : null
+                        )  : null
                     }
                 />
             )}

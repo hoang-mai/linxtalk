@@ -8,7 +8,7 @@ interface DivideProps {
 export default function Divide({vertical = false, className = ""}: DivideProps) {
   return (
     <View
-      className={`${vertical ? "w-px self-stretch" : "h-px w-full"} bg-grey-200 ${className}`}
+      className={`${vertical ? "w-px self-stretch" : "h-px w-full"} bg-grey-200 dark:bg-grey-800 ${className}`}
     />
   );
 }

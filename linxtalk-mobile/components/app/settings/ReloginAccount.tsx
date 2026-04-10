@@ -65,19 +65,18 @@ export default function ReloginAccount({ account }: ReloginAccountProps) {
                 displayName: result.data.displayName,
                 avatarUrl: result.data.avatarUrl,
             });
+            hideLoading();
             await queryClient.resetQueries();
             await asyncStoragePersister.removeClient();
             hideModal();
             router.replace("/");
         },
         onError: (error) => {
+            hideLoading();
             showToast({
                 message: error.message,
                 type: "error",
             });
-        },
-        onSettled: () => {
-            hideLoading();
         },
     });
 

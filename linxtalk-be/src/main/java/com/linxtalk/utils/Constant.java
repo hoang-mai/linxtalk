@@ -12,5 +12,16 @@ public class Constant {
 
     public static final String FRIEND_REQUEST = REQUEST_MAPPING + "/friend-request";
 
-    public static final Integer MAX_ACCOUNT_PER_DEVICE = 3;
+    public static final int MAX_ACCOUNT_PER_DEVICE = 3;
+
+    public static final String PRESENCE_USER_KEY_PREFIX = "presence:user:";
+
+    public static final String PRESENCE_SESSION_KEY_PREFIX = "presence:session:";
+
+    public static final String PRESENCE_OFFLINE_KEY = "presence:offline:";
+
+    public static final String PRESENCE_ONLINE_KEY_PREFIX = "presence:online:";
+
+    public static final int PRESENCE_TTL_SECONDS = 60;
+
 }

@@ -1,8 +1,7 @@
-package com.linxtalk.security;
+package com.linxtalk.listener;
 
 import com.linxtalk.service.PresenceService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
@@ -13,7 +12,6 @@ import java.security.Principal;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class WebSocketEventListener {
 
     private final PresenceService presenceService;
@@ -22,11 +20,11 @@ public class WebSocketEventListener {
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         Principal user = headerAccessor.getUser();
+        String sessionId = headerAccessor.getSessionId();
         
-        if (user != null) {
+        if (user != null && sessionId != null) {
             String userId = user.getName();
-            log.info("User connected: {}", userId);
-            presenceService.updateUserPresence(userId);
+            presenceService.updateUserPresence(userId, sessionId);
         }
     }
 
@@ -34,11 +32,11 @@ public class WebSocketEventListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         Principal user = headerAccessor.getUser();
+        String sessionId = headerAccessor.getSessionId();
         
-        if (user != null) {
+        if (user != null && sessionId != null) {
             String userId = user.getName();
-            log.info("User disconnected: {}", userId);
-            presenceService.removeUserPresence(userId);
+            presenceService.removeUserPresence(userId, sessionId);
         }
     }
 }

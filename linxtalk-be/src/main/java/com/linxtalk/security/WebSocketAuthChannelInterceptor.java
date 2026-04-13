@@ -46,7 +46,7 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
         }
 
         if (SimpMessageType.HEARTBEAT.equals(accessor.getMessageType()) && accessor.getUser() != null) {
-            presenceService.updateUserPresence(accessor.getUser().getName());
+            presenceService.refreshSessionHeartbeat(accessor.getUser().getName(), accessor.getSessionId());
         }
 
         return message;

@@ -38,6 +38,7 @@ public class FriendRequestService {
     private final FriendRequestRepositoryCustom friendRequestRepositoryCustom;
     private final UserRepository userRepository;
     private final FriendRequestMapper friendRequestMapper;
+    private final PresenceService presenceService;
 
     public FriendRequestResponse createFriendRequest(CreateFriendRequestRequest request) {
         String senderId = FnCommon.getUserId();
@@ -100,16 +101,22 @@ public class FriendRequestService {
 
                 List<String> friendIds = Stream.concat(senderIds.stream(), receiverIds.stream()).toList();
                 users = userRepository.findAllById(friendIds);
+                Map<String, Boolean> friendOnlineStatuses = presenceService.getOnlineStatuses(friendIds);
+
                 userMap = users.stream()
                         .collect(Collectors.toMap(User::getId, Function.identity(), (a, b) -> a));
 
                 data = friendRequests.stream()
-                        .map(request -> friendRequestMapper.toFriendRequestResponse(request, userMap.get(request.getSenderId())))
+                        .map(request -> {
+                            String friendId = Objects.equals(request.getSenderId(), currentUserId) ? request.getReceiverId() : request.getSenderId();
+                            return friendRequestMapper.toFriendRequestResponse(request, userMap.get(friendId), friendOnlineStatuses.get(friendId));
+                        })
                         .toList();
                 break;
             default:
                 throw new IllegalArgumentException(MessageError.FRIEND_REQUEST_STATUS_INVALID);
         }
+
 
 
         return PageResponse.<FriendRequestResponse>builder()

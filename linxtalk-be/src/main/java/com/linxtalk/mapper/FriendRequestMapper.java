@@ -14,6 +14,10 @@ public class FriendRequestMapper {
     }
 
     public FriendRequestResponse toFriendRequestResponse(FriendRequest friendRequest, User sender) {
+        return toFriendRequestResponse(friendRequest, sender, null);
+    }
+
+    public FriendRequestResponse toFriendRequestResponse(FriendRequest friendRequest, User sender, Boolean isOnline) {
         if (friendRequest == null) {
             return null;
         }
@@ -27,11 +31,11 @@ public class FriendRequestMapper {
                 .respondedAt(friendRequest.getRespondedAt())
                 .createdAt(friendRequest.getCreatedAt())
                 .updatedAt(friendRequest.getUpdatedAt())
-                .sender(toUserSearchResponse(sender))
+                .sender(toUserSearchResponse(sender, isOnline))
                 .build();
     }
 
-    private UserSearchResponse toUserSearchResponse(User user) {
+    private UserSearchResponse toUserSearchResponse(User user, Boolean isOnline) {
         if (user == null) {
             return null;
         }
@@ -42,6 +46,8 @@ public class FriendRequestMapper {
                 .email(user.getEmail())
                 .displayName(user.getDisplayName())
                 .avatarUrl(user.getAvatarUrl())
+                .lastSeenAt(user.getLastSeenAt())
+                .isOnline(isOnline)
                 .build();
     }
 }

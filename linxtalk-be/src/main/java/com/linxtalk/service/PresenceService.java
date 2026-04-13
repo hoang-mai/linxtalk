@@ -3,10 +3,13 @@ package com.linxtalk.service;
 import com.linxtalk.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.linxtalk.utils.Constant.*;
@@ -19,6 +22,42 @@ public class PresenceService {
     private final StringRedisTemplate redisTemplate;
     private final UserRepository userRepository;
 
+    /**
+     * Gets the online status for a collection of user IDs efficiently using Redis pipelining.
+     * @param userIds The collection of user IDs to check.
+     * @return A map where the key is the userId and the value is true if online, false otherwise.
+     */
+    public Map<String, Boolean> getOnlineStatuses(List<String> userIds) {
+        if (userIds == null || userIds.isEmpty()) return Collections.emptyMap();
+
+        try {
+            List<Object> results = redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+
+                for (String userId : userIds) {
+                    byte[] onlineKey = (PRESENCE_ONLINE_KEY_PREFIX + userId).getBytes(StandardCharsets.UTF_8);
+                    connection.keyCommands().exists(onlineKey);
+                }
+                return null;
+            });
+
+            Map<String, Boolean> statusMap = new HashMap<>();
+            for (int i = 0; i < userIds.size(); i++) {
+                Object result = results.get(i);
+                boolean isOnline = false;
+                if(result instanceof Boolean resultBoolean) {
+                    isOnline = resultBoolean;
+                }
+                if(result instanceof Long resultLong) {
+                    isOnline = resultLong > 0;
+                }
+                statusMap.put(userIds.get(i), isOnline);
+            }
+            return statusMap;
+        } catch (Exception e) {
+            log.error("Failed to fetch online statuses for batch", e);
+            return Collections.emptyMap();
+        }
+    }
 
     /**
      * Updates the user's online status in Redis and refreshes lastSeenAt in MongoDB.
@@ -89,8 +128,6 @@ public class PresenceService {
                 redisTemplate.opsForValue().set(offlineKey, "OFFLINE", 60, TimeUnit.SECONDS);
                 
                 log.info("User {} disconnected all sessions. Pending offline event scheduled.", userId);
-            } else {
-                log.debug("Session {} removed for user {}, {} sessions remaining", sessionId, userId, remainingSessions);
             }
         } catch (Exception e) {
             log.error("Failed to remove presence for user: {}, session: {}", userId, sessionId, e);
@@ -125,8 +162,6 @@ public class PresenceService {
                 redisTemplate.opsForValue().set(offlineKey, "OFFLINE", 60, TimeUnit.SECONDS);
 
                 log.info("Session {} expired for user {}. Pending offline event scheduled.", sessionId, userId);
-            } else {
-                log.debug("Session {} expired for user {}, {} sessions remaining", sessionId, userId, remainingSessions);
             }
         } catch (Exception e) {
             log.error("Error removing session presence for user: {}, session: {}", userId, sessionId, e);

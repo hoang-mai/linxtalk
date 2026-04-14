@@ -20,7 +20,8 @@ class WebSocketService {
         this.client = new Client({
             brokerURL: url,
             connectHeaders: config.headers || {},
-
+            forceBinaryWSFrames: true,
+            appendMissingNULLonIncoming: true,
             reconnectDelay: 5000,
             heartbeatIncoming: 0,
             heartbeatOutgoing: 10000,
@@ -45,7 +46,8 @@ class WebSocketService {
 
             onDisconnect: () => {
                 this.connected = false;
-            }
+            },
+            debug: url => console.log(url),
         });
 
         this.client.activate();

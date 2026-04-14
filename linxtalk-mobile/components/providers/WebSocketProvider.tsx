@@ -5,6 +5,7 @@ import { axiosInstance } from '@/services/axios';
 import { WEBSOCKET_MAPPING } from '@/constants/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@/constants/constant';
+import {isTokenExpired} from "@/utils/fn-common";
 
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, accessToken } = useAuthStore();
@@ -12,7 +13,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const connectedToken = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated || !accessToken) {
+    if (!isAuthenticated || !accessToken || isTokenExpired(accessToken)) {
       if (webSocketService.isConnected()) {
         webSocketService.disconnect();
       }
@@ -32,9 +33,6 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const wsProtocol = baseURL.startsWith('https') ? 'wss' : 'ws';
     const host = baseURL.replace(/^https?:\/\//, '');
     const wsURL = `${wsProtocol}://${host}${WEBSOCKET_MAPPING}`;
-
-    console.log('Initializing WebSocket at:', wsURL);
-
 
     webSocketService.initialize(wsURL, {
       headers: {

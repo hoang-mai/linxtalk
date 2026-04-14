@@ -3,6 +3,7 @@ package com.linxtalk.security;
 import com.linxtalk.service.PresenceService;
 import com.linxtalk.service.TokenBlacklistService;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -27,7 +28,7 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
     private final PresenceService presenceService;
 
     @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+    public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (accessor == null) {
             return message;

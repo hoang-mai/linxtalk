@@ -90,6 +90,8 @@ export interface UserSearchResponse {
   email: string | null;
   displayName: string;
   avatarUrl: string | null;
+  isOnline: boolean;
+  lastSeenAt: string | null;
   friendRequestResponse: FriendRequestResponse | null;
 }
 

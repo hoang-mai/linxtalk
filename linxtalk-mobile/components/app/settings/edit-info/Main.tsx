@@ -1,4 +1,4 @@
-import { FlatList, Platform, Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import Input from "@/library/Input";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -17,7 +17,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { asyncStoragePersister } from "@/components/providers/query-client";
 import { get, post, put } from "@/services/axios";
 import { AUTH, USER } from "@/constants/api";
-import { QUERY_KEYS } from "@/constants/constant";
+import { MAX_ACCOUNT, QUERY_KEYS } from "@/constants/constant";
 import {
     AuthResponse,
     LinkEmailRequest,
@@ -35,7 +35,6 @@ import * as Device from "expo-device";
 import * as Application from "expo-application";
 import AddNewAccount from "../AddNewAccount";
 import ReloginAccount from "../ReloginAccount";
-import { MAX_ACCOUNT } from "@/constants/constant";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useTranslation } from "react-i18next";
 import Icon from "@/library/Icon";

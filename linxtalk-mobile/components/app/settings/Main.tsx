@@ -117,6 +117,9 @@ export default function Main() {
             await asyncStoragePersister.removeClient(); // Xóa cache của account cũ
             router.replace("/");
         },
+        onSettled: () => {
+            hideLoading();
+        },
     });
 
     const { mutate: googleMutate } = useMutation({

@@ -40,9 +40,11 @@ public class FriendRequestController {
     @GetMapping
     public ResponseEntity<BaseResponse<PageResponse<FriendRequestResponse>>> getFriendRequests(
             @RequestParam() FriendRequestStatus status,
+            @RequestParam(required = false, defaultValue = "desc") String sortDir,
+            @RequestParam(required = false, defaultValue = "updatedAt") String sortBy,
             @RequestParam(required = false, defaultValue = "0") int pageNo,
             @RequestParam(required = false, defaultValue = "10") int pageSize) {
-        PageResponse<FriendRequestResponse> friendRequests = friendRequestService.getFriendRequests(status, pageNo, pageSize);
+        PageResponse<FriendRequestResponse> friendRequests = friendRequestService.getFriendRequests(status, pageNo, pageSize, sortDir, sortBy);
 
         BaseResponse<PageResponse<FriendRequestResponse>> response = BaseResponse.<PageResponse<FriendRequestResponse>>builder()
                 .status(HttpStatus.OK.value())

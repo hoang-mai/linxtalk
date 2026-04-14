@@ -1,5 +1,5 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View,StyleSheet } from "react-native";
 import { Colors } from "@/constants/theme";
 import Button from "@/library/Button";
 import Icon from "@/library/Icon";
@@ -9,11 +9,8 @@ import {get, patch} from "@/services/axios";
 import {FriendRequestResponse, UpdateFriendRequestStatusRequest} from "@/constants/type";
 import {FRIEND_REQUEST} from "@/constants/api";
 import {QUERY_KEYS} from "@/constants/constant";
-import {useEffect} from "react";
 import Skeleton from "@/library/Skeleton";
-import {useLoadingStore} from "@/store/loading-store";
 import {useToastStore} from "@/store/toast-store";
-import {StyleSheet} from "react-native";
 import {queryClient} from "@/components/providers/query-client";
 import { formatRelativeTime } from "@/utils/fn-common";
 import { useTranslation } from "react-i18next";
@@ -151,7 +148,12 @@ export default function Main() {
               data.data.map((request) => (
                   <View key={request.id} style={styles.requestCard} className="bg-white dark:bg-background-dark p-5 rounded-2xl border border-grey-50 dark:border-grey-800 w-[300px]">
                       <View className="flex-row items-center gap-4 mb-4">
-                        <View className="w-14 h-14 rounded-full bg-grey-200 overflow-hidden"/>
+                        <View className="relative">
+                          <View className="w-14 h-14 rounded-full bg-grey-200 overflow-hidden"/>
+                          {request.sender?.isOnline && (
+                            <View className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white dark:border-background-dark" />
+                          )}
+                        </View>
                         <View>
                           <Text className="text-lg font-bold text-grey-900 dark:text-grey-100">{request.sender?.displayName}</Text>
                           <Text className="text-grey-500 dark:text-grey-400">{request.sender?.username ? `@${request.sender?.username}` : request.sender?.email}</Text>
@@ -213,10 +215,15 @@ export default function Main() {
             <ScrollView contentContainerStyle={{ gap: 16 }} showsVerticalScrollIndicator={false}>
                 {friends.data.map((friend) => (
                     <View key={friend.id} className="bg-white dark:bg-background-dark p-4 rounded-2xl flex-row items-center gap-4">
-                        <View className="w-14 h-14 rounded-full bg-grey-200 overflow-hidden"/>
+                        <View className="relative">
+                            <View className="w-14 h-14 rounded-full bg-grey-200 overflow-hidden"/>
+                            {friend.sender?.isOnline && (
+                                <View className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white dark:border-background-dark" />
+                            )}
+                        </View>
                         <View className="flex-1 flex ">
                             <Text className="text-lg font-bold text-grey-900 dark:text-grey-100">{friend.sender?.displayName}</Text>
-                            <Text className="text-xs text-grey-500 dark:text-grey-400">{formatRelativeTime(friend.createdAt)}</Text>
+                            <Text className="text-xs text-grey-500 dark:text-grey-400">{friend.sender?.isOnline ? t('friends.online') : friend.sender?.lastSeenAt ? formatRelativeTime(friend.sender?.lastSeenAt) : t('friends.offline')}</Text>
                         </View>
                         <Button 
                             leftIcon="chatbubble-ellipses-outline"

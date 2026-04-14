@@ -137,7 +137,15 @@
         "seeAllFriends": "Tất cả bạn bè",
         "defaultMessage": "Xin chào, mình là {{name}}. Kết bạn với mình trên Linxtalk nhé!",
         "messagePlaceholder": "Nhập tin nhắn (tùy chọn)",
-        "send": "Gửi"
+        "send": "Gửi",
+        "sortBy": "Sắp xếp theo",
+        "sortByDefault": "Mặc định",
+        "sortByNameAZ": "Tên (A-Z)",
+        "sortByNameZA": "Tên (Z-A)",
+        "sortByNewest": "Mới nhất",
+        "sortByOldest": "Cũ nhất",
+        "online": "Online",
+        "offline": "Offline"
     },
     "time": {
         "justNow": "vừa xong",

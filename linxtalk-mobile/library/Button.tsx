@@ -17,6 +17,8 @@ interface ButtonProps extends PressableProps {
     rightIcon?: IconProp;
     leftIconColor?: string;
     rightIconColor?: string;
+    leftIconSize?: number;
+    rightIconSize?: number;
     onPress?: () => void;
 }
 
@@ -68,6 +70,8 @@ export default function Button({
     rightIcon,
     leftIconColor,
     rightIconColor,
+    leftIconSize,
+    rightIconSize,
     disabled,
     onPress,
     ...rest
@@ -83,7 +87,7 @@ export default function Button({
 
     const textClass = disabled ? styles.disabled.text : styles.text;
 
-    const renderIcon = (icon: IconProp, customColor?: string) => {
+    const renderIcon = (icon: IconProp, customColor?: string, customSize?: number) => {
         if (!icon) return null;
         if (typeof icon === "string") {
             const baseColor = variant === "primary" ? "#FFFFFF" : Colors.primary["500"];
@@ -93,7 +97,7 @@ export default function Button({
             return (
                 <Ionicons
                     name={icon as any}
-                    size={24}
+                    size={customSize || 24}
                     color={iconColor}
                 />
             );
@@ -110,9 +114,9 @@ export default function Button({
             onPressOut={() => setPressed(false)}
             {...rest}
         >
-            {renderIcon(leftIcon, leftIconColor)}
+            {renderIcon(leftIcon, leftIconColor, leftIconSize)}
             {title ? <Text numberOfLines={1} className={`${textClassName} 'text-xl' ${textClass}`}>{title}</Text> : null}
-            {renderIcon(rightIcon, rightIconColor)}
+            {renderIcon(rightIcon, rightIconColor, rightIconSize)}
         </Pressable>
     );
 }

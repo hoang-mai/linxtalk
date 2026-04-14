@@ -69,9 +69,10 @@ public class FriendRequestService {
         return friendRequestMapper.toFriendRequestResponse(friendRequest, sender);
     }
 
-    public PageResponse<FriendRequestResponse> getFriendRequests(FriendRequestStatus status, int pageNo, int pageSize) {
+    public PageResponse<FriendRequestResponse> getFriendRequests(FriendRequestStatus status, int pageNo, int pageSize, String sortDir, String sortBy) {
         String currentUserId = FnCommon.getUserId();
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("updatedAt").descending().and(Sort.by("id").descending()));
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort.and(Sort.by("id").descending()));
 
         Page<FriendRequest> friendRequests;
         List<String> senderIds;

@@ -1,9 +1,5 @@
-import { SafeAreaView } from "react-native-safe-area-context";
-import { FlatList, Pressable, ScrollView, Text, View, ActivityIndicator } from "react-native";
-import { Colors } from "@/constants/theme";
+import { FlatList, ScrollView, Text, View, StyleSheet } from "react-native";
 import Button from "@/library/Button";
-import Icon from "@/library/Icon";
-import {useRouter} from "expo-router";
 import {useInfiniteQuery, useMutation} from "@tanstack/react-query";
 import {get, patch} from "@/services/axios";
 import {FriendRequestResponse, UpdateFriendRequestStatusRequest} from "@/constants/type";
@@ -11,9 +7,7 @@ import {FRIEND_REQUEST} from "@/constants/api";
 import {QUERY_KEYS} from "@/constants/constant";
 import {useEffect} from "react";
 import Skeleton from "@/library/Skeleton";
-import {useLoadingStore} from "@/store/loading-store";
 import {useToastStore} from "@/store/toast-store";
-import {StyleSheet} from "react-native";
 import {formatRelativeTime} from "@/utils/fn-common";
 import {queryClient} from "@/components/providers/query-client";
 import { useTranslation } from "react-i18next";
@@ -60,8 +54,8 @@ export default function Main() {
                 if (!data || !data.pages || !data.pageParams) return data;
                 return {
                     ...data,
-                    pages: data.pages.slice(0, 1),
-                    pageParams: data.pageParams.slice(0, 1),
+                    pages: data.pages.slice(0, 2),
+                    pageParams: data.pageParams.slice(0, 2),
                 };
             });
         };

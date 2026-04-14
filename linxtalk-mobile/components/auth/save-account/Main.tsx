@@ -111,6 +111,9 @@ export default function Main() {
             await asyncStoragePersister.removeClient();
             router.replace("/(app)");
         },
+        onSettled: () => {
+            hideLoading();
+        },
     });
 
     const { mutate: googleMutate } = useMutation({

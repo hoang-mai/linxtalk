@@ -137,7 +137,15 @@
         "seeAllFriends": "All Friends",
         "defaultMessage": "Hi, I'm {{name}}. Add me on Linxtalk!",
         "messagePlaceholder": "Type a message (optional)",
-        "send": "Send"
+        "send": "Send",
+        "sortBy": "Sort by",
+        "sortByDefault": "Default",
+        "sortByNameAZ": "Name (A-Z)",
+        "sortByNameZA": "Name (Z-A)",
+        "sortByNewest": "Newest",
+        "sortByOldest": "Oldest",
+        "online": "Online",
+        "offline": "Offline"
     },
     "time": {
         "justNow": "just now",

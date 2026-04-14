@@ -21,7 +21,24 @@ public class UserMapper {
                 .email(user.getEmail())
                 .displayName(user.getDisplayName())
                 .avatarUrl(user.getAvatarUrl())
+                .lastSeenAt(user.getLastSeenAt())
                 .friendRequestResponse(toFriendRequestResponse(friendRequest))
+                .build();
+    }
+
+    public UserSearchResponse toUserSearchResponse(User user, Boolean isOnline) {
+        if (user == null) {
+            return null;
+        }
+
+        return UserSearchResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .displayName(user.getDisplayName())
+                .avatarUrl(user.getAvatarUrl())
+                .isOnline(isOnline)
+                .lastSeenAt(user.getLastSeenAt())
                 .build();
     }
 

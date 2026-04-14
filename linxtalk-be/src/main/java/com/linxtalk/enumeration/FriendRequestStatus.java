@@ -9,7 +9,8 @@ public enum FriendRequestStatus {
     PENDING("PENDING"),
     ACCEPTED("ACCEPTED"),
     REJECTED("REJECTED"),
-    CANCELLED("CANCELLED");
+    CANCELLED("CANCELLED"),
+    UNFRIEND("UNFRIEND"),;
 
     private final String status;
 }

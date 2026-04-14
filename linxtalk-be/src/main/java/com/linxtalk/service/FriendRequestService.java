@@ -3,15 +3,16 @@ package com.linxtalk.service;
 import com.linxtalk.dto.request.CreateFriendRequestRequest;
 import com.linxtalk.dto.request.UpdateFriendRequestStatusRequest;
 import com.linxtalk.dto.response.FriendRequestResponse;
+import com.linxtalk.entity.Friend;
 import com.linxtalk.entity.FriendRequest;
 import com.linxtalk.entity.User;
 import com.linxtalk.enumeration.FriendRequestStatus;
 import com.linxtalk.exception.DuplicateException;
 import com.linxtalk.exception.ResourceNotFoundException;
 import com.linxtalk.mapper.FriendRequestMapper;
+import com.linxtalk.repository.FriendRepository;
 import com.linxtalk.repository.FriendRequestRepository;
 import com.linxtalk.repository.UserRepository;
-import com.linxtalk.repository.custom.FriendRequestRepositoryCustom;
 import com.linxtalk.utils.FnCommon;
 import com.linxtalk.utils.MessageError;
 import com.linxtalk.utils.PageResponse;
@@ -28,17 +29,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class FriendRequestService {
 
     private final FriendRequestRepository friendRequestRepository;
-    private final FriendRequestRepositoryCustom friendRequestRepositoryCustom;
     private final UserRepository userRepository;
+    private final FriendRepository friendRepository;
     private final FriendRequestMapper friendRequestMapper;
-    private final PresenceService presenceService;
 
     public FriendRequestResponse createFriendRequest(CreateFriendRequestRequest request) {
         String senderId = FnCommon.getUserId();
@@ -69,56 +68,19 @@ public class FriendRequestService {
         return friendRequestMapper.toFriendRequestResponse(friendRequest, sender);
     }
 
-    public PageResponse<FriendRequestResponse> getFriendRequests(FriendRequestStatus status, int pageNo, int pageSize, String sortDir, String sortBy) {
+    public PageResponse<FriendRequestResponse> getFriendRequests(int pageNo, int pageSize) {
         String currentUserId = FnCommon.getUserId();
-        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(pageNo, pageSize, sort.and(Sort.by("id").descending()));
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("updatedAt").and(Sort.by("id").descending()));
 
-        Page<FriendRequest> friendRequests;
-        List<String> senderIds;
-        List<User> users;
-        Map<String, User> userMap;
-        List<FriendRequestResponse> data;
-        switch (status) {
-            case PENDING:
-                friendRequests = friendRequestRepositoryCustom
-                        .getFriendRequests(null, currentUserId, FriendRequestStatus.PENDING, pageable);
-
-                senderIds = friendRequests.stream().map(FriendRequest::getSenderId).toList();
-                users = userRepository.findAllById(senderIds);
-                userMap = users.stream()
-                        .collect(Collectors.toMap(User::getId, Function.identity(), (a, b) -> a));
-
-                data = friendRequests.stream()
-                        .map(request -> friendRequestMapper.toFriendRequestResponse(request, userMap.get(request.getSenderId())))
-                        .toList();
-                break;
-            case ACCEPTED:
-                friendRequests = friendRequestRepositoryCustom
-                        .getFriends(currentUserId, pageable);
-
-                senderIds = friendRequests.stream().map(FriendRequest::getSenderId).filter(senderId -> !Objects.equals(senderId, currentUserId)).toList();
-                List<String> receiverIds = friendRequests.stream().map(FriendRequest::getReceiverId).filter(receiverId -> !Objects.equals(receiverId, currentUserId)).toList();
-
-                List<String> friendIds = Stream.concat(senderIds.stream(), receiverIds.stream()).toList();
-                users = userRepository.findAllById(friendIds);
-                Map<String, Boolean> friendOnlineStatuses = presenceService.getOnlineStatuses(friendIds);
-
-                userMap = users.stream()
-                        .collect(Collectors.toMap(User::getId, Function.identity(), (a, b) -> a));
-
-                data = friendRequests.stream()
-                        .map(request -> {
-                            String friendId = Objects.equals(request.getSenderId(), currentUserId) ? request.getReceiverId() : request.getSenderId();
-                            return friendRequestMapper.toFriendRequestResponse(request, userMap.get(friendId), friendOnlineStatuses.get(friendId));
-                        })
-                        .toList();
-                break;
-            default:
-                throw new IllegalArgumentException(MessageError.FRIEND_REQUEST_STATUS_INVALID);
-        }
-
-
+        Page<FriendRequest> friendRequests = friendRequestRepository
+                .findByReceiverIdAndStatus(currentUserId, FriendRequestStatus.PENDING, pageable);
+        List<String> senderIds = friendRequests.stream().map(FriendRequest::getSenderId).toList();
+        List<User> users = userRepository.findAllById(senderIds);
+        Map<String, User> userMap = users.stream()
+                .collect(Collectors.toMap(User::getId, Function.identity(), (a, b) -> a));
+        List<FriendRequestResponse> data = friendRequests.stream()
+                .map(request -> friendRequestMapper.toFriendRequestResponse(request, userMap.get(request.getSenderId())))
+                .toList();
 
         return PageResponse.<FriendRequestResponse>builder()
                 .pageSize(friendRequests.getSize())
@@ -133,8 +95,9 @@ public class FriendRequestService {
 
     /**
      * Update status of friend request
-     * Both sender and receiver can update status if status = CANCELLED
-     * Only receiver can update status if status = PENDING
+     * Only sender can update CANCELLED status
+     * Only receiver can update ACCEPTED or REJECTED status
+     * Both sender and receiver can update UNFRIEND status
      */
     public FriendRequestResponse updateStatus(String friendRequestId, UpdateFriendRequestStatusRequest request) {
         String currentUserId = FnCommon.getUserId();
@@ -145,31 +108,55 @@ public class FriendRequestService {
 
         FriendRequestStatus newStatus = request.getStatus();
         FriendRequestStatus currentStatus = friendRequest.getStatus();
-
-        if (newStatus == FriendRequestStatus.CANCELLED) {
-            friendRequestRepository.deleteById(friendRequest.getId());
-            return null;
-        }
-
-        if (!isReceiver || currentStatus != FriendRequestStatus.PENDING) {
-            throw new IllegalArgumentException(MessageError.FRIEND_REQUEST_STATUS_INVALID);
-        }
-
         switch (newStatus) {
-            case ACCEPTED:
-                friendRequest.setStatus(FriendRequestStatus.ACCEPTED);
-                break;
-
-            case REJECTED:
+            case UNFRIEND:
+                if (currentStatus != FriendRequestStatus.ACCEPTED) {
+                    throw new IllegalArgumentException(MessageError.FRIEND_REQUEST_STATUS_INVALID);
+                }
+                friendRepository.deleteAllByFriendId(friendRequest.getId());
                 friendRequestRepository.deleteById(friendRequest.getId());
                 return null;
-
+            case CANCELLED:
+                if (isReceiver || currentStatus != FriendRequestStatus.PENDING) {
+                    throw new IllegalArgumentException(MessageError.FRIEND_REQUEST_STATUS_INVALID);
+                }
+                friendRequestRepository.deleteById(friendRequest.getId());
+                return null;
+            case ACCEPTED:
+                if (!isReceiver || currentStatus != FriendRequestStatus.PENDING) {
+                    throw new IllegalArgumentException(MessageError.FRIEND_REQUEST_STATUS_INVALID);
+                }
+                List<User> users = userRepository.findAllById(List.of(friendRequest.getSenderId(), friendRequest.getReceiverId()));
+                User sender = users.stream().filter(user -> Objects.equals(user.getId(), friendRequest.getSenderId())).findFirst().orElseThrow();
+                User receiver = users.stream().filter(user -> Objects.equals(user.getId(), friendRequest.getReceiverId())).findFirst().orElseThrow();
+                friendRequest.setStatus(FriendRequestStatus.ACCEPTED);
+                Friend senderFriend = Friend.builder()
+                        .userId(friendRequest.getSenderId())
+                        .friendId(friendRequest.getReceiverId())
+                        .displayName(receiver.getDisplayName())
+                        .avatarUrl(receiver.getAvatarUrl())
+                        .friendRequestId(friendRequest.getId())
+                        .build();
+                Friend receiverFriend = Friend.builder()
+                        .userId(friendRequest.getReceiverId())
+                        .friendId(friendRequest.getSenderId())
+                        .displayName(sender.getDisplayName())
+                        .avatarUrl(sender.getAvatarUrl())
+                        .friendRequestId(friendRequest.getId())
+                        .build();
+                friendRepository.saveAll(List.of(senderFriend, receiverFriend));
+                friendRequest.setRespondedAt(Instant.now());
+                friendRequestRepository.save(friendRequest);
+                return friendRequestMapper.toFriendRequestResponse(friendRequest);
+            case REJECTED:
+                if (!isReceiver || currentStatus != FriendRequestStatus.PENDING) {
+                    throw new IllegalArgumentException(MessageError.FRIEND_REQUEST_STATUS_INVALID);
+                }
+                friendRequestRepository.deleteById(friendRequest.getId());
+                return null;
             default:
                 throw new IllegalArgumentException(MessageError.FRIEND_REQUEST_STATUS_INVALID);
         }
 
-        friendRequest.setRespondedAt(Instant.now());
-        friendRequestRepository.save(friendRequest);
-        return friendRequestMapper.toFriendRequestResponse(friendRequest);
     }
 }

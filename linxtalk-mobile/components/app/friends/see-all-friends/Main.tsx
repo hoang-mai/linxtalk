@@ -1,7 +1,7 @@
 import {FlatList, Pressable, ScrollView, Text, View, StyleSheet} from "react-native";
 import {useInfiniteQuery} from "@tanstack/react-query";
 import {get} from "@/services/axios";
-import {FRIEND_REQUEST} from "@/constants/api";
+import {FRIEND_REQUEST, USER} from "@/constants/api";
 import {QUERY_KEYS} from "@/constants/constant";
 import {FriendRequestResponse} from "@/constants/type";
 import {useToastStore} from "@/store/toast-store";
@@ -32,7 +32,7 @@ export default function Main() {
         staleTime: 30 * 1000,
         initialPageParam: 0,
         queryFn: ({pageParam}) => {
-            let url = `${FRIEND_REQUEST}?pageSize=10&pageNo=${pageParam}&status=ACCEPTED`;
+            let url = `${USER}/friends?pageNo=${pageParam}`;
             if (sortConfig.sortBy) {
                 url += `&sortBy=${sortConfig.sortBy}&sortDir=${sortConfig.sortDir}`;
             }

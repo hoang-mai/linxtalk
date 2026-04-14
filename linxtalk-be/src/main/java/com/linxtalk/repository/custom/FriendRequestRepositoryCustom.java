@@ -40,18 +40,4 @@ public class FriendRequestRepositoryCustom {
 
         return new PageImpl<>(friendRequests, pageable, totalElements);
     }
-
-    public Page<FriendRequest> getFriends(String userId, Pageable pageable) {
-        Query query = new Query();
-
-        query.addCriteria(new Criteria().orOperator(
-                Criteria.where("senderId").is(userId),
-                Criteria.where("receiverId").is(userId)
-        ));
-        query.addCriteria(Criteria.where("status").is(FriendRequestStatus.ACCEPTED));
-        long totalElements = mongoTemplate.count(query, FriendRequest.class);
-        query.with(pageable);
-        List<FriendRequest> friendRequests = mongoTemplate.find(query, FriendRequest.class);
-        return new PageImpl<>(friendRequests, pageable, totalElements);
-    }
 }

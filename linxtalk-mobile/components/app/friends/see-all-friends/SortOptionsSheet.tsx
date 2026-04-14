@@ -21,6 +21,8 @@ interface SortOptionsSheetProps {
 
 const SORT_OPTIONS: { id: SortValue; label: string; icon: string; sortBy: string | null; sortDir: "asc" | "desc" | null }[] = [
     { id: "Default", label: "friends.sortByDefault", icon: "list-outline", sortBy: null, sortDir: null },
+    { id: "Name(A-Z)", label: "friends.sortByNameAZ", icon: "arrow-up-outline", sortBy: "displayName", sortDir: "asc" },
+    { id: "Name(Z-A)", label: "friends.sortByNameZA", icon: "arrow-down-outline", sortBy: "displayName", sortDir: "desc" },
     { id: "Newest", label: "friends.sortByNewest", icon: "calendar-outline", sortBy: "createdAt", sortDir: "desc" },
     { id: "Oldest", label: "friends.sortByOldest", icon: "hourglass-outline", sortBy: "createdAt", sortDir: "asc" },
 ];

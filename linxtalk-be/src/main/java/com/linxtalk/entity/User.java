@@ -60,9 +60,6 @@ public class User {
     @Field(targetType = FieldType.OBJECT_ID)
     private List<String> blockedUserIds;
 
-    @Field(targetType = FieldType.OBJECT_ID)
-    private List<String> friendIds;
-
     @CreatedDate
     private Instant createdAt;
 

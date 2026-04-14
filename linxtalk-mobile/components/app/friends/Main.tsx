@@ -7,7 +7,7 @@ import {useRouter} from "expo-router";
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {get, patch} from "@/services/axios";
 import {FriendRequestResponse, UpdateFriendRequestStatusRequest} from "@/constants/type";
-import {FRIEND_REQUEST} from "@/constants/api";
+import {FRIEND_REQUEST, USER} from "@/constants/api";
 import {QUERY_KEYS} from "@/constants/constant";
 import Skeleton from "@/library/Skeleton";
 import {useToastStore} from "@/store/toast-store";
@@ -26,7 +26,7 @@ export default function Main() {
         queryKey: [QUERY_KEYS.FRIENDS],
         staleTime: 30 * 1000,
         queryFn: () => {
-            return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${FRIEND_REQUEST}?pageSize=10&status=ACCEPTED`)
+            return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${USER}/friends`)
                 .then((res) => {
                     return res.data.data;
                 }).catch((error: Error) => {
@@ -39,7 +39,7 @@ export default function Main() {
         queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS],
         staleTime: 30 * 1000,
         queryFn: () => {
-            return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${FRIEND_REQUEST}?pageSize=3&status=PENDING`)
+            return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${FRIEND_REQUEST}?pageSize=3`)
                 .then((res) => {
                     return res.data.data;
                 }).catch((error: Error) => {

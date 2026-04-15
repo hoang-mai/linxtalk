@@ -90,8 +90,6 @@ export interface UserSearchResponse {
   email: string | null;
   displayName: string;
   avatarUrl: string | null;
-  isOnline: boolean;
-  lastSeenAt: string | null;
   friendRequestResponse: FriendRequestResponse | null;
 }
 
@@ -105,6 +103,16 @@ export interface FriendRequestResponse {
   createdAt: string;
   updatedAt: string;
   sender: UserSearchResponse | null;
+}
+
+export interface FriendResponse {
+  id: string;
+  avatarUrl : string;
+  displayName : string;
+  isOnline : boolean;
+  lastSeenAt : string;
+  createdAt : string;
+  updatedAt : string;
 }
 
 export interface CreateFriendRequestRequest {

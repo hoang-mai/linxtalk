@@ -11,7 +11,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FriendRepository extends MongoRepository<Friend, String> {
-    Page<Friend> findByUserId(String userId, Pageable pageable);
+
+    @Query("{ 'friendId' : ?0 }")
+    @Update("{ '$set' : { 'displayName' : ?1, 'avatarUrl' : ?2 } }")
+    void updateProfileByFriendId(String friendId, String displayName, String avatarUrl);
 
     @Query("{ 'friendId' : ?0 }")
     @Update("{ '$set' : { 'displayName' : ?1 } }")

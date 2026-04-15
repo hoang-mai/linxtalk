@@ -8,7 +8,6 @@ import com.linxtalk.service.UserService;
 import com.linxtalk.utils.BaseResponse;
 import com.linxtalk.utils.Constant;
 import com.linxtalk.utils.MessageSuccess;
-import com.linxtalk.utils.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -61,20 +60,6 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/friends")
-    public ResponseEntity<BaseResponse<PageResponse<UserSearchResponse>>>getFriends(
-            @RequestParam(required = false,defaultValue = "id") String sortBy,
-            @RequestParam(required = false,defaultValue = "desc")  String sortDir,
-            @RequestParam(required = false,defaultValue = "0") int pageNo,
-            @RequestParam(required = false,defaultValue = "10") int pageSize){
-        PageResponse<UserSearchResponse> friendResponse = userService.getFriends(sortBy, sortDir, pageNo, pageSize);
-        BaseResponse<PageResponse<UserSearchResponse>> response = BaseResponse.<PageResponse<UserSearchResponse>>builder()
-                .status(HttpStatus.OK.value())
-                .message(MessageSuccess.GET_FRIENDS_SUCCESS)
-                .data(friendResponse)
-                .build();
-        return ResponseEntity.ok(response);
-    }
 
     @PatchMapping("/profile/avatar")
     public ResponseEntity<BaseResponse<Void>> updateAvatar(

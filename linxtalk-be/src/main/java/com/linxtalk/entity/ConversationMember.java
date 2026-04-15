@@ -1,5 +1,6 @@
 package com.linxtalk.entity;
 
+import com.linxtalk.enumeration.ConversationType;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -31,6 +32,8 @@ public class ConversationMember {
     @Field(targetType = FieldType.OBJECT_ID)
     private String conversationId;
 
+    private ConversationType conversationType;
+
     @Indexed
     @Field(targetType = FieldType.OBJECT_ID)
     private String userId;
@@ -40,13 +43,33 @@ public class ConversationMember {
 
     private String nickname;
 
-    // Tin nhắn cuối cùng user đã đọc trong cuộc hội thoại này
+    @Field(targetType= FieldType.OBJECT_ID)
+    private String nicknameChangedById;
+
+    private String nicknameChangedBy;
+
+    private Instant nicknameChangedAt;
+
+    private String displayName;
+
+    private String avatarUrl;
+
+    // Only for private chat
+    @Indexed
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String otherUserId;
+
+    private String otherNickname;
+
+    private String otherDisplayName;
+
+    private String otherAvatarUrl;
+
     @Field(targetType = FieldType.OBJECT_ID)
     private String lastReadMessageId;
 
     private Instant lastReadAt;
 
-    // Số tin nhắn chưa đọc
     @Builder.Default
     private Integer unreadCount = 0;
 
@@ -58,6 +81,8 @@ public class ConversationMember {
     @Builder.Default
     private Boolean isPinned = false;
 
+    private Instant lastMessageAt;
+
     @Builder.Default
     private Boolean isArchived = false;
 
@@ -66,12 +91,16 @@ public class ConversationMember {
 
     private Instant joinedAt;
 
-    @Field(targetType = FieldType.OBJECT_ID)
+    @Field(targetType= FieldType.OBJECT_ID)
+    private String addedById;
+
     private String addedBy;
 
     private Instant leftAt;
 
     @Field(targetType = FieldType.OBJECT_ID)
+    private String removedById;
+
     private String removedBy;
 
     @Builder.Default

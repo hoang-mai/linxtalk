@@ -10,6 +10,7 @@ import com.linxtalk.enumeration.FriendRequestStatus;
 import com.linxtalk.exception.DuplicateException;
 import com.linxtalk.exception.ResourceNotFoundException;
 import com.linxtalk.mapper.FriendRequestMapper;
+import com.linxtalk.repository.ConversationRepository;
 import com.linxtalk.repository.FriendRepository;
 import com.linxtalk.repository.FriendRequestRepository;
 import com.linxtalk.repository.UserRepository;
@@ -38,6 +39,7 @@ public class FriendRequestService {
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
     private final FriendRequestMapper friendRequestMapper;
+    private final ConversationRepository conversationRepository;
 
     public FriendRequestResponse createFriendRequest(CreateFriendRequestRequest request) {
         String senderId = FnCommon.getUserId();
@@ -130,12 +132,17 @@ public class FriendRequestService {
                 User sender = users.stream().filter(user -> Objects.equals(user.getId(), friendRequest.getSenderId())).findFirst().orElseThrow();
                 User receiver = users.stream().filter(user -> Objects.equals(user.getId(), friendRequest.getReceiverId())).findFirst().orElseThrow();
                 friendRequest.setStatus(FriendRequestStatus.ACCEPTED);
+                boolean alreadyChatted = conversationRepository.existsPrivateConversation(
+                        List.of(friendRequest.getSenderId(), friendRequest.getReceiverId())
+                );
+                
                 Friend senderFriend = Friend.builder()
                         .userId(friendRequest.getSenderId())
                         .friendId(friendRequest.getReceiverId())
                         .displayName(receiver.getDisplayName())
                         .avatarUrl(receiver.getAvatarUrl())
                         .friendRequestId(friendRequest.getId())
+                        .hasChatted(alreadyChatted)
                         .build();
                 Friend receiverFriend = Friend.builder()
                         .userId(friendRequest.getReceiverId())
@@ -143,6 +150,7 @@ public class FriendRequestService {
                         .displayName(sender.getDisplayName())
                         .avatarUrl(sender.getAvatarUrl())
                         .friendRequestId(friendRequest.getId())
+                        .hasChatted(alreadyChatted)
                         .build();
                 friendRepository.saveAll(List.of(senderFriend, receiverFriend));
                 friendRequest.setRespondedAt(Instant.now());

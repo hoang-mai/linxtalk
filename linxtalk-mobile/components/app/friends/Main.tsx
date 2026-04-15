@@ -6,8 +6,8 @@ import Icon from "@/library/Icon";
 import {useRouter} from "expo-router";
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {get, patch} from "@/services/axios";
-import {FriendRequestResponse, UpdateFriendRequestStatusRequest} from "@/constants/type";
-import {FRIEND_REQUEST, USER} from "@/constants/api";
+import {FriendRequestResponse, FriendResponse, UpdateFriendRequestStatusRequest} from "@/constants/type";
+import {FRIEND, FRIEND_REQUEST} from "@/constants/api";
 import {QUERY_KEYS} from "@/constants/constant";
 import Skeleton from "@/library/Skeleton";
 import {useToastStore} from "@/store/toast-store";
@@ -26,7 +26,7 @@ export default function Main() {
         queryKey: [QUERY_KEYS.FRIENDS],
         staleTime: 30 * 1000,
         queryFn: () => {
-            return get<BaseResponse<PageResponse<FriendRequestResponse>>>(`${USER}/friends`)
+            return get<BaseResponse<PageResponse<FriendResponse>>>(FRIEND)
                 .then((res) => {
                     return res.data.data;
                 }).catch((error: Error) => {
@@ -148,12 +148,7 @@ export default function Main() {
               data.data.map((request) => (
                   <View key={request.id} style={styles.requestCard} className="bg-white dark:bg-background-dark p-5 rounded-2xl border border-grey-50 dark:border-grey-800 w-[300px]">
                       <View className="flex-row items-center gap-4 mb-4">
-                        <View className="relative">
                           <View className="w-14 h-14 rounded-full bg-grey-200 overflow-hidden"/>
-                          {request.sender?.isOnline && (
-                            <View className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white dark:border-background-dark" />
-                          )}
-                        </View>
                         <View>
                           <Text className="text-lg font-bold text-grey-900 dark:text-grey-100">{request.sender?.displayName}</Text>
                           <Text className="text-grey-500 dark:text-grey-400">{request.sender?.username ? `@${request.sender?.username}` : request.sender?.email}</Text>
@@ -217,13 +212,13 @@ export default function Main() {
                     <View key={friend.id} className="bg-white dark:bg-background-dark p-4 rounded-2xl flex-row items-center gap-4">
                         <View className="relative">
                             <View className="w-14 h-14 rounded-full bg-grey-200 overflow-hidden"/>
-                            {friend.sender?.isOnline && (
+                            {friend.isOnline && (
                                 <View className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white dark:border-background-dark" />
                             )}
                         </View>
                         <View className="flex-1 flex ">
-                            <Text className="text-lg font-bold text-grey-900 dark:text-grey-100">{friend.sender?.displayName}</Text>
-                            <Text className="text-xs text-grey-500 dark:text-grey-400">{friend.sender?.isOnline ? t('friends.online') : friend.sender?.lastSeenAt ? formatRelativeTime(friend.sender?.lastSeenAt) : t('friends.offline')}</Text>
+                            <Text className="text-lg font-bold text-grey-900 dark:text-grey-100">{friend.displayName}</Text>
+                            <Text className="text-xs text-grey-500 dark:text-grey-400">{friend.isOnline ? t('friends.online') : friend.lastSeenAt ? formatRelativeTime(friend.lastSeenAt) : t('friends.offline')}</Text>
                         </View>
                         <Button 
                             leftIcon="chatbubble-ellipses-outline"

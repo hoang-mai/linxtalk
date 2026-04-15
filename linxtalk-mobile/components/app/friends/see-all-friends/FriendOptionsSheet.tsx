@@ -1,4 +1,4 @@
-import { FriendRequestResponse } from "@/constants/type";
+import { FriendResponse } from "@/constants/type";
 import { useBottomSheetStore } from "@/store/bottom-sheet-store";
 import { Pressable, Text, View, useColorScheme } from "react-native";
 import { formatFriendDuration } from "@/utils/fn-common";
@@ -9,15 +9,15 @@ import Divide from "@/library/Divide";
 import { useTranslation } from "react-i18next";
 
 interface FriendProps{
-    friendRequestResponse:FriendRequestResponse;
+    friendResponse:FriendResponse;
 }
 
-export default function FriendOptionsSheet({friendRequestResponse}:FriendProps) {
+export default function FriendOptionsSheet({friendResponse}:FriendProps) {
     const { hideBottomSheet } = useBottomSheetStore();
     const isDark = useColorScheme() === "dark";
     const { t } = useTranslation();
 
-    const displayName = friendRequestResponse.sender?.displayName || '';
+    const displayName = friendResponse.displayName || '';
 
     const actionItems = [
         {
@@ -40,23 +40,23 @@ export default function FriendOptionsSheet({friendRequestResponse}:FriendProps) 
             <View className="p-4">
                 <View className="flex-row items-center gap-4">
                     <View className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 overflow-hidden flex items-center justify-center">
-                        {friendRequestResponse.sender?.avatarUrl ? (
+                        {friendResponse.avatarUrl ? (
                             <Image
-                                source={{ uri: friendRequestResponse.sender.avatarUrl }}
+                                source={{ uri: friendResponse.avatarUrl }}
                                 cachePolicy="memory-disk"
                                 contentFit="cover"
                                 style={{ width: '100%', height: '100%' }}
                             />
                         ) : (
                             <Text className="text-2xl font-bold text-white">
-                                {friendRequestResponse.sender?.displayName?.charAt(0)?.toUpperCase() || '?'}
+                                {friendResponse.displayName?.charAt(0)?.toUpperCase() || '?'}
                             </Text>
                         )}
                     </View>
 
                     <View className="flex-1">
                         <Text className="text-lg font-bold text-grey-900 dark:text-white mb-1">
-                            {friendRequestResponse.sender?.displayName}
+                            {friendResponse.displayName}
                         </Text>
                         <View className="flex-row items-center gap-1">
                             <Icon
@@ -65,8 +65,8 @@ export default function FriendOptionsSheet({friendRequestResponse}:FriendProps) 
                                 color={Colors.primary[500]}
                             />
                             <Text className="text-xs text-grey-600 dark:text-grey-300 font-medium">
-                                {friendRequestResponse.respondedAt
-                                    ? t('friends.friendsFor', { duration: formatFriendDuration(friendRequestResponse.respondedAt) })
+                                {friendResponse.createdAt
+                                    ? t('friends.friendsFor', { duration: formatFriendDuration(friendResponse.createdAt) })
                                     : t('friends.friendsLabel')}
                             </Text>
                         </View>

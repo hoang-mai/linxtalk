@@ -1,5 +1,6 @@
 package com.linxtalk.entity;
 
+import com.linxtalk.enumeration.ConversationType;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -44,13 +45,6 @@ public class Conversation {
 
     private LastMessage lastMessage;
 
-    @Builder.Default
-    private Boolean isActive = true;
-
-    private Boolean isPinned;
-
-    private Boolean isMuted;
-
     private ConversationSettings settings;
 
     @CreatedDate
@@ -58,12 +52,6 @@ public class Conversation {
 
     @LastModifiedDate
     private Instant updatedAt;
-
-    public enum ConversationType {
-        PRIVATE, // Chat 1-1
-        GROUP, // Nhóm chat
-        CHANNEL // Kênh broadcast
-    }
 
     @Data
     @Builder

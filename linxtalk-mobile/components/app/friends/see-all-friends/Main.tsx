@@ -1,9 +1,9 @@
 import {FlatList, Pressable, ScrollView, Text, View, StyleSheet} from "react-native";
 import {useInfiniteQuery} from "@tanstack/react-query";
 import {get} from "@/services/axios";
-import {FRIEND_REQUEST, USER} from "@/constants/api";
+import {FRIEND, FRIEND_REQUEST, USER} from "@/constants/api";
 import {QUERY_KEYS} from "@/constants/constant";
-import {FriendRequestResponse} from "@/constants/type";
+import {FriendRequestResponse, FriendResponse} from "@/constants/type";
 import {useToastStore} from "@/store/toast-store";
 import Skeleton from "@/library/Skeleton";
 import {formatRelativeTime} from "@/utils/fn-common";
@@ -32,11 +32,11 @@ export default function Main() {
         staleTime: 30 * 1000,
         initialPageParam: 0,
         queryFn: ({pageParam}) => {
-            let url = `${USER}/friends?pageNo=${pageParam}`;
+            let url = `${FRIEND}?pageNo=${pageParam}`;
             if (sortConfig.sortBy) {
                 url += `&sortBy=${sortConfig.sortBy}&sortDir=${sortConfig.sortDir}`;
             }
-            return get<BaseResponse<PageResponse<FriendRequestResponse>>>(url)
+            return get<BaseResponse<PageResponse<FriendResponse>>>(url)
                 .then((res) => res.data.data)
                 .catch((error: Error) => {
                     showToast({message: error.message, type: "error"});
@@ -91,16 +91,16 @@ export default function Main() {
                         >
                         <View className="relative">
                             <View className="w-14 h-14 rounded-full bg-grey-200 overflow-hidden"/>
-                            {friend.sender?.isOnline && (
+                            {friend.isOnline && (
                                 <View className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white dark:border-background-dark" />
                             )}
                         </View>
                             <View className="flex-1">
                                 <Text className="text-lg font-bold text-grey-900 dark:text-grey-100">
-                                    {friend.sender?.displayName}
+                                    {friend.displayName}
                                 </Text>
                                 <Text className="text-xs text-grey-500 dark:text-grey-400 mt-1">
-                                    {friend.sender?.isOnline ? t('friends.online') : friend.sender?.lastSeenAt ? formatRelativeTime(friend.sender?.lastSeenAt) : t('friends.offline')}
+                                    {friend.isOnline ? t('friends.online') : friend.lastSeenAt ? formatRelativeTime(friend.lastSeenAt) : t('friends.offline')}
                                 </Text>
                             </View>
                             <View className="flex flex-row gap-2 item-center">
@@ -116,7 +116,7 @@ export default function Main() {
                                 <Pressable
                                     onPress={() =>
                                         showBottomSheet({
-                                            children: <FriendOptionsSheet friendRequestResponse={friend}/>,
+                                            children: <FriendOptionsSheet friendResponse={friend}/>,
                                         })
                                     }
                                     className="items-center justify-center">

@@ -37,6 +37,9 @@ public class Friend {
 
     private String avatarUrl;
 
+    @Builder.Default
+    private Boolean hasChatted = false;
+
     @CreatedDate
     private Instant createdAt;
 

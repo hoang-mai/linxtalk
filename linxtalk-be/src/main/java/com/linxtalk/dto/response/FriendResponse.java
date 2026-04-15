@@ -1,6 +1,5 @@
 package com.linxtalk.dto.response;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,11 +11,13 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserSearchResponse {
+public class FriendResponse {
     private String id;
-    private String username;
-    private String email;
-    private String displayName;
     private String avatarUrl;
-    private FriendRequestResponse friendRequestResponse;
+    private String displayName;
+    private Boolean isOnline;
+    private Instant lastSeenAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 }
+

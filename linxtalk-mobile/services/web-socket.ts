@@ -4,6 +4,7 @@ import { Client, IFrame, IMessage, StompSubscription } from '@stomp/stompjs';
 export interface WebSocketConfig {
     headers?: Record<string, string>;
     beforeConnect?: () => void;
+    onConnect?: () => void;
 }
 
 export type MessageCallback = (data: any) => void;
@@ -12,6 +13,7 @@ export type MessageCallback = (data: any) => void;
 class WebSocketService {
     private client: Client | null = null;
     private connected: boolean = false;
+    private isFirstConnected: boolean = true;
     private subscriptions: Map<string, MessageCallback> = new Map();
     private activeSubscriptions: Map<string, StompSubscription> = new Map();
 
@@ -34,7 +36,15 @@ class WebSocketService {
 
             onConnect: (frame: IFrame) => {
                 this.connected = true;
-                this.resubscribeAll();
+                if(!this.isFirstConnected) {
+                    this.resubscribeAll();
+                    if(config.onConnect){
+                        config.onConnect();
+                    }
+                }else {
+                    this.isFirstConnected = false;
+                }
+
             },
 
             onStompError: (frame: IFrame) => {

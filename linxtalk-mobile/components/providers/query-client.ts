@@ -12,6 +12,9 @@ const PERSISTED_QUERY_KEYS: string[] = [
     QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL,
     QUERY_KEYS.FRIENDS,
     QUERY_KEYS.FRIENDS_SEE_ALL,
+    QUERY_KEYS.FRIENDS_ONLINE,
+    QUERY_KEYS.FRIENDS_NO_CHAT,
+    QUERY_KEYS.CONVERSATIONS,
 ];
 
 export const queryClient = new QueryClient({
@@ -59,6 +62,9 @@ onlineManager.setEventListener((setOnline) => {
             useToastStore.getState().showToast({
                 message: i18n.t('errors.networkRestored'),
                 type: 'success',
+            });
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.CONVERSATIONS],
             });
         }
 

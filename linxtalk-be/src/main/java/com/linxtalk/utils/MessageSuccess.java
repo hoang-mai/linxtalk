@@ -19,5 +19,5 @@ public class MessageSuccess {
     public static final String UPDATE_FRIEND_REQUEST_STATUS_SUCCESS = "friend.request.status.updated.success";
     public static final String GET_FRIENDS_SUCCESS = "friend.list.success";
     public static final String GET_CONVERSATIONS_SUCCESS = "conversation.list.success";
-    public static final String GET_FRIENDS_NO_CONVERSATION_SUCCESS = "conversation.friend.no.conversation.list.success";
+    public static final String GET_ONLINE_FRIENDS_SUCCESS = "online.friend.list.success";
 }

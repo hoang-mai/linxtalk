@@ -147,6 +147,13 @@
         "online": "Online",
         "offline": "Offline"
     },
+    "conversations": {
+        "recentChats": "Recent Chats",
+        "suggestedFriends": "Suggested Friends",
+        "noMessage": "Say hi to start a conversation!",
+        "startChatting": "Send the first message to {{name}}",
+        "noConversationsFound": "No conversations found"
+    },
     "time": {
         "justNow": "just now",
         "minuteAgo": "{{count}} minute ago",

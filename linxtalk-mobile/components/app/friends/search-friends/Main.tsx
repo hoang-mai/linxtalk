@@ -16,6 +16,7 @@ import Skeleton from "@/library/Skeleton";
 import { getUserId } from "@/utils/fn-common";
 import Button from "@/library/Button";
 import { useToastStore } from "@/store/toast-store";
+import {queryClient} from "@/components/providers/query-client";
 
 export default function Main() {
     const { t } = useTranslation();
@@ -98,11 +99,12 @@ export default function Main() {
                     friendRequestResponse: data.data
                 } : old
             );
-            let keys: string[] = [QUERY_KEYS.INCOMING_FRIEND_REQUESTS, QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL];
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS] });
             if(variables.data.status === "ACCEPTED") {
-                keys.push(QUERY_KEYS.FRIENDS_SEE_ALL);
+                queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FRIENDS_SEE_ALL] , exact: false});
             }
-            queryClient.invalidateQueries({ queryKey: keys });
+
         },
         onError: (error) => {
             showToast({

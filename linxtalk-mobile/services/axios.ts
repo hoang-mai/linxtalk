@@ -9,6 +9,7 @@ import { offlineQueue } from '@/services/offline-queue';
 import { useToastStore } from '@/store/toast-store';
 import i18n from '@/i18n';
 import { OfflineError, QueuedError } from '@/constants/error';
+import {asyncStoragePersister, queryClient} from "@/components/providers/query-client";
 
 const axiosInstance = axios.create({
     baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://10.145.54.187:8080',
@@ -51,14 +52,7 @@ axiosInstance.interceptors.request.use(
                     return Promise.reject(new OfflineError());
                 case 'offline-queue':
                 case 'optimistic-timeout':
-                    if (config.method && config.method.toUpperCase() !== 'GET') {
-                        await offlineQueue.enqueue({
-                            method: config.method.toUpperCase() as 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-                            url: config.url || '',
-                            data: config.data,
-                            label: config.networkLabel,
-                        });
-                    }
+
                     return Promise.reject(new QueuedError());
             }
         }
@@ -69,9 +63,11 @@ axiosInstance.interceptors.request.use(
             if (!isRefreshing) {
                 isRefreshing = true;
                 refreshPromise = refreshAccessToken()
-                    .catch((error) => {
+                    .catch(async (error) => {
                         useAuthStore.getState().logout();
                         useAccountStore.getState().clearAccount();
+                        queryClient.clear();
+                        await asyncStoragePersister.removeClient();
                         throw error;
                     })
                     .finally(() => {

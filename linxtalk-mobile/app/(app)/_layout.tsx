@@ -2,12 +2,29 @@ import { TabList, TabSlot, TabTrigger, Tabs } from 'expo-router/ui';
 import { TabButton } from '@/components/app/layouts/TabButton';
 import { Colors } from "@/constants/theme";
 import { useSegments } from 'expo-router';
-import { useTranslation } from 'react-i18next';
+import {AppState} from "react-native";
+import {useEffect} from "react";
+import { useQueryClient} from "@tanstack/react-query";
+import {useTranslation} from "react-i18next";
+import {QUERY_KEYS} from "@/constants/constant";
 export default function AppLayout() {
     const segments = useSegments();
     const { t } = useTranslation();
 
     const isChildScreen = segments.length > 2;
+    const queryClient = useQueryClient();
+    useEffect(() => {
+        const sub = AppState.addEventListener("change", (state) => {
+            if (state === "active") {
+                queryClient.invalidateQueries({
+                    queryKey: [QUERY_KEYS.CONVERSATIONS],
+                });
+            }
+        });
+
+        return () => sub.remove();
+    }, []);
+
     return (
         <Tabs>
             <TabSlot />

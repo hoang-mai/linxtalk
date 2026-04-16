@@ -22,4 +22,17 @@ public class FriendMapper {
                 .updatedAt(friend.getUpdatedAt())
                 .build();
     }
+    public FriendResponse toFriendResponse(Friend friend, Boolean isOnline){
+        if (friend == null) {
+            return null;
+        }
+        return FriendResponse.builder()
+                .id(friend.getFriendId())
+                .displayName(friend.getDisplayName())
+                .avatarUrl(friend.getAvatarUrl())
+                .isOnline(isOnline)
+                .createdAt(friend.getCreatedAt())
+                .updatedAt(friend.getUpdatedAt())
+                .build();
+    }
 }

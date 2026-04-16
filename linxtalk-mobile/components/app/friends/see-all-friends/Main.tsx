@@ -1,9 +1,9 @@
 import {FlatList, Pressable, ScrollView, Text, View, StyleSheet} from "react-native";
 import {useInfiniteQuery} from "@tanstack/react-query";
 import {get} from "@/services/axios";
-import {FRIEND, FRIEND_REQUEST, USER} from "@/constants/api";
+import {FRIEND} from "@/constants/api";
 import {QUERY_KEYS} from "@/constants/constant";
-import {FriendRequestResponse, FriendResponse} from "@/constants/type";
+import {FriendResponse} from "@/constants/type";
 import {useToastStore} from "@/store/toast-store";
 import Skeleton from "@/library/Skeleton";
 import {formatRelativeTime} from "@/utils/fn-common";
@@ -27,8 +27,8 @@ export default function Main() {
         sortDir: null,
     });
 
-    const {data, isLoading, fetchNextPage, isFetchingNextPage} = useInfiniteQuery({
-        queryKey: [QUERY_KEYS.FRIENDS_SEE_ALL, sortConfig],
+    const {data, isLoading, fetchNextPage, isFetchingNextPage, hasNextPage} = useInfiniteQuery({
+        queryKey: [QUERY_KEYS.FRIENDS_SEE_ALL, sortConfig.sortDir, sortConfig.sortBy],
         staleTime: 30 * 1000,
         initialPageParam: 0,
         queryFn: ({pageParam}) => {
@@ -43,12 +43,17 @@ export default function Main() {
                     throw error;
                 });
         },
-        getNextPageParam: (lastPage) => (lastPage?.hasNext ? lastPage.pageNumber + 1 : undefined),
+        getNextPageParam: (lastPage) => {
+            if (lastPage?.hasNext) {
+                return lastPage.pageNumber + 1;
+            }
+            return undefined;
+        },
     });
 
     useEffect(() => {
         return () => {
-            queryClient.setQueryData([QUERY_KEYS.FRIENDS_SEE_ALL], (oldData: any) => {
+            queryClient.setQueriesData({ queryKey: [QUERY_KEYS.FRIENDS_SEE_ALL] }, (oldData: any) => {
                 if (!oldData?.pages || !oldData?.pageParams) return oldData;
                 return {
                     ...oldData,
@@ -58,7 +63,6 @@ export default function Main() {
             });
         };
     }, []);
-
     return (
         <>
             {isLoading ? (
@@ -126,7 +130,11 @@ export default function Main() {
                             </View>
                         </View>
                     )}
-                    onEndReached={() => fetchNextPage()}
+                    onEndReached={() => {
+                        if (hasNextPage && !isFetchingNextPage) {
+                            fetchNextPage();
+                        }
+                    }}
                     onEndReachedThreshold={0.5}
                     ListHeaderComponent={
                         <View className={"flex-row items-center justify-between"}>
@@ -143,10 +151,10 @@ export default function Main() {
                                         children: <SortOptionsSheet currentSort={sortConfig} onSelect={setSortConfig}/>,
                                     })
                                 }
-                                className="items-center justify-center flex-row gap-2 bg-grey-50 dark:bg-grey-900 border border-grey-200 dark:border-grey-800 rounded-full px-2 py-1">
-                                <Icon size={15} name="funnel" color={Colors.grey[500]}
-                                      darkColor={Colors.grey[100]}/>
-                                <Text className="text-sm text-grey-900 dark:text-grey-100">{t('friends.sortBy')}</Text>
+                                className="items-center justify-center flex-row gap-2 bg-white dark:bg-background-dark border border-grey-200 dark:border-grey-800 rounded-full px-2.5 py-1">
+                                <Icon size={15} name="funnel" color={Colors.primary[500]}
+                                      />
+                                <Text className="text-sm text-primary-500">{t('friends.sortBy')}</Text>
                             </Pressable>
                         </View>
                     }

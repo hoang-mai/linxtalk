@@ -147,6 +147,13 @@
         "online": "Online",
         "offline": "Offline"
     },
+    "conversations": {
+        "recentChats": "Trò chuyện gần đây",
+        "suggestedFriends": "Gợi ý bạn bè",
+        "noMessage": "Gửi lời chào để bắt đầu trò chuyện!",
+        "startChatting": "Hay gửi tin nhắn đầu tiên cho {{name}}",
+        "noConversationsFound": "Không tìm thấy cuộc trò chuyện nào"
+    },
     "time": {
         "justNow": "vừa xong",
         "minuteAgo": "{{count}} phút trước",

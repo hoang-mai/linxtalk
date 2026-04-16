@@ -82,11 +82,11 @@ export default function Main() {
             }
         }, 
         onSuccess:(_, variables) => {
-            let keys: string[] = [QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL];
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL] });
             if(variables.data.status === "ACCEPTED") {
-                keys.push(QUERY_KEYS.FRIENDS_SEE_ALL);
+                queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FRIENDS_SEE_ALL] , exact: false});
             }
-            queryClient.invalidateQueries({ queryKey: keys });
+
         }
     });
 
@@ -248,4 +248,3 @@ const styles = StyleSheet.create({
         elevation: 4,
     }
   })
-    

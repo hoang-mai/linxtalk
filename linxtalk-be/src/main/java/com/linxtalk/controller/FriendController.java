@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = Constant.FRIEND)
 @RequiredArgsConstructor
@@ -33,6 +35,21 @@ public class FriendController {
                 .status(HttpStatus.OK.value())
                 .message(MessageSuccess.GET_FRIENDS_SUCCESS)
                 .data(friendResponse)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/online")
+    public ResponseEntity<BaseResponse<List<FriendResponse>>> getOnlineFriends(
+            @RequestParam(required = false, defaultValue = "0") int pageNo,
+            @RequestParam(required = false, defaultValue = "100") int pageSize,
+            @RequestParam(required = false, defaultValue = "20") int pageSizeOnline
+    ) {
+        List<FriendResponse> onlineFriends = friendService.getOnlineFriends(pageNo, pageSize, pageSizeOnline);
+        BaseResponse<List<FriendResponse>> response = BaseResponse.<List<FriendResponse>>builder()
+                .status(HttpStatus.OK.value())
+                .message(MessageSuccess.GET_ONLINE_FRIENDS_SUCCESS)
+                .data(onlineFriends)
                 .build();
         return ResponseEntity.ok(response);
     }

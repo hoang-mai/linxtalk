@@ -40,6 +40,10 @@ public class Friend {
     @Builder.Default
     private Boolean hasChatted = false;
 
+    @Builder.Default
+    @Indexed
+    private Integer interactionScore = 0;
+
     @CreatedDate
     private Instant createdAt;
 

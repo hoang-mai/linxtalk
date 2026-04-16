@@ -20,7 +20,8 @@ export default function Main() {
         data, 
         isLoading, 
         fetchNextPage, 
-        isFetchingNextPage
+        isFetchingNextPage,
+        hasNextPage
     } = useInfiniteQuery({
         queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS_SEE_ALL],
         staleTime: 30 * 1000,
@@ -98,11 +99,11 @@ export default function Main() {
             }
         },
         onSuccess:(_, variables) => {
-            let keys: string[] = [QUERY_KEYS.INCOMING_FRIEND_REQUESTS];
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.INCOMING_FRIEND_REQUESTS] });
             if(variables.data.status === "ACCEPTED") {
-                keys.push(QUERY_KEYS.FRIENDS_SEE_ALL);
+                queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FRIENDS_SEE_ALL] , exact: false});
             }
-            queryClient.invalidateQueries({ queryKey: keys });
+
         }
 
     });
@@ -168,7 +169,11 @@ export default function Main() {
                     </View>
                 )}
                 keyExtractor={(item) => item.id}
-                onEndReached={() => fetchNextPage()}
+                onEndReached={() => {
+                    if (hasNextPage && !isFetchingNextPage) {
+                        fetchNextPage();
+                    }
+                }}
                 onEndReachedThreshold={0.5}
                 ListFooterComponent={
                     isFetchingNextPage ? (

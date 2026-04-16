@@ -62,8 +62,31 @@ public class FriendService {
                 .totalElements(friends.getTotalElements())
                 .pageNumber(friends.getNumber())
                 .totalPages(friends.getTotalPages())
+                .hasNext(friends.hasNext())
+                .hasPrevious(friends.hasPrevious())
                 .data(content)
                 .build();
+    }
+
+    public List<FriendResponse> getOnlineFriends(int pageNo, int pageSize, int pageSizeOnline) {
+        String currentUserId = FnCommon.getUserId();
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("interactionScore").descending());
+        Page<Friend> friends = friendRepositoryCustom.getFriends(currentUserId, null, pageable);
+
+        List<String> friendIds = friends.getContent().stream().map(Friend::getFriendId).collect(Collectors.toList());
+        Map<String, Boolean> onlineStatuses = presenceService.getOnlineStatuses(friendIds);
+
+        List<Friend> onlineFriends = friends.getContent().stream()
+                .filter(friend -> onlineStatuses.getOrDefault(friend.getFriendId(), false))
+                .limit(pageSizeOnline)
+                .toList();
+
+
+        return onlineFriends.stream()
+                .map(friend -> friendMapper.toFriendResponse(friend, true))
+                .toList();
+
     }
 
 }

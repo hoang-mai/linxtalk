@@ -19,8 +19,11 @@ export const THEMES = [
 export const QUERY_KEYS = {
     PROFILE: "profile",
     FRIENDS: "friends",
+    FRIENDS_ONLINE: "friends-online",
+    FRIENDS_NO_CHAT: "friends-no-chat",
     FRIENDS_SEE_ALL: "friends-see-all",
     INCOMING_FRIEND_REQUESTS: "incoming-friend-requests",
     INCOMING_FRIEND_REQUESTS_SEE_ALL: "incoming-friend-requests-see-all",
     SEARCH_FRIENDS: "search-friends",
+    CONVERSATIONS: "conversations",
 };

@@ -12,3 +12,9 @@ export enum MessageType {
   LINK = "LINK",
   OTHER = "OTHER",
 }
+
+export enum ConversationType {
+  PRIVATE = "PRIVATE",
+  GROUP = "GROUP",
+  CHANNEL = "CHANNEL",
+}

@@ -12,7 +12,7 @@ public class Constant {
 
     public static final String FRIEND_REQUEST = REQUEST_MAPPING + "/friend-request";
 
-    public static final String FRIEND = REQUEST_MAPPING + "/friends";
+    public static final String FRIEND = REQUEST_MAPPING + "/friend";
 
     public static final int MAX_ACCOUNT_PER_DEVICE = 3;
 

@@ -1,4 +1,4 @@
-import { MessageType } from "./enum";
+import { ConversationType, MessageType } from "./enum";
 
 export interface AuthResponse {
   accessToken: string;
@@ -129,4 +129,25 @@ export interface PrivateMessageRequest {
   chatId?: string;
   messageContent: string;
   messageType: MessageType;
+}
+
+export interface ConversationResponse {
+  id: string;
+  type: ConversationType;
+  name: string;
+  avatarUrl: string | null;
+  lastMessage: LastMessageResponse | null;
+  unreadCount: number;
+  isPinned: boolean;
+  isMuted: boolean;
+  updatedAt: string;
+}
+
+export interface LastMessageResponse {
+  messageId: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  type: MessageType;
+  sentAt: string;
 }

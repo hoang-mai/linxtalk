@@ -10,10 +10,13 @@ import org.springframework.data.mongodb.repository.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ConversationMemberRepository extends MongoRepository<ConversationMember, String> {
     Page<ConversationMember> findByUserIdAndIsActiveTrue(String userId, Pageable pageable);
+
+    Optional<ConversationMember> findByConversationIdAndUserIdAndIsActiveTrue(String conversationId, String userId);
 
     @Query("{ 'userId' : ?0 }")
     @Update("{ '$set' : { 'displayName' : ?1, 'avatarUrl' : ?2 } }")

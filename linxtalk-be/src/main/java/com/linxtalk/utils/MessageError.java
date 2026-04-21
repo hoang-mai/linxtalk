@@ -14,4 +14,8 @@ public class MessageError {
     public static final String FRIEND_REQUEST_SELF_NOT_ALLOWED = "friend.request.self.not.allowed";
     public static final String FRIEND_REQUEST_NOT_FOUND = "friend.request.not.found";
     public static final String FRIEND_REQUEST_STATUS_INVALID = "friend.request.status.invalid";
+    public static final String CONVERSATION_TYPE_INVALID = "conversation.type.invalid";
+    public static final String CONVERSATION_NAME_REQUIRED = "conversation.name.required";
+    public static final String CONVERSATION_PARTICIPANTS_INVALID = "conversation.participants.invalid";
+    public static final String CONVERSATION_MEMBER_NOT_FOUND = "conversation.member.not.found";
 }

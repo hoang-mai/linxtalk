@@ -28,4 +28,6 @@ public class Constant {
 
     public static final String CONVERSATION = REQUEST_MAPPING + "/conversations";
 
+    public static final String CONVERSATION_MEMBER = REQUEST_MAPPING + "/conversation-members";
+
 }

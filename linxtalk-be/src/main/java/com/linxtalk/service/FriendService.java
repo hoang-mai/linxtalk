@@ -10,6 +10,7 @@ import com.linxtalk.mapper.UserMapper;
 import com.linxtalk.repository.ConversationMemberRepository;
 import com.linxtalk.repository.FriendRepository;
 import com.linxtalk.repository.UserRepository;
+import com.linxtalk.repository.custom.ConversationMemberRepositoryCustom;
 import com.linxtalk.repository.custom.FriendRepositoryCustom;
 import com.linxtalk.utils.FnCommon;
 import com.linxtalk.utils.PageResponse;
@@ -68,10 +69,17 @@ public class FriendService {
                 .build();
     }
 
+    /**
+     * Get list Online Friend
+     * @param pageNo Page which user want to get
+     * @param pageSize Amount of friend of user
+     * @param pageSizeOnline Amount of online friend which user want to get
+     * @return {@code List<FriendResponse>}
+     */
     public List<FriendResponse> getOnlineFriends(int pageNo, int pageSize, int pageSizeOnline) {
         String currentUserId = FnCommon.getUserId();
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("interactionScore").descending());
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("interactionScore").descending().and(Sort.by("createdAt").descending()));
         Page<Friend> friends = friendRepositoryCustom.getFriends(currentUserId, null, pageable);
 
         List<String> friendIds = friends.getContent().stream().map(Friend::getFriendId).collect(Collectors.toList());

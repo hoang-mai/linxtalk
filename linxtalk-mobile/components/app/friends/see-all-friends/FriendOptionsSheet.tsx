@@ -35,9 +35,9 @@ export default function FriendOptionsSheet({friendResponse}:FriendProps) {
     ];
 
     return (
-        <View className=" rounded-t-3xl">
+        <View className="">
             {/* Profile Header */}
-            <View className="p-4">
+            <View className="p-2">
                 <View className="flex-row items-center gap-4">
                     <View className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 overflow-hidden flex items-center justify-center">
                         {friendResponse.avatarUrl ? (

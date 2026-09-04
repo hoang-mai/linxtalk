@@ -124,6 +124,13 @@ export interface UpdateFriendRequestStatusRequest {
   status: "PENDING" | "ACCEPTED" | "REJECTED" | "CANCELLED";
 }
 
+export interface UpdateConversationMemberRequest {
+  isPinned?: boolean;
+  isMuted?: boolean;
+  muteUntil?: string | null;
+  isArchived?: boolean;
+}
+
 export interface PrivateMessageRequest {
   receiverId: string;
   chatId?: string;

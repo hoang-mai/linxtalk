@@ -1,4 +1,4 @@
-import { SectionList, Pressable, ScrollView, Text, View, StyleSheet, useColorScheme } from "react-native";
+import { SectionList, Pressable, ScrollView, Text, View, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/constant";
@@ -15,12 +15,22 @@ import { Image } from "expo-image";
 import Icon from "@/library/Icon";
 import { Colors } from "@/constants/theme";
 import { useRouter } from "expo-router";
+import { useBottomSheetStore } from "@/store/bottom-sheet-store";
+import FriendOptionsSheet from "@/components/app/friends/see-all-friends/FriendOptionsSheet";
+import ConversationOptionsSheet from "@/components/app/ConversationOptionsSheet";
+
+type Item = ConversationResponse | FriendResponse;
+type SectionData = {
+  type: 'CONVERSATION' | 'FRIEND';
+  data: Item[];
+}
 
 export default function Main() {
   const { showToast } = useToastStore();
   const { t } = useTranslation();
   const isDark = useColorScheme() === "dark";
   const router = useRouter();
+  const { showBottomSheet } = useBottomSheetStore();
 
   // Query 1: Conversations
   const {
@@ -90,7 +100,7 @@ export default function Main() {
     queryKey: [QUERY_KEYS.FRIENDS_ONLINE],
     staleTime: 60 * 1000,
     queryFn: () => {
-      return get<BaseResponse<PageResponse<FriendResponse>>>(`${FRIEND}/online`)
+      return get<BaseResponse<FriendResponse[]>>(`${FRIEND}/online`)
         .then((res) => res.data.data)
         .catch((error: Error) => {
           showToast({ message: error.message, type: "error" });
@@ -109,7 +119,7 @@ export default function Main() {
           pageParams: oldData.pageParams.slice(0, 2),
         };
       });
-      queryClient.setQueriesData({ queryKey: [QUERY_KEYS.FRIENDS, "suggested"] }, (oldData: any) => {
+      queryClient.setQueriesData({ queryKey: [QUERY_KEYS.FRIENDS_NO_CHAT] }, (oldData: any) => {
         if (!oldData?.pages || !oldData?.pageParams) return oldData;
         return {
           ...oldData,
@@ -121,7 +131,7 @@ export default function Main() {
   }, []);
 
   const sections = useMemo(() => {
-    const result: any[] = [];
+    const result: SectionData[] = [];
 
     const conversations = conversationData?.pages.flatMap(page => page?.data).filter(Boolean) || [];
     if (conversations.length > 0) {
@@ -155,14 +165,14 @@ export default function Main() {
   return (
     <SafeAreaView className="flex-1 px-5  bg-white dark:bg-background-dark">
       <SectionList
-        sections={isGlobalLoading ? [] : sections}
+        sections={sections}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 100, gap: 16 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
         stickySectionHeadersEnabled={false}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
-          <>
-            <View className="flex-row items-center justify-between mb-4">
+          <View className="gap-4">
+            <View className="flex-row items-center justify-between ">
               <Image
                 source={require("@/assets/images/linxtalk-logo.svg")}
                 style={{ width: 120, height: 40 }}
@@ -185,7 +195,7 @@ export default function Main() {
             </Pressable>
 
             {/* Online Friends Horizontal List */}
-            <View className="mt-6">
+            <View className="">
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -199,8 +209,16 @@ export default function Main() {
                     </View>
                   ))
                 ) : (
-                  onlineFriends?.data.map((friend) => (
-                    <Pressable key={friend.id} className="items-center gap-2 w-16">
+                  onlineFriends?.map((friend) => (
+                    <Pressable 
+                      key={friend.id} 
+                      className="items-center gap-2 w-16"
+                      onLongPress={() => {
+                        showBottomSheet({
+                          children: <FriendOptionsSheet friendResponse={friend} />
+                        });
+                      }}
+                    >
                       <View className="relative">
                         <View className="w-14 h-14 rounded-full bg-grey-200 overflow-hidden">
                           <Image
@@ -220,7 +238,7 @@ export default function Main() {
                 )}
               </ScrollView>
             </View>
-          </>
+          </View>
         }
         ListEmptyComponent={
           isGlobalLoading ? (
@@ -248,7 +266,15 @@ export default function Main() {
           if (section.type === 'CONVERSATION') {
             const conversation = item as ConversationResponse;
             return (
-              <Pressable className="flex-row items-center gap-4 py-2">
+              <Pressable 
+                className="flex-row items-center gap-4 py-2"
+                delayLongPress={300}
+                onLongPress={() => {
+                  showBottomSheet({
+                    children: <ConversationOptionsSheet type="CONVERSATION" conversation={conversation} />
+                  });
+                }}
+              >
                 <View className="relative">
                   <View className="w-16 h-16 rounded-full bg-grey-200 overflow-hidden">
                     <Image
@@ -284,7 +310,20 @@ export default function Main() {
           } else {
             const friend = item as FriendResponse;
             return (
-              <Pressable className="flex-row items-center gap-4 mb-2">
+              <Pressable
+                className="flex-row items-center gap-4 p-2 rounded-xl"
+                android_ripple={{
+                  color: isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.15)",
+                  borderless: false,
+                  foreground: true
+                }}
+                delayLongPress={300}
+                onLongPress={() => {
+                  showBottomSheet({
+                    children: <ConversationOptionsSheet type="FRIEND" conversation={friend} />
+                  });
+                }}
+              >
                 <View className="relative">
                   <View className="w-16 h-16 rounded-full bg-grey-200 overflow-hidden">
                     <Image
@@ -331,5 +370,3 @@ export default function Main() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({});

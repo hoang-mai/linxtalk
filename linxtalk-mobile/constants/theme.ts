@@ -1,4 +1,6 @@
 
+import type { Theme } from "@react-navigation/native";
+
 type ColorShades = {
     50: string;
     100: string;
@@ -71,8 +73,6 @@ export const Colors = {
     grey: greyColor,
     toast: toastColor,
 };
-
-import type { Theme } from "@react-navigation/native";
 
 export const LightTheme: Theme = {
     dark: false,

@@ -24,7 +24,7 @@ import { useRef } from "react";
 import { useToastStore } from "@/store/toast-store";
 import { useSavedAccountStore } from "@/store/saved-account-store";
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from '@react-native-google-signin/google-signin';
-import { LoginWithGoogleRequest } from "../../../constants/type";
+import { LoginWithGoogleRequest } from "@/constants/type";
 import { getDeviceId } from "@/utils/fn-common";
 import { useLoadingStore } from "@/store/loading-store";
 import { useAccountStore } from "@/store/account-store";
